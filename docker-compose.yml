@@ -1,0 +1,40 @@
+# Use root/example as user/password credentials
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql
+    # NOTE: use of "mysql_native_password" is not recommended: https://dev.mysql.com/doc/refman/8.0/en/upgrading-from-previous-series.html#upgrade-caching-sha2-password
+    # (this is just an example, not intended to be a production configuration)
+    command: --default-authentication-plugin=mysql_native_password
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      TZ: Asia/Shanghai
+      SET_CONTAINER_TIMEZONE: true
+      CONTAINER_TIMEZONE: Asia/Shanghai
+      MYSQL_DATABASE: cms
+      MYSQL_USER: hqk
+      MYSQL_PASSWORD: hqk123456
+    ports:
+      - 3306:3306
+    networks:
+      - mynetwork
+  adminer:
+    image: adminer
+    restart: always
+    container_name: adminer
+    environment:
+      ADMINER_DEFAULT_SERVER: mysql
+    networks:
+      - mynetwork
+
+    ports:
+      - 8080:8080
+volumes:
+  node_modules:
+networks:
+  mynetwork:
+    name: mynetwork
+    driver: bridge
