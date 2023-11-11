@@ -6,10 +6,56 @@
  * @FilePath: \cms\src\modules\users\users.controller.ts
  * @Description:
  */
-import { Controller } from '@nestjs/common';
-import { UsersService } from './users.service';
+import {
+	Body,
+	Controller,
+	Delete,
+	Get,
+	HttpCode,
+	HttpStatus,
+	Param,
+	Patch,
+	Post,
+} from "@nestjs/common";
+import { CreateUserDto } from "./dtos/create-user.dto";
+import { QueryUserDto } from "./dtos/query-user.dto";
+import { UpdateUserDto } from "./dtos/update-user.dto";
+import { UsersService } from "./users.service";
 
-@Controller('users')
+@Controller("users")
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+	constructor(private readonly usersService: UsersService) {}
+
+	/**
+	 * 用户注册
+	 * @param registerAccountDto 注册信息
+	 * @returns
+	 */
+	@Post()
+	@HttpCode(HttpStatus.OK)
+	register(@Body() createUserDto: CreateUserDto) {
+		return this.usersService.createUser(createUserDto);
+	}
+
+	@Get(":id")
+	findOne(@Param("id") id: string) {
+		return this.usersService.findUserById(+id);
+	}
+
+	@Post("list")
+	@HttpCode(HttpStatus.OK)
+	findAll(@Body() queryUserDto: QueryUserDto) {
+		return this.usersService.findAll(queryUserDto);
+	}
+
+	@Patch(":id")
+	update(@Param("id") id: string, @Body() updateUserDto: UpdateUserDto) {
+		return this.usersService.updateUser(+id, updateUserDto);
+	}
+
+	@Delete(":id")
+	@HttpCode(HttpStatus.OK)
+	remove(@Param("id") id: string) {
+		return this.usersService.remove(+id);
+	}
 }

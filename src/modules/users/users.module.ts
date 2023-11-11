@@ -6,15 +6,19 @@
  * @FilePath: \cms\src\modules\users\users.module.ts
  * @Description:
  */
-import { Module } from '@nestjs/common';
-import { UsersService } from './users.service';
-import { UsersController } from './users.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Users } from '@/shared/entities/Users.entity';
+import { Global, Module } from "@nestjs/common";
+import { UsersService } from "./users.service";
+import { UsersController } from "./users.controller";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { User } from "@/shared/entities/user.entity";
+import { RolesModule } from "../roles/roles.module";
+import { DepartmentModule } from "../department/department.module";
 
+@Global()
 @Module({
-  imports: [TypeOrmModule.forFeature([Users])],
-  controllers: [UsersController],
-  providers: [UsersService],
+	imports: [TypeOrmModule.forFeature([User]), RolesModule, DepartmentModule],
+	controllers: [UsersController],
+	providers: [UsersService],
+	exports: [UsersService, RolesModule, DepartmentModule],
 })
 export class UsersModule {}
