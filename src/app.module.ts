@@ -6,18 +6,28 @@
  * @FilePath: \cms\src\app.module.ts
  * @Description:
  */
-import { Module } from '@nestjs/common';
+import { Module } from "@nestjs/common";
 
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { AppController } from "./app.controller";
+import { AppService } from "./app.service";
 
-import { AuthModule } from './modules/auth/auth.module';
-import { UsersModule } from './modules/users/users.module';
-import { SharedModule } from './shared/shared.module';
+import { AuthModule } from "./modules/auth/auth.module";
+import { DepartmentModule } from "./modules/department/department.module";
+import { MenusModule } from "./modules/menus/menus.module";
+import { RolesModule } from "./modules/roles/roles.module";
+import { UsersModule } from "./modules/users/users.module";
+import { SharedModule } from "./shared/shared.module";
 
 @Module({
-  imports: [SharedModule, AuthModule, UsersModule],
-  controllers: [AppController],
-  providers: [AppService],
+	imports: [
+		SharedModule,
+		AuthModule,
+		UsersModule,
+		RolesModule,
+		MenusModule,
+		DepartmentModule,
+	],
+	controllers: [AppController],
+	providers: [AppService],
 })
 export class AppModule {}

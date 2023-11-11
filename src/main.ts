@@ -6,26 +6,31 @@
  * @FilePath: \cms\src\main.ts
  * @Description:
  */
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common/pipes';
-import { setupLogger } from './log';
-import { setupSwagger } from './swagger';
-import { ConfigService } from '@nestjs/config';
-import { EnvEnum } from './shared/enums/env.enum';
+import { ValidationPipe } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { NestFactory } from "@nestjs/core";
+import { AppModule } from "./app.module";
+import { setupLogger } from "./log";
+import { EnvEnum } from "./shared/enums/env.enum";
+import { setupSwagger } from "./swagger";
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    logger: setupLogger(),
-  });
+	const app = await NestFactory.create(AppModule, {
+		logger: setupLogger(),
+	});
 
-  //swagger
-  setupSwagger(app);
+	//swagger
+	setupSwagger(app);
 
-  app.setGlobalPrefix('/api/v1');
-  //全局验证管道
-  app.useGlobalPipes(new ValidationPipe());
-  const configService = app.get(ConfigService);
-  await app.listen(configService.get(EnvEnum.APP_PORT));
+	app.setGlobalPrefix("/api/v1");
+	//全局验证管道
+	app.useGlobalPipes(
+		new ValidationPipe({
+			whitelist: true,
+			transform: true,
+		}),
+	);
+	const configService = app.get(ConfigService);
+	await app.listen(configService.get(EnvEnum.APP_PORT));
 }
 bootstrap();
