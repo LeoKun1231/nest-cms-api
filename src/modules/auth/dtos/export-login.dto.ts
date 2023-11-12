@@ -6,16 +6,16 @@
  * @FilePath: \cms\src\modules\auth\dto\export-login.dto.ts
  * @Description:
  */
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty } from "@nestjs/swagger";
 
 export class ExportLoginDto {
-  @ApiProperty({
-    description: 'accessToken',
-  })
-  accessToken: string;
+	@ApiProperty({
+		description: "accessToken",
+	})
+	accessToken: string;
 
-  @ApiProperty({
-    description: 'refreshToken',
-  })
-  refreshToken: string;
+	@ApiProperty({
+		description: "refreshToken",
+	})
+	refreshToken: string;
 }

@@ -6,27 +6,39 @@
  * @FilePath: \cms\src\shared\guards\jwt-access.guard.ts
  * @Description:
  */
-import { StrategyEnum } from '@/shared/enums/strategy.enum';
+import { StrategyEnum } from "@/shared/enums/strategy.enum";
 import {
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { Observable } from 'rxjs';
+	ExecutionContext,
+	Injectable,
+	UnauthorizedException,
+} from "@nestjs/common";
+import { Reflector } from "@nestjs/core";
+import { AuthGuard } from "@nestjs/passport";
+import { Observable } from "rxjs";
+import { DecoratorEnum } from "../enums/decorator.enum";
 
 @Injectable()
 export class JwtAccessGuard extends AuthGuard(StrategyEnum.JWT_ACCESS) {
-  canActivate(
-    context: ExecutionContext,
-  ): boolean | Promise<boolean> | Observable<boolean> {
-    return super.canActivate(context);
-  }
+	constructor(private readonly reflector: Reflector) {
+		super();
+	}
 
-  handleRequest(err, user, info) {
-    if (err || !user) {
-      throw err || new UnauthorizedException(`${info}`);
-    }
-    return user;
-  }
+	canActivate(
+		context: ExecutionContext,
+	): boolean | Promise<boolean> | Observable<boolean> {
+		const isPublic = this.reflector.getAllAndOverride(DecoratorEnum.IS_PUBLIC, [
+			context.getHandler(),
+			context.getClass(),
+		]);
+		//如果是公共路由，直接放行 不进行jwt验证
+		if (isPublic) return true;
+		return super.canActivate(context);
+	}
+
+	handleRequest(err, user, info) {
+		if (err || !user) {
+			throw err || new UnauthorizedException(`${info}`);
+		}
+		return user;
+	}
 }
