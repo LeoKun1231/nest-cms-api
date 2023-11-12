@@ -12,6 +12,7 @@ import { connectionParams } from "../ormconfig";
 import loadEnvConfig from "./config/loadEnv.config";
 import { validationSchema } from "./config/validateEnv.config";
 import { AllExceptionsFilter } from "./filters/all-exceptions.filter";
+import { JwtAccessGuard } from "./guards/jwt-access.guard";
 import { PermissionAuthGuard } from "./guards/permission-auth.guard";
 import { TransformResultInterceptor } from "./interceptors/transform.interceptor";
 import { LoggerModule } from "./logger/logger.module";
@@ -43,6 +44,10 @@ const envFilePath = `.env.${process.env.NODE_ENV || `development`}`;
 		{
 			provide: APP_INTERCEPTOR,
 			useClass: TransformResultInterceptor,
+		},
+		{
+			provide: APP_GUARD,
+			useClass: JwtAccessGuard,
 		},
 		//全部权限守卫
 		{

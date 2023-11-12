@@ -19,6 +19,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { compare, hash } from "bcrypt";
 import { plainToClass, plainToInstance } from "class-transformer";
 import { Between, Like, QueryFailedError, Repository } from "typeorm";
+import { v4 as UUID } from "uuid";
 import { DepartmentService } from "../department/department.service";
 import { RolesService } from "../roles/roles.service";
 import { CreateUserDto } from "./dtos/create-user.dto";
@@ -118,6 +119,7 @@ export class UsersService {
 	 */
 	async updateUser(id: number, updateUserDto: UpdateUserDto) {
 		this.logger.log(`${this.updateUser.name} was called`);
+		this.judgeCanDo(id);
 		try {
 			const { departmentId, password, roleId, cellphone } = updateUserDto;
 			const user = this.usersRespository.create({
@@ -199,7 +201,6 @@ export class UsersService {
 			size,
 			updateAt,
 		} = queryUserDto;
-
 		try {
 			const [list, totalCount] = await this.usersRespository.findAndCount({
 				select: {
@@ -249,14 +250,32 @@ export class UsersService {
 	 */
 	async remove(id: number) {
 		this.logger.log(`${this.remove.name} was called`);
+		this.judgeCanDo(id);
 		try {
-			await this.usersRespository.findOne({
-				where: { id, isDelete: false },
-			});
+			const user = await this.findUserById(id);
+			await this.usersRespository.update(
+				{ id, isDelete: false },
+				{
+					isDelete: true,
+					name: "已删除" + "_" + user.name + "_" + UUID(),
+				},
+			);
+			return "删除用户成功~";
 		} catch (error) {
 			this.logger.error(error);
 			if (error.message) throw new BadRequestException(error.message);
 			throw new BadRequestException("删除用户失败");
+		}
+	}
+
+	/**
+	 * 判断是否可以操作
+	 * @param id
+	 * @returns
+	 */
+	judgeCanDo(id: number) {
+		if (id <= 6) {
+			throw new BadRequestException("系统用户不能操作");
 		}
 	}
 }

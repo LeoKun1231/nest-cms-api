@@ -9,6 +9,7 @@ import { Reflector } from "@nestjs/core";
 import { RequirePermissionOptions } from "../decorators/require-permission.decorator";
 import { DecoratorEnum } from "../enums/decorator.enum";
 import { PermissionEnum } from "../enums/permission.enum";
+import { JwtPayloadInterface } from "../interfaces/jwt-payload.interface";
 
 @Injectable()
 export class PermissionAuthGuard implements CanActivate {
@@ -30,13 +31,22 @@ export class PermissionAuthGuard implements CanActivate {
 			return true;
 		}
 
-		// const request = context.switchToHttp().getRequest();
-		//3.如果没有用户信息，直接返回false->表示不可以访问
-		// if (!request.user) return false;
+		const request = context.switchToHttp().getRequest();
 
-		//4.获取用户角色
-		const role = await this.roleService.findRoleWithMenuList(1);
-		//4.获取用户权限
+		const user = request.user as JwtPayloadInterface;
+		console.log(
+			"🚀 ~ file: permission-auth.guard.ts:37 ~ PermissionAuthGuard ~ canActivate ~ user:",
+			user,
+		);
+		// 3.如果没有用户信息，直接返回false->表示不可以访问
+		if (!user) return false;
+
+		// 4.如果是超级管理员，直接返回true->表示可以访问
+		if (user.roleId === 1) return true;
+
+		// 5.获取用户角色
+		const role = await this.roleService.findRoleWithMenuList(user.roleId);
+		// 6.获取用户权限
 		const userPermissions = role.menuList
 			.map((item) => {
 				if (item.permission !== "null" && item.permission) {
@@ -45,10 +55,10 @@ export class PermissionAuthGuard implements CanActivate {
 			})
 			.filter((item) => item);
 		const { permission: requirePermissions, logical } = permissionOptions;
-		// 5.如果用PermissionEnum.All 则直接放行
-		if (requirePermissions.includes(PermissionEnum.ALL)) return true;
+		// 7.如果用PermissionEnum.All 则直接放行
+		if (userPermissions.includes(PermissionEnum.ALL)) return true;
 
-		// 6.判断是否有权限
+		// 8.判断是否有权限
 		const hasPermission =
 			logical == "or"
 				? requirePermissions.some((item) => userPermissions.includes(item))
