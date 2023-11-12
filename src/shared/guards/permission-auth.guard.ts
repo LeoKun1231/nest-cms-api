@@ -1,8 +1,8 @@
 import { RolesService } from "@/modules/roles/roles.service";
 import {
-	BadRequestException,
 	CanActivate,
 	ExecutionContext,
+	ForbiddenException,
 	Injectable,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
@@ -65,7 +65,7 @@ export class PermissionAuthGuard implements CanActivate {
 				: requirePermissions.every((item) => userPermissions.includes(item));
 
 		if (!hasPermission) {
-			throw new BadRequestException("抱歉,没有权限~");
+			throw new ForbiddenException("抱歉,没有权限~");
 		}
 
 		return true;

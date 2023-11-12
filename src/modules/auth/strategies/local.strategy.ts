@@ -6,13 +6,13 @@
  * @FilePath: \cms\src\modules\auth\strategies\local.strategy.ts
  * @Description:
  */
-import { StrategyEnum } from "@/shared/enums/strategy.enum";
-import { Strategy } from "passport-local";
-import { AppLoggerSevice } from "@/shared/logger/logger.service";
-import { Request } from "express";
-import { PassportStrategy } from "@nestjs/passport";
 import { UsersService } from "@/modules/users/users.service";
+import { StrategyEnum } from "@/shared/enums/strategy.enum";
+import { AppLoggerSevice } from "@/shared/logger/logger.service";
 import { Injectable } from "@nestjs/common";
+import { PassportStrategy } from "@nestjs/passport";
+import { Request } from "express";
+import { Strategy } from "passport-local";
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(

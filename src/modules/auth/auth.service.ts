@@ -42,7 +42,16 @@ export class AuthService {
 		);
 
 		const roleId = user.roles[0].id;
-		return this.getAccessAndRefreshToken(user.id, user.name, roleId);
+		const { accessToken } = await this.getAccessAndRefreshToken(
+			user.id,
+			user.name,
+			roleId,
+		);
+		return {
+			id: user.id,
+			name: user.name,
+			token: accessToken,
+		};
 	}
 
 	/**

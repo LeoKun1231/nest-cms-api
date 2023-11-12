@@ -17,6 +17,9 @@ import { MenusModule } from "./modules/menus/menus.module";
 import { RolesModule } from "./modules/roles/roles.module";
 import { UsersModule } from "./modules/users/users.module";
 import { SharedModule } from "./shared/shared.module";
+import { GoodsInfoModule } from "./modules/goods-info/goods-info.module";
+import { GoodsCategoryModule } from "./modules/goods-category/goods-category.module";
+import { StoryModule } from "./modules/story/story.module";
 
 @Module({
 	imports: [
@@ -26,6 +29,9 @@ import { SharedModule } from "./shared/shared.module";
 		RolesModule,
 		MenusModule,
 		DepartmentModule,
+		GoodsInfoModule,
+		GoodsCategoryModule,
+		StoryModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],
