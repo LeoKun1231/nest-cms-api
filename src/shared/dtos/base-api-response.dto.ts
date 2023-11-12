@@ -6,41 +6,41 @@
  * @FilePath: \cms\src\shared\dtos\base-api-response.dto.ts
  * @Description:
  */
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty } from "@nestjs/swagger";
 
 export class BaseApiResponse<T> {
-  data: T; // Swagger Decorator is added in the extended class below, since that will override this one.
-  code: number;
-  message: string;
+	data: T; // Swagger Decorator is added in the extended class below, since that will override this one.
+	code: number;
+	message: string;
 }
 
 export function SwaggerBaseApiResponse<T>(type: T): typeof BaseApiResponse {
-  class ExtendedBaseApiResponse<T> extends BaseApiResponse<T> {
-    @ApiProperty({ type })
-    public data: T;
-    @ApiProperty({ type: Number })
-    public code: number;
-    @ApiProperty({ type: String })
-    public message: string;
-  }
+	class ExtendedBaseApiResponse<T> extends BaseApiResponse<T> {
+		@ApiProperty({ type })
+		public data: T;
+		@ApiProperty({ type: Number })
+		public code: number;
+		@ApiProperty({ type: String })
+		public message: string;
+	}
 
-  const isAnArray = Array.isArray(type) ? ' [ ] ' : '';
-  Object.defineProperty(ExtendedBaseApiResponse, 'name', {
-    value: `${isAnArray}`,
-  });
+	const isAnArray = Array.isArray(type) ? " [ ] " : "";
+	Object.defineProperty(ExtendedBaseApiResponse, "name", {
+		value: `${isAnArray}`,
+	});
 
-  return ExtendedBaseApiResponse;
+	return ExtendedBaseApiResponse;
 }
 
 export class BaseApiErrorResponse {
-  @ApiProperty({ type: Number })
-  public code: number;
+	@ApiProperty({ type: Number })
+	public code: number;
 
-  @ApiProperty({ type: String })
-  public message: string;
+	@ApiProperty({ type: String })
+	public message: string;
 
-  @ApiProperty({ type: String })
-  public path: string;
-  @ApiProperty({ type: String })
-  public timestamp: string;
+	@ApiProperty({ type: String })
+	public path: string;
+	@ApiProperty({ type: String })
+	public timestamp: string;
 }

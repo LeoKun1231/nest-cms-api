@@ -6,13 +6,13 @@
  * @FilePath: \cms\src\shared\decorators\get-current-user-id.decorator.ts
  * @Description:
  */
-import { ExecutionContext, createParamDecorator } from '@nestjs/common';
-import { Request } from 'express';
+import { ExecutionContext, createParamDecorator } from "@nestjs/common";
+import { Request } from "express";
 
 export const GetCurrentUserID = createParamDecorator(
-  (_: undefined, context: ExecutionContext) => {
-    const ctx = context.switchToHttp();
-    const req = ctx.getRequest<Request>();
-    return req.user?.['id'];
-  },
+	(_: undefined, context: ExecutionContext) => {
+		const ctx = context.switchToHttp();
+		const req = ctx.getRequest<Request>();
+		return req.user?.["id"];
+	},
 );

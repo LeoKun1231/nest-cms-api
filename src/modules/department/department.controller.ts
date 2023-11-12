@@ -1,3 +1,5 @@
+import { RequirePermission } from "@/shared/decorators/require-permission.decorator";
+import { PermissionEnum } from "@/shared/enums/permission.enum";
 import {
 	Body,
 	Controller,
@@ -20,24 +22,49 @@ import { UpdateDepartmentDto } from "./dto/update-department.dto";
 export class DepartmentController {
 	constructor(private readonly departmentService: DepartmentService) {}
 
+	/**
+	 * 创建部门
+	 * @param createDepartmentDto 创建信息
+	 * @returns
+	 */
 	@Post()
 	@HttpCode(HttpStatus.OK)
+	@RequirePermission(PermissionEnum.SYSTEM_DEPARTMENT_CREATE)
 	create(@Body() createDepartmentDto: CreateDepartmentDto) {
 		return this.departmentService.create(createDepartmentDto);
 	}
 
+	/**
+	 * 查询部门列表
+	 * @param queryDepartmentDto 查询条件
+	 * @returns
+	 */
 	@Post("list")
 	@HttpCode(HttpStatus.OK)
+	@RequirePermission(PermissionEnum.SYSTEM_DEPARTMENT_QUERY)
 	findAll(@Body() queryDepartmentDto: QueryDepartmentDto) {
 		return this.departmentService.findAll(queryDepartmentDto);
 	}
 
+	/**
+	 * 查询部门
+	 * @param id 部门id
+	 * @returns
+	 */
 	@Get(":id")
+	@RequirePermission(PermissionEnum.SYSTEM_DEPARTMENT_QUERY)
 	findOne(@Param("id") id: string) {
 		return this.departmentService.findOne(+id);
 	}
 
+	/**
+	 * 更新部门
+	 * @param id 部门id
+	 * @param updateDepartmentDto 更新信息
+	 * @returns
+	 */
 	@Patch(":id")
+	@RequirePermission(PermissionEnum.SYSTEM_DEPARTMENT_UPDATE)
 	update(
 		@Param("id") id: string,
 		@Body() updateDepartmentDto: UpdateDepartmentDto,
@@ -45,7 +72,13 @@ export class DepartmentController {
 		return this.departmentService.update(+id, updateDepartmentDto);
 	}
 
+	/**
+	 * 删除部门
+	 * @param id 部门id
+	 * @returns
+	 */
 	@Delete(":id")
+	@RequirePermission(PermissionEnum.SYSTEM_DEPARTMENT_DELETE)
 	remove(@Param("id") id: string) {
 		return this.departmentService.remove(+id);
 	}

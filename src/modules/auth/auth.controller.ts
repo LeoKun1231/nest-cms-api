@@ -7,6 +7,7 @@
  * @Description:
  */
 import { GetCurrentUserID } from "@/shared/decorators/get-current-user-id.decorator";
+import { Public } from "@/shared/decorators/public.decorator";
 import {
 	BaseApiErrorResponse,
 	SwaggerBaseApiResponse,
@@ -60,6 +61,7 @@ export class AuthController {
 		type: BaseApiErrorResponse,
 	})
 	@HttpCode(HttpStatus.OK)
+	@Public()
 	@UseInterceptors(ClassSerializerInterceptor)
 	login(@Body() loginAccountDto: LoginAccountDto) {
 		return this.authService.login(loginAccountDto);
@@ -74,6 +76,7 @@ export class AuthController {
 
 	@Post("/refresh-token")
 	@UseGuards(JwtRefreshGuard)
+	@HttpCode(HttpStatus.OK)
 	refreshToken(@GetCurrentUserID() id: string) {
 		return this.authService.refreshToken(+id);
 	}

@@ -132,6 +132,7 @@ export class DepartmentService {
 	 */
 	async update(id: number, updateDepartmentDto: UpdateDepartmentDto) {
 		this.logger.log(`${this.update.name} was called`);
+		this.judgeCanDo(id);
 
 		try {
 			await this.departmentRepository.update(
@@ -163,6 +164,7 @@ export class DepartmentService {
 	 */
 	async remove(id: number) {
 		this.logger.log(`${this.remove.name} was called`);
+		this.judgeCanDo(id);
 		try {
 			const department = await this.findOne(id);
 			await this.departmentRepository.update(
@@ -177,6 +179,17 @@ export class DepartmentService {
 			this.logger.error(error);
 			if (error.message) throw new BadRequestException(error.message);
 			throw new BadRequestException("删除部门失败");
+		}
+	}
+
+	/**
+	 * 判断是否可以操作
+	 * @param id
+	 * @returns
+	 */
+	judgeCanDo(id: number) {
+		if (id <= 5) {
+			throw new BadRequestException("系统部门不能操作");
 		}
 	}
 }

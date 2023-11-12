@@ -111,6 +111,7 @@ export class MenusService {
 	 */
 	async update(id: number, updateMenuDto: UpdateMenuDto) {
 		this.logger.log(`${this.update.name} was called`);
+		this.judgeCanDo(id);
 		try {
 			await this.menuRepository.update(
 				{
@@ -139,6 +140,7 @@ export class MenusService {
 	 */
 	async remove(id: number) {
 		this.logger.log(`${this.remove.name} was called`);
+		this.judgeCanDo(id);
 		try {
 			const menu = await this.findOne(id);
 			await this.menuRepository.update(
@@ -174,6 +176,17 @@ export class MenusService {
 		} catch (error) {
 			this.logger.error(error);
 			throw new BadRequestException("查找菜单失败");
+		}
+	}
+
+	/**
+	 * 判断是否可以操作
+	 * @param id
+	 * @returns
+	 */
+	judgeCanDo(id: number) {
+		if (id <= 44) {
+			throw new BadRequestException("系统菜单不能操作");
 		}
 	}
 }

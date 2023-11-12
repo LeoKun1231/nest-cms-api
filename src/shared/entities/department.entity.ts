@@ -15,7 +15,7 @@ export class Department extends BaseEntity {
 	@Column({ length: 50, comment: "部门名称", unique: true })
 	name: string;
 
-	@Column({ length: 50, comment: "部门领导" })
+	@Column({ length: 50, comment: "部门领导", nullable: true })
 	leader: string;
 
 	@TreeParent()
