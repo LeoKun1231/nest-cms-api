@@ -180,13 +180,14 @@ export class RolesService {
 			}
 
 			//3.更新角色
-			const role = await this.findOne(id);
-			await this.roleRepository.save({
-				...role,
-				intro,
-				name,
-				menuList,
-			});
+			await this.roleRepository.update(
+				{ id, isDelete: false },
+				{
+					intro,
+					name,
+					menuList,
+				},
+			);
 			return "更新角色成功~";
 		} catch (error) {
 			this.logger.error(error);

@@ -58,6 +58,10 @@ To run the server without Docker we need this pre-requisite:
 Commands:
 
 ```bash
+
+# recommended to run this command,it is faster than tsc
+$ pnpm start:swc
+
 # development
 $ pnpm start
 
