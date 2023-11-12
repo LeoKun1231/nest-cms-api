@@ -6,17 +6,17 @@
  * @FilePath: \cms\src\swagger.ts
  * @Description:
  */
-import { INestApplication } from '@nestjs/common';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { INestApplication } from "@nestjs/common";
+import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 
 export function setupSwagger(app: INestApplication<any>) {
-  const options = new DocumentBuilder()
-    .addBearerAuth()
-    .setTitle('CMS_BACKEND')
-    .setDescription('The CMS_BACKEND API description')
-    .setVersion('1.0')
-    .addServer('/api/v1')
-    .build();
-  const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup('swagger', app, document);
+	const options = new DocumentBuilder()
+		.addBearerAuth()
+		.setTitle("CMS_BACKEND")
+		.setDescription("The CMS_BACKEND API description")
+		.setVersion("1.0")
+		.addServer("/api/v1")
+		.build();
+	const document = SwaggerModule.createDocument(app, options);
+	SwaggerModule.setup("swagger", app, document);
 }
