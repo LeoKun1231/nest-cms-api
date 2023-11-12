@@ -166,6 +166,8 @@ export class RolesService {
 	 */
 	async update(id: number, updateRoleDto: UpdateRoleDto) {
 		this.logger.log(`${this.update.name} was called`);
+		this.judgeCanDo(id);
+
 		try {
 			const { menuList: menuIdList, intro, name } = updateRoleDto;
 			//1.判断是否有菜单
@@ -205,6 +207,7 @@ export class RolesService {
 	 */
 	async remove(id: number) {
 		this.logger.log(`${this.remove.name} was called`);
+		this.judgeCanDo(id);
 		try {
 			const role = await this.findOne(id);
 			await this.roleRepository.update(
@@ -219,6 +222,17 @@ export class RolesService {
 			this.logger.error(error);
 			if (error.message) throw new BadRequestException(error.message);
 			throw new BadRequestException("删除角色失败");
+		}
+	}
+
+	/**
+	 * 判断是否可以操作
+	 * @param id
+	 * @returns
+	 */
+	judgeCanDo(id: number) {
+		if (id <= 5) {
+			throw new BadRequestException("系统角色不能操作");
 		}
 	}
 }

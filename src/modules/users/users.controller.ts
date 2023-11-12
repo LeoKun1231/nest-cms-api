@@ -6,6 +6,8 @@
  * @FilePath: \cms\src\modules\users\users.controller.ts
  * @Description:
  */
+import { RequirePermission } from "@/shared/decorators/require-permission.decorator";
+import { PermissionEnum } from "@/shared/enums/permission.enum";
 import {
 	Body,
 	Controller,
@@ -33,28 +35,54 @@ export class UsersController {
 	 */
 	@Post()
 	@HttpCode(HttpStatus.OK)
+	@RequirePermission(PermissionEnum.SYSTEM_USER_CREATE)
 	register(@Body() createUserDto: CreateUserDto) {
 		return this.usersService.createUser(createUserDto);
 	}
 
+	/**
+	 * 查询用户
+	 * @param id 用户id
+	 * @returns
+	 */
 	@Get(":id")
+	@RequirePermission(PermissionEnum.SYSTEM_USER_QUERY)
 	findOne(@Param("id") id: string) {
 		return this.usersService.findUserById(+id);
 	}
 
+	/**
+	 * 查询用户列表
+	 * @param queryUserDto 查询条件
+	 * @returns
+	 */
 	@Post("list")
 	@HttpCode(HttpStatus.OK)
+	@RequirePermission(PermissionEnum.SYSTEM_USER_QUERY)
 	findAll(@Body() queryUserDto: QueryUserDto) {
 		return this.usersService.findAll(queryUserDto);
 	}
 
+	/**
+	 * 更新用户
+	 * @param id 用户id
+	 * @param updateUserDto 更新信息
+	 * @returns
+	 */
 	@Patch(":id")
+	@RequirePermission(PermissionEnum.SYSTEM_USER_UPDATE)
 	update(@Param("id") id: string, @Body() updateUserDto: UpdateUserDto) {
 		return this.usersService.updateUser(+id, updateUserDto);
 	}
 
+	/**
+	 * 删除用户
+	 * @param id 用户id
+	 * @returns
+	 */
 	@Delete(":id")
 	@HttpCode(HttpStatus.OK)
+	@RequirePermission(PermissionEnum.SYSTEM_USER_DELETE)
 	remove(@Param("id") id: string) {
 		return this.usersService.remove(+id);
 	}

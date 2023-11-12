@@ -9,6 +9,7 @@
 
 import { EnvEnum } from "@/shared/enums/env.enum";
 import { StrategyEnum } from "@/shared/enums/strategy.enum";
+import { JwtPayloadInterface } from "@/shared/interfaces/jwt-payload.interface";
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
@@ -29,10 +30,12 @@ export class JwtAccessStrategy extends PassportStrategy(
 			algorithms: ["RS256"],
 		});
 	}
-	async validate(payload) {
+
+	async validate(payload): Promise<JwtPayloadInterface> {
 		return {
 			id: payload.id,
 			name: payload.name,
+			roleId: payload.roleId,
 		};
 	}
 }

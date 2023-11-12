@@ -14,6 +14,6 @@ export class CreateDepartmentDto {
 
 	@ApiProperty({ description: "部门领导", example: "张三", type: String })
 	@IsString({ message: "部门领导必须为字符类型" })
-	@IsNotEmpty({ message: "部门领导不能为空" })
+	@IsOptional()
 	leader: string;
 }

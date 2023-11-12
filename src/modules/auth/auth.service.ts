@@ -7,6 +7,7 @@
  * @Description:
  */
 import { EnvEnum } from "@/shared/enums/env.enum";
+import { JwtPayloadInterface } from "@/shared/interfaces/jwt-payload.interface";
 import { AppLoggerSevice } from "@/shared/logger/logger.service";
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
@@ -68,7 +69,7 @@ export class AuthService {
 		roleId: number,
 	): ExportLoginDto {
 		this.logger.log(`${this.getAccessAndRefreshToken.name} was called`);
-		const payload = { id, name, roleId };
+		const payload = { id, name, roleId } as JwtPayloadInterface;
 		return plainToClass(ExportLoginDto, {
 			accessToken: this.jwtService.sign(payload, {
 				expiresIn: this.configService.get(EnvEnum.JWT_ACCESS_TOKEN_EXPIRES_IN),
