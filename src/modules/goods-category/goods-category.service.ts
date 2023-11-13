@@ -117,7 +117,7 @@ export class GoodsCategoryService {
 	 */
 	async update(id: number, updateGoodsCategoryDto: UpdateGoodsCategoryDto) {
 		this.logger.log(`${this.update.name} was called`);
-
+		this.judgeCanDo(id);
 		try {
 			await this.goodCategoryRepository.update(
 				{ id, isDelete: false },
@@ -128,6 +128,7 @@ export class GoodsCategoryService {
 			this.logger.error(error);
 			if (error instanceof QueryFailedError && error.driverError.errno === 1062)
 				throw new BadRequestException("商品分类名已存在");
+			if (error.message) throw new BadRequestException(error.message);
 			throw new BadRequestException("更新商品分类失败");
 		}
 	}
@@ -139,7 +140,7 @@ export class GoodsCategoryService {
 	 */
 	async remove(id: number) {
 		this.logger.log(`${this.remove.name} was called`);
-
+		this.judgeCanDo(id);
 		try {
 			const goodsCategory = await this.findOne(id);
 
@@ -158,6 +159,16 @@ export class GoodsCategoryService {
 			this.logger.error(error);
 			if (error.message) throw new BadRequestException(error.message);
 			throw new BadRequestException("删除商品分类失败");
+		}
+	}
+
+	/**
+	 * 判断是否可以操作
+	 * @param id
+	 */
+	judgeCanDo(id: number) {
+		if (id === 6) {
+			throw new BadRequestException("系统商品分类不可操作");
 		}
 	}
 }
