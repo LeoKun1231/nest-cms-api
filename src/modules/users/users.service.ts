@@ -121,6 +121,8 @@ export class UsersService {
 		this.logger.log(`${this.updateUser.name} was called`);
 		this.judgeCanDo(id);
 		try {
+			//判断用户是否存在
+			await this.findUserById(id);
 			const { departmentId, password, roleId, cellphone } = updateUserDto;
 			const user = this.usersRespository.create({
 				...updateUserDto,
@@ -139,7 +141,13 @@ export class UsersService {
 				const department = await this.departmentService.findOne(departmentId);
 				user.department = plainToInstance(Department, department);
 			}
-			await this.usersRespository.save(user);
+			await this.usersRespository.update(
+				{
+					id,
+					isDelete: false,
+				},
+				user,
+			);
 			return "更新用户成功~";
 		} catch (error) {
 			this.logger.error(error);

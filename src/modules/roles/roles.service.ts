@@ -169,17 +169,20 @@ export class RolesService {
 		this.judgeCanDo(id);
 
 		try {
+			//1.判断角色是否存在
+			await this.findOne(id);
+
 			const { menuList: menuIdList, intro, name } = updateRoleDto;
-			//1.判断是否有菜单
+			//2.判断是否有菜单
 			let menuList = null;
 			if (menuIdList?.length > 0) {
-				//2. 根据菜单id查找菜单
+				//3. 根据菜单id查找菜单
 				menuList = await this.menusService.findListByIds(
 					updateRoleDto.menuList,
 				);
 			}
 
-			//3.更新角色
+			//4.更新角色
 			await this.roleRepository.update(
 				{ id, isDelete: false },
 				{
@@ -197,6 +200,7 @@ export class RolesService {
 			) {
 				throw new BadRequestException("角色名已存在");
 			}
+			if (error.message) throw new BadRequestException(error.message);
 			throw new BadRequestException("更新角色失败");
 		}
 	}

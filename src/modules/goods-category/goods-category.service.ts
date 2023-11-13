@@ -119,6 +119,7 @@ export class GoodsCategoryService {
 		this.logger.log(`${this.update.name} was called`);
 		this.judgeCanDo(id);
 		try {
+			await this.findOne(id);
 			await this.goodCategoryRepository.update(
 				{ id, isDelete: false },
 				updateGoodsCategoryDto,
