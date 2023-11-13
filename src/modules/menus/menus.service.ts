@@ -113,6 +113,7 @@ export class MenusService {
 		this.logger.log(`${this.update.name} was called`);
 		this.judgeCanDo(id);
 		try {
+			await this.findOne(id);
 			await this.menuRepository.update(
 				{
 					id,
@@ -129,6 +130,7 @@ export class MenusService {
 			) {
 				throw new BadRequestException("菜单名已存在");
 			}
+			if (error.message) throw new BadRequestException(error.message);
 			throw new BadRequestException("更新菜单失败");
 		}
 	}

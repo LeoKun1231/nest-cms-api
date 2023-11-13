@@ -1,22 +1,30 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Expose } from "class-transformer";
 
-export class ExportGoodsCategoryDto {
+export class ExportExportDto {
 	@ApiProperty({
-		description: "分类id",
-		example: "分类id",
+		description: "故事id",
+		example: "故事id",
 		type: Number,
 	})
 	@Expose()
 	id: number;
 
 	@ApiProperty({
-		description: "分类名称",
-		example: "分类名称",
+		description: "故事名称",
+		example: "故事名称",
 		type: String,
 	})
 	@Expose()
-	name: string;
+	title: string;
+
+	@ApiProperty({
+		description: "故事内容",
+		example: "故事内容",
+		type: String,
+	})
+	@Expose()
+	content: string;
 
 	@ApiProperty({
 		description: "是否启用",

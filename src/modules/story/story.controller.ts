@@ -1,28 +1,33 @@
 import {
-	Controller,
-	Get,
-	Post,
 	Body,
-	Patch,
-	Param,
+	Controller,
 	Delete,
+	Get,
+	HttpCode,
+	HttpStatus,
+	Param,
+	Patch,
+	Post,
 } from "@nestjs/common";
-import { StoryService } from "./story.service";
 import { CreateStoryDto } from "./dto/create-story.dto";
+import { QueryStoryDto } from "./dto/query-story.dto";
 import { UpdateStoryDto } from "./dto/update-story.dto";
+import { StoryService } from "./story.service";
 
 @Controller("story")
 export class StoryController {
 	constructor(private readonly storyService: StoryService) {}
 
 	@Post()
+	@HttpCode(HttpStatus.OK)
 	create(@Body() createStoryDto: CreateStoryDto) {
 		return this.storyService.create(createStoryDto);
 	}
 
-	@Get()
-	findAll() {
-		return this.storyService.findAll();
+	@Post("list")
+	@HttpCode(HttpStatus.OK)
+	findAll(@Body() queryStoryDto: QueryStoryDto) {
+		return this.storyService.findAll(queryStoryDto);
 	}
 
 	@Get(":id")

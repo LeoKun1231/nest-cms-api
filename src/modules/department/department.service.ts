@@ -135,6 +135,7 @@ export class DepartmentService {
 		this.judgeCanDo(id);
 
 		try {
+			await this.findOne(id);
 			await this.departmentRepository.update(
 				{ id, isDelete: false },
 				updateDepartmentDto,
@@ -153,6 +154,7 @@ export class DepartmentService {
 			) {
 				throw new BadRequestException("父级部门不存在");
 			}
+			if (error.message) throw new BadRequestException(error.message);
 			throw new BadRequestException("更新部门失败");
 		}
 	}
