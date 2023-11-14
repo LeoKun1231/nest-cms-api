@@ -9,7 +9,9 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { plainToInstance } from "class-transformer";
 import { Between, In, Like, QueryFailedError, Repository } from "typeorm";
 import { v4 as UUID } from "uuid";
+import { ExportMenuDto } from "../menus/dto/export-menu.dto";
 import { MenusService } from "../menus/menus.service";
+import { AssignRoleDto } from "./dto/assign-role.dto";
 import { CreateRoleDto } from "./dto/create-role.dto";
 import { ExportRoleListDto } from "./dto/export-role-list.dto";
 import { ExportRoleDto } from "./dto/export-role.dto";
@@ -39,7 +41,7 @@ export class RolesService {
 			//1.根据menuList查找菜单
 			const menuList = await this.menusService.findListByIds(menuListIds);
 			//2.创建角色
-			const role = await this.roleRepository.create({
+			const role = this.roleRepository.create({
 				intro,
 				name,
 				menuList,
@@ -231,6 +233,99 @@ export class RolesService {
 			this.logger.error(error);
 			if (error.message) throw new BadRequestException(error.message);
 			throw new BadRequestException("删除角色失败");
+		}
+	}
+
+	/**
+	 * 根据id查找角色的菜单列表
+	 * @param id
+	 * @returns
+	 */
+	async findRoleMenuById(id: number) {
+		this.logger.log(`${this.findRoleMenuById.name} was called`);
+		try {
+			const role = await this.roleRepository
+				.createQueryBuilder("role")
+				.leftJoinAndSelect("role.menuList", "menuList")
+				.select("role.id")
+				.addSelect("menuList")
+				.where("role.id = :id", { id })
+				.andWhere("role.isDelete = false")
+				.getOne();
+			if (!role) throw new BadRequestException("角色不存在");
+			return plainToInstance(ExportMenuDto, role.menuList, {
+				excludeExtraneousValues: true,
+			});
+		} catch (error) {
+			this.logger.error(error);
+			if (error.message) throw new BadRequestException(error.message);
+			throw new BadRequestException("获取角色菜单列表失败");
+		}
+	}
+
+	/**
+	 * 根据id查找角色的菜单ids列表
+	 * @param id
+	 * @returns
+	 */
+	async findRoleMenuIdsById(id: number) {
+		this.logger.log(`${this.findRoleMenuIdsById.name} was called`);
+
+		try {
+			const role = await this.roleRepository.findOne({
+				select: {
+					id: true,
+					intro: true,
+					name: true,
+					menuList: {
+						id: true,
+					},
+				},
+				where: {
+					id,
+					isDelete: false,
+				},
+				relations: ["menuList"],
+			});
+			if (!role) throw new BadRequestException("角色不存在");
+			const menuIds = role.menuList.map((menu) => menu.id);
+			delete role.menuList;
+			return {
+				...role,
+				menuIds,
+			};
+		} catch (error) {
+			this.logger.error(error);
+			if (error.message) throw new BadRequestException(error.message);
+			throw new BadRequestException("获取角色菜单ids失败");
+		}
+	}
+
+	/**
+	 * 分配权限
+	 * @param assignRoleDto
+	 * @returns
+	 */
+	async assignRole(assignRoleDto: AssignRoleDto) {
+		this.logger.log(`${this.assignRole.name} was called`);
+		try {
+			const { roleId, menuList: ids } = assignRoleDto;
+			//1.判断角色是否存在
+			await this.findOne(roleId);
+
+			//2.获取菜单列表
+			const menuList = await this.menusService.findListByIds(ids);
+			console.log(
+				"🚀 ~ file: roles.service.ts:318 ~ RolesService ~ assignRole ~ menuList:",
+				menuList,
+			);
+			//3.更新角色
+			await this.roleRepository.save({ id: roleId, menuList });
+			return "分配权限成功~";
+		} catch (error) {
+			this.logger.error(error);
+			if (error.message) throw new BadRequestException(error.message);
+			throw new BadRequestException("分配权限失败");
 		}
 	}
 
