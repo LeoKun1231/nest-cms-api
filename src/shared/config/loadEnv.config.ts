@@ -20,5 +20,8 @@ export default (): Record<EnvEnum, unknown> => {
 		LOG_LEVEL: process.env.LOG_LEVEL,
 		TIMESTAMP: process.env.TIMESTAMP,
 		LOG_ON: process.env.LOG_ON,
+		REDIS_HOST: process.env.REDIS_HOST,
+		REDIS_PASSWORD: process.env.REDIS_PASSWORD,
+		REDIS_PORT: process.env.REDIS_PORT,
 	};
 };

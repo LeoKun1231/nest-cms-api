@@ -1,3 +1,11 @@
+/*
+ * @Author: Leo l024983409@qq.com
+ * @Date: 2023-10-29 09:25:52
+ * @LastEditors: Leo l024983409@qq.com
+ * @LastEditTime: 2023-11-13 22:01:36
+ * @FilePath: \cms\src\shared\shared.module.ts
+ * @Description:
+ */
 import {
 	Global,
 	Logger,
@@ -17,6 +25,8 @@ import { PermissionAuthGuard } from "./guards/permission-auth.guard";
 import { TransformResultInterceptor } from "./interceptors/transform.interceptor";
 import { LoggerModule } from "./logger/logger.module";
 import { LogMiddleware } from "./middleware/log.middleware";
+import { RedisModule } from "./redis/redis.module";
+import { UploadModule } from "./upload/upload.module";
 
 const envFilePath = `.env.${process.env.NODE_ENV || `development`}`;
 
@@ -30,8 +40,9 @@ const envFilePath = `.env.${process.env.NODE_ENV || `development`}`;
 			load: [loadEnvConfig],
 		}),
 		TypeOrmModule.forRoot(connectionParams),
-
 		LoggerModule,
+		UploadModule,
+		RedisModule,
 	],
 	providers: [
 		Logger,
@@ -55,7 +66,7 @@ const envFilePath = `.env.${process.env.NODE_ENV || `development`}`;
 			useClass: PermissionAuthGuard,
 		},
 	],
-	exports: [Logger, LoggerModule],
+	exports: [Logger, LoggerModule, RedisModule],
 })
 
 //配置请求日志中间件
