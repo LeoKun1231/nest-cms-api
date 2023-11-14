@@ -1,3 +1,11 @@
+/*
+ * @Author: Leo l024983409@qq.com
+ * @Date: 2023-11-11 22:22:28
+ * @LastEditors: Leo l024983409@qq.com
+ * @LastEditTime: 2023-11-14 18:31:41
+ * @FilePath: \cms\src\modules\department\dto\query-department.dto.ts
+ * @Description:
+ */
 import { BaseQueryDto } from "@/shared/dtos/base-query.dto";
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";

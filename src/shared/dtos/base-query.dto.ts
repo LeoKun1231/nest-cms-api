@@ -1,3 +1,11 @@
+/*
+ * @Author: Leo l024983409@qq.com
+ * @Date: 2023-11-12 22:01:59
+ * @LastEditors: Leo l024983409@qq.com
+ * @LastEditTime: 2023-11-14 18:51:18
+ * @FilePath: \cms\src\shared\dtos\base-query.dto.ts
+ * @Description:
+ */
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsInt, IsOptional } from "class-validator";

@@ -1,3 +1,11 @@
+/*
+ * @Author: Leo l024983409@qq.com
+ * @Date: 2023-11-11 22:22:28
+ * @LastEditors: Leo l024983409@qq.com
+ * @LastEditTime: 2023-11-14 19:58:56
+ * @FilePath: \cms\src\shared\entities\department.entity.ts
+ * @Description:
+ */
 import {
 	Column,
 	Entity,
@@ -6,10 +14,11 @@ import {
 	TreeChildren,
 	TreeParent,
 } from "typeorm";
+import { EntityEnum } from "../enums/entity.enum";
 import { BaseEntity } from "./base/Base.entity";
 import { User } from "./user.entity";
 
-@Entity("department")
+@Entity(EntityEnum.Department)
 @Tree("materialized-path")
 export class Department extends BaseEntity {
 	@Column({ length: 50, comment: "部门名称", unique: true })

@@ -1,3 +1,11 @@
+/*
+ * @Author: Leo l024983409@qq.com
+ * @Date: 2023-11-11 22:22:28
+ * @LastEditors: Leo l024983409@qq.com
+ * @LastEditTime: 2023-11-14 18:51:24
+ * @FilePath: \cms\src\shared\entities\base\Base.entity.ts
+ * @Description:
+ */
 import {
 	Column,
 	CreateDateColumn,

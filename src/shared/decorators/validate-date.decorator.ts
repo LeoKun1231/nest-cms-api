@@ -1,3 +1,11 @@
+/*
+ * @Author: Leo l024983409@qq.com
+ * @Date: 2023-11-10 18:31:40
+ * @LastEditors: Leo l024983409@qq.com
+ * @LastEditTime: 2023-11-14 18:50:58
+ * @FilePath: \cms\src\shared\decorators\validate-date.decorator.ts
+ * @Description:
+ */
 import { BadRequestException } from "@nestjs/common";
 import { Transform } from "class-transformer";
 

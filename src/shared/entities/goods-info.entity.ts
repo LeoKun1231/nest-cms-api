@@ -2,14 +2,16 @@
  * @Author: Leo l024983409@qq.com
  * @Date: 2023-11-12 20:59:52
  * @LastEditors: Leo l024983409@qq.com
- * @LastEditTime: 2023-11-14 13:05:32
+ * @LastEditTime: 2023-11-14 20:23:03
  * @FilePath: \cms\src\shared\entities\goods-info.entity.ts
  * @Description:
  */
-import { Column, Entity } from "typeorm";
+import { Column, Entity, ManyToOne } from "typeorm";
+import { EntityEnum } from "../enums/entity.enum";
 import { BaseEntity } from "./base/Base.entity";
+import { GoodsCategory } from "./goods-category.entity";
 
-@Entity({ name: "goods_info" })
+@Entity(EntityEnum.GoodsInfo)
 export class GoodsInfo extends BaseEntity {
 	@Column({ comment: "商品名", unique: true })
 	name: string;
@@ -37,4 +39,7 @@ export class GoodsInfo extends BaseEntity {
 
 	@Column({ comment: "商品地址" })
 	address: string;
+
+	@ManyToOne(EntityEnum.GoodsCategory, EntityEnum.GoodsInfo)
+	category: GoodsCategory;
 }

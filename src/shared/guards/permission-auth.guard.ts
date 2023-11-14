@@ -1,3 +1,11 @@
+/*
+ * @Author: Leo l024983409@qq.com
+ * @Date: 2023-11-03 16:28:10
+ * @LastEditors: Leo l024983409@qq.com
+ * @LastEditTime: 2023-11-14 18:52:48
+ * @FilePath: \cms\src\shared\guards\permission-auth.guard.ts
+ * @Description:
+ */
 import { RolesService } from "@/modules/roles/roles.service";
 import {
 	CanActivate,

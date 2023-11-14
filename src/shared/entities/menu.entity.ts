@@ -1,3 +1,11 @@
+/*
+ * @Author: Leo l024983409@qq.com
+ * @Date: 2023-11-11 22:22:28
+ * @LastEditors: Leo l024983409@qq.com
+ * @LastEditTime: 2023-11-14 19:59:48
+ * @FilePath: \cms\src\shared\entities\menu.entity.ts
+ * @Description:
+ */
 import {
 	Column,
 	Entity,
@@ -7,10 +15,11 @@ import {
 	TreeChildren,
 	TreeParent,
 } from "typeorm";
+import { EntityEnum } from "../enums/entity.enum";
 import { BaseEntity } from "./base/Base.entity";
 import { Role } from "./role.entity";
 
-@Entity("menu")
+@Entity(EntityEnum.Menu)
 @Tree("materialized-path")
 export class Menu extends BaseEntity {
 	@Column({ comment: "菜单名称", unique: true })

@@ -1,3 +1,11 @@
+/*
+ * @Author: Leo l024983409@qq.com
+ * @Date: 2023-11-12 20:59:52
+ * @LastEditors: Leo l024983409@qq.com
+ * @LastEditTime: 2023-11-14 21:49:47
+ * @FilePath: \cms\src\modules\goods-info\goods-info.service.ts
+ * @Description:
+ */
 import { GoodsInfo } from "@/shared/entities/goods-info.entity";
 import { AppLoggerSevice } from "@/shared/logger/logger.service";
 import {
@@ -201,6 +209,147 @@ export class GoodsInfoService {
 				throw new BadRequestException(error.message);
 			}
 			throw new BadRequestException("删除商品失败");
+		}
+	}
+
+	/**
+	 * 获取商品分类数量
+	 * @returns
+	 */
+	async getCategoryCount() {
+		this.logger.log(`${this.getCategoryCount.name} was called`);
+		try {
+			return await this.goodsInfoRepository
+				.createQueryBuilder("goodsInfo")
+				.leftJoinAndSelect("goodsInfo.category", "category")
+				.select("category.id", "id")
+				.addSelect("category.name", "name")
+				.addSelect("count(*)", "goodsCount")
+				.where("goodsInfo.isDelete = false")
+				.where("category.isDelete = false")
+				.groupBy("id")
+				.having("goodsCount > 0")
+				.getRawMany();
+		} catch (error) {
+			this.logger.error(error);
+			throw new BadRequestException("获取商品分类数量失败");
+		}
+	}
+
+	/**
+	 * 获取商品分类销量
+	 * @returns
+	 */
+	async getCategorySale() {
+		this.logger.log(`${this.getCategorySale.name} was called`);
+		try {
+			return await this.goodsInfoRepository
+				.createQueryBuilder("goodsInfo")
+				.leftJoinAndSelect("goodsInfo.category", "category")
+				.select("category.id", "id")
+				.addSelect("category.name", "name")
+				.addSelect("sum(goodsInfo.saleCount)", "goodsCount")
+				.where("goodsInfo.isDelete = false")
+				.where("category.isDelete = false")
+				.groupBy("id")
+				.having("sum(goodsInfo.saleCount) > 0")
+				.getRawMany();
+		} catch (error) {
+			this.logger.error(error);
+			throw new BadRequestException("获取商品分类销量失败");
+		}
+	}
+
+	/**
+	 * 获取商品分类收藏数
+	 * @returns
+	 */
+	async getCategoryFavor() {
+		this.logger.log(`${this.getCategoryFavor.name} was called`);
+		try {
+			return await this.goodsInfoRepository
+				.createQueryBuilder("goodsInfo")
+				.leftJoinAndSelect("goodsInfo.category", "category")
+				.select("category.id", "id")
+				.addSelect("category.name", "name")
+				.addSelect("sum(goodsInfo.favorCount)", "goodsFavor")
+				.where("goodsInfo.isDelete = false")
+				.where("category.isDelete = false")
+				.groupBy("id")
+				.having("sum(goodsInfo.favorCount) > 0")
+				.getRawMany();
+		} catch (error) {
+			this.logger.error(error);
+			throw new BadRequestException("获取商品分类收藏数失败");
+		}
+	}
+
+	/**
+	 * 获取商品销量top10
+	 * @returns
+	 */
+	async getSaleTop10() {
+		this.logger.log(`${this.getSaleTop10.name} was called`);
+		try {
+			return await this.goodsInfoRepository.find({
+				select: {
+					id: true,
+					name: true,
+					saleCount: true,
+				},
+				where: {
+					isDelete: false,
+				},
+				order: {
+					saleCount: "DESC",
+				},
+				take: 10,
+			});
+		} catch (error) {
+			this.logger.error(error);
+			throw new BadRequestException("获取商品销量top10失败");
+		}
+	}
+
+	/**
+	 * 获取发货地销量
+	 * @returns
+	 */
+	async getAddressSale() {
+		this.logger.log(`${this.getAddressSale.name} was called`);
+		try {
+			return await this.goodsInfoRepository
+				.createQueryBuilder("goodsInfo")
+				.select("goodsInfo.address", "address")
+				.addSelect("sum(goodsInfo.saleCount)", "count")
+				.where("goodsInfo.isDelete = false")
+				.groupBy("address")
+				.having("count > 0")
+				.getRawMany();
+		} catch (error) {
+			this.logger.error(error);
+			throw new BadRequestException("获取商品发货地销量失败");
+		}
+	}
+
+	/**
+	 * 获取商品统计数量
+	 * @returns
+	 */
+	async getAmountCounts(): Promise<{ sale; favor; inventory; saleroom }> {
+		this.logger.log(`${this.getAmountCounts.name} was called`);
+		try {
+			return await this.goodsInfoRepository
+				.createQueryBuilder("goodsInfo")
+				.select("sum(goodsInfo.saleCount)", "sale")
+				.addSelect("sum(goodsInfo.favorCount)", "favor")
+				.addSelect("sum(goodsInfo.inventoryCount)", "inventory")
+				.addSelect("sum(goodsInfo.saleCount * goodsInfo.newPrice)", "saleroom")
+				.where("goodsInfo.isDelete = false")
+				.getRawOne();
+		} catch (error) {
+			this.logger.error(error);
+			throw new BadRequestException("获取商品统计信息失败");
 		}
 	}
 

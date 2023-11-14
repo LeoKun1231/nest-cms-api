@@ -1,3 +1,11 @@
+/*
+ * @Author: Leo l024983409@qq.com
+ * @Date: 2023-11-11 19:12:21
+ * @LastEditors: Leo l024983409@qq.com
+ * @LastEditTime: 2023-11-14 18:35:09
+ * @FilePath: \cms\src\modules\users\dtos\export-user.dto.ts
+ * @Description:
+ */
 import { ExportDepartmentDto } from "@/modules/department/dto/export-department.dto";
 import { ExportRoleDto } from "@/modules/roles/dto/export-role.dto";
 import { Department } from "@/shared/entities/department.entity";

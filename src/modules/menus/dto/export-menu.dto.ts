@@ -1,3 +1,11 @@
+/*
+ * @Author: Leo l024983409@qq.com
+ * @Date: 2023-11-11 22:22:28
+ * @LastEditors: Leo l024983409@qq.com
+ * @LastEditTime: 2023-11-14 18:33:45
+ * @FilePath: \cms\src\modules\menus\dto\export-menu.dto.ts
+ * @Description:
+ */
 import { ExposeNotNull } from "@/shared/decorators/expose-not-null.decorator";
 import { ApiProperty } from "@nestjs/swagger";
 import { Expose, Type } from "class-transformer";

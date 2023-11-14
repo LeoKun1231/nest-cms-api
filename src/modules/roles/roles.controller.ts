@@ -1,3 +1,11 @@
+/*
+ * @Author: Leo l024983409@qq.com
+ * @Date: 2023-11-11 22:22:28
+ * @LastEditors: Leo l024983409@qq.com
+ * @LastEditTime: 2023-11-14 21:53:30
+ * @FilePath: \cms\src\modules\roles\roles.controller.ts
+ * @Description:
+ */
 import { RequirePermission } from "@/shared/decorators/require-permission.decorator";
 import { PermissionEnum } from "@/shared/enums/permission.enum";
 import {
@@ -82,17 +90,20 @@ export class RolesController {
 	}
 
 	@Get(":id/menu")
+	@RequirePermission(PermissionEnum.SYSTEM_ROLE_QUERY)
 	findRoleMenu(@Param("id") id: string) {
 		return this.rolesService.findRoleMenuById(+id);
 	}
 
 	@Get(":id/menuIds")
+	@RequirePermission(PermissionEnum.SYSTEM_ROLE_QUERY)
 	findRoleMenuIds(@Param("id") id: string) {
 		return this.rolesService.findRoleMenuIdsById(+id);
 	}
 
 	@Post("assign")
 	@HttpCode(HttpStatus.OK)
+	@RequirePermission(PermissionEnum.SYSTEM_ROLE_UPDATE)
 	assignRole(@Body() assignRoleDto: AssignRoleDto) {
 		return this.rolesService.assignRole(assignRoleDto);
 	}

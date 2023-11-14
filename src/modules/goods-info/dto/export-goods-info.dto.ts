@@ -1,3 +1,11 @@
+/*
+ * @Author: Leo l024983409@qq.com
+ * @Date: 2023-11-14 13:15:54
+ * @LastEditors: Leo l024983409@qq.com
+ * @LastEditTime: 2023-11-14 18:33:00
+ * @FilePath: \cms\src\modules\goods-info\dto\export-goods-info.dto.ts
+ * @Description:
+ */
 import { ApiProperty } from "@nestjs/swagger";
 import { Expose } from "class-transformer";
 

@@ -2,16 +2,17 @@
  * @Author: Leo l024983409@qq.com
  * @Date: 2023-10-17 19:27:23
  * @LastEditors: Leo l024983409@qq.com
- * @LastEditTime: 2023-10-18 17:26:56
- * @FilePath: \cms\src\entity\Users.entity.ts
+ * @LastEditTime: 2023-11-14 20:00:19
+ * @FilePath: \cms\src\shared\entities\user.entity.ts
  * @Description:
  */
 import { Column, Entity, JoinTable, ManyToMany, ManyToOne } from "typeorm";
+import { EntityEnum } from "../enums/entity.enum";
 import { BaseEntity } from "./base/Base.entity";
 import { Department } from "./department.entity";
 import { Role } from "./role.entity";
 
-@Entity("user")
+@Entity(EntityEnum.User)
 export class User extends BaseEntity {
 	@Column({ unique: true, comment: "用户名" })
 	name: string;
