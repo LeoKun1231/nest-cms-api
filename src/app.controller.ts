@@ -10,8 +10,6 @@ import { User } from "@/shared/entities/user.entity";
 import { Controller, Get } from "@nestjs/common";
 import { Body, Post } from "@nestjs/common/decorators";
 import { AppService } from "./app.service";
-import { RequirePermission } from "./shared/decorators/require-permission.decorator";
-import { PermissionEnum } from "./shared/enums/permission.enum";
 import { AppLoggerSevice } from "./shared/logger/logger.service";
 
 @Controller()
@@ -24,9 +22,8 @@ export class AppController {
 	}
 
 	@Get("aa")
-	@RequirePermission([PermissionEnum.SYSTEM_ROLE_CREATE], "and")
-	getHello(): string {
-		return this.appService.getHello();
+	getHello() {
+		return 11;
 	}
 
 	@Post("bb")

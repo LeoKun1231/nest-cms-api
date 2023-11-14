@@ -12,6 +12,7 @@ import { User } from "@/shared/entities/user.entity";
 import { AppLoggerSevice } from "@/shared/logger/logger.service";
 import {
 	BadRequestException,
+	ForbiddenException,
 	Injectable,
 	UnauthorizedException,
 } from "@nestjs/common";
@@ -283,7 +284,7 @@ export class UsersService {
 	 */
 	judgeCanDo(id: number) {
 		if (id <= 6) {
-			throw new BadRequestException("系统用户不能操作");
+			throw new ForbiddenException("系统用户不能操作");
 		}
 	}
 }

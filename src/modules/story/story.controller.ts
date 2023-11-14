@@ -9,12 +9,14 @@ import {
 	Patch,
 	Post,
 } from "@nestjs/common";
+import { ApiTags } from "@nestjs/swagger";
 import { CreateStoryDto } from "./dto/create-story.dto";
 import { QueryStoryDto } from "./dto/query-story.dto";
 import { UpdateStoryDto } from "./dto/update-story.dto";
 import { StoryService } from "./story.service";
 
 @Controller("story")
+@ApiTags("故事管理模块")
 export class StoryController {
 	constructor(private readonly storyService: StoryService) {}
 

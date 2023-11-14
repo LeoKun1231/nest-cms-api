@@ -1,6 +1,10 @@
 import { GoodsCategory } from "@/shared/entities/goods-category.entity";
 import { AppLoggerSevice } from "@/shared/logger/logger.service";
-import { BadRequestException, Injectable } from "@nestjs/common";
+import {
+	BadRequestException,
+	ForbiddenException,
+	Injectable,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToInstance } from "class-transformer";
 import { Between, Like, QueryFailedError, Repository } from "typeorm";
@@ -168,8 +172,8 @@ export class GoodsCategoryService {
 	 * @param id
 	 */
 	judgeCanDo(id: number) {
-		if (id === 6) {
-			throw new BadRequestException("系统商品分类不可操作");
+		if (id <= 6) {
+			throw new ForbiddenException("系统商品分类不可操作");
 		}
 	}
 }

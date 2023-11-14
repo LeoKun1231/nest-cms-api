@@ -1,7 +1,11 @@
 import { Menu } from "@/shared/entities/menu.entity";
 import { AppLoggerSevice } from "@/shared/logger/logger.service";
 import { filterTree } from "@/shared/utils/filter-tree";
-import { BadRequestException, Injectable } from "@nestjs/common";
+import {
+	BadRequestException,
+	ForbiddenException,
+	Injectable,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToInstance } from "class-transformer";
 import { In, QueryFailedError, TreeRepository } from "typeorm";
@@ -188,7 +192,7 @@ export class MenusService {
 	 */
 	judgeCanDo(id: number) {
 		if (id <= 44) {
-			throw new BadRequestException("系统菜单不能操作");
+			throw new ForbiddenException("系统菜单不能操作");
 		}
 	}
 }

@@ -1,6 +1,10 @@
 import { Department } from "@/shared/entities/department.entity";
 import { AppLoggerSevice } from "@/shared/logger/logger.service";
-import { BadRequestException, Injectable } from "@nestjs/common";
+import {
+	BadRequestException,
+	ForbiddenException,
+	Injectable,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToInstance } from "class-transformer";
 import { Between, Like, QueryFailedError, Repository } from "typeorm";
@@ -191,7 +195,7 @@ export class DepartmentService {
 	 */
 	judgeCanDo(id: number) {
 		if (id <= 5) {
-			throw new BadRequestException("系统部门不能操作");
+			throw new ForbiddenException("系统部门不能操作");
 		}
 	}
 }

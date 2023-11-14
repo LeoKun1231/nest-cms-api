@@ -1,3 +1,11 @@
+/*
+ * @Author: Leo l024983409@qq.com
+ * @Date: 2023-11-12 20:59:52
+ * @LastEditors: Leo l024983409@qq.com
+ * @LastEditTime: 2023-11-14 13:05:32
+ * @FilePath: \cms\src\shared\entities\goods-info.entity.ts
+ * @Description:
+ */
 import { Column, Entity } from "typeorm";
 import { BaseEntity } from "./base/Base.entity";
 
@@ -5,6 +13,9 @@ import { BaseEntity } from "./base/Base.entity";
 export class GoodsInfo extends BaseEntity {
 	@Column({ comment: "商品名", unique: true })
 	name: string;
+
+	@Column({ comment: "商品描述" })
+	desc: string;
 
 	@Column({ comment: "商品旧价格" })
 	oldPrice: number;
@@ -25,5 +36,5 @@ export class GoodsInfo extends BaseEntity {
 	favorCount: number;
 
 	@Column({ comment: "商品地址" })
-	address: number;
+	address: string;
 }
