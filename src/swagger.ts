@@ -2,7 +2,7 @@
  * @Author: Leo l024983409@qq.com
  * @Date: 2023-10-17 12:53:01
  * @LastEditors: Leo l024983409@qq.com
- * @LastEditTime: 2023-10-19 12:30:58
+ * @LastEditTime: 2023-11-14 12:31:25
  * @FilePath: \cms\src\swagger.ts
  * @Description:
  */
@@ -18,5 +18,7 @@ export function setupSwagger(app: INestApplication<any>) {
 		.addServer("/api/v1")
 		.build();
 	const document = SwaggerModule.createDocument(app, options);
-	SwaggerModule.setup("swagger", app, document);
+	SwaggerModule.setup("swagger", app, document, {
+		jsonDocumentUrl: "/api/v1/swagger-json",
+	});
 }

@@ -1,6 +1,10 @@
 import { Role } from "@/shared/entities/role.entity";
 import { AppLoggerSevice } from "@/shared/logger/logger.service";
-import { BadRequestException, Injectable } from "@nestjs/common";
+import {
+	BadRequestException,
+	ForbiddenException,
+	Injectable,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToInstance } from "class-transformer";
 import { Between, In, Like, QueryFailedError, Repository } from "typeorm";
@@ -237,7 +241,7 @@ export class RolesService {
 	 */
 	judgeCanDo(id: number) {
 		if (id <= 5) {
-			throw new BadRequestException("系统角色不能操作");
+			throw new ForbiddenException("系统角色不能操作");
 		}
 	}
 }

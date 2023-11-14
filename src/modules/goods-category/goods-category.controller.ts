@@ -9,12 +9,14 @@ import {
 	Patch,
 	Post,
 } from "@nestjs/common";
+import { ApiTags } from "@nestjs/swagger";
 import { CreateGoodsCategoryDto } from "./dto/create-goods-category.dto";
 import { QueryGoodsCategoryDto } from "./dto/query-goods-category.dto";
 import { UpdateGoodsCategoryDto } from "./dto/update-goods-category.dto";
 import { GoodsCategoryService } from "./goods-category.service";
 
 @Controller("category")
+@ApiTags("商品分类模块")
 export class GoodsCategoryController {
 	constructor(private readonly goodsCategoryService: GoodsCategoryService) {}
 

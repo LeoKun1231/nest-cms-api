@@ -1,6 +1,10 @@
 import { Story } from "@/shared/entities/story.entity";
 import { AppLoggerSevice } from "@/shared/logger/logger.service";
-import { BadRequestException, Injectable } from "@nestjs/common";
+import {
+	BadRequestException,
+	ForbiddenException,
+	Injectable,
+} from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToInstance } from "class-transformer";
 import DOMPurify from "dompurify";
@@ -181,7 +185,7 @@ export class StoryService {
 	 */
 	judgeCanDo(id: number) {
 		if (id <= 2) {
-			throw new BadRequestException("系统故事不能操作");
+			throw new ForbiddenException("系统故事不能操作");
 		}
 	}
 }
