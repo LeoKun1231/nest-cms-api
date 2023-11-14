@@ -1,3 +1,11 @@
+/*
+ * @Author: Leo l024983409@qq.com
+ * @Date: 2023-11-12 21:00:07
+ * @LastEditors: Leo l024983409@qq.com
+ * @LastEditTime: 2023-11-14 20:28:10
+ * @FilePath: \cms\src\modules\goods-category\goods-category.service.ts
+ * @Description:
+ */
 import { GoodsCategory } from "@/shared/entities/goods-category.entity";
 import { AppLoggerSevice } from "@/shared/logger/logger.service";
 import {
@@ -172,7 +180,7 @@ export class GoodsCategoryService {
 	 * @param id
 	 */
 	judgeCanDo(id: number) {
-		if (id <= 6) {
+		if (id <= 8) {
 			throw new ForbiddenException("系统商品分类不可操作");
 		}
 	}

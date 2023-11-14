@@ -1,3 +1,11 @@
+/*
+ * @Author: Leo l024983409@qq.com
+ * @Date: 2023-11-14 17:50:42
+ * @LastEditors: Leo l024983409@qq.com
+ * @LastEditTime: 2023-11-14 18:28:29
+ * @FilePath: \cms\src\modules\roles\dto\assign-role.dto.ts
+ * @Description:
+ */
 import { ValidateStringNumber } from "@/shared/decorators/validate-string-number.decorator";
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";

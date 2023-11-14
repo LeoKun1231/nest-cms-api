@@ -1,3 +1,11 @@
+/*
+ * @Author: Leo l024983409@qq.com
+ * @Date: 2023-10-18 19:38:46
+ * @LastEditors: Leo l024983409@qq.com
+ * @LastEditTime: 2023-11-14 18:35:40
+ * @FilePath: \cms\src\shared\config\loadEnv.config.ts
+ * @Description:
+ */
 import * as dotebnv from "dotenv";
 import { EnvEnum } from "../enums/env.enum";
 

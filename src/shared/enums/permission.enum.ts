@@ -1,3 +1,11 @@
+/*
+ * @Author: Leo l024983409@qq.com
+ * @Date: 2023-11-03 16:08:16
+ * @LastEditors: Leo l024983409@qq.com
+ * @LastEditTime: 2023-11-14 18:52:20
+ * @FilePath: \cms\src\shared\enums\permission.enum.ts
+ * @Description:
+ */
 export enum PermissionEnum {
 	ALL = "*:*:*",
 	SYSTEM_USER_CREATE = "system:user:create",

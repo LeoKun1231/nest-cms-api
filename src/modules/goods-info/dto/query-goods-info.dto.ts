@@ -1,3 +1,11 @@
+/*
+ * @Author: Leo l024983409@qq.com
+ * @Date: 2023-11-13 10:20:00
+ * @LastEditors: Leo l024983409@qq.com
+ * @LastEditTime: 2023-11-14 18:33:04
+ * @FilePath: \cms\src\modules\goods-info\dto\query-goods-info.dto.ts
+ * @Description:
+ */
 import { ValidateNumberArrary } from "@/shared/decorators/validate-number-array.decorator";
 import { BaseQueryDto } from "@/shared/dtos/base-query.dto";
 import { ApiProperty } from "@nestjs/swagger";

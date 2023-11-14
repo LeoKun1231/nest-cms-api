@@ -1,3 +1,11 @@
+/*
+ * @Author: Leo l024983409@qq.com
+ * @Date: 2023-11-12 20:59:52
+ * @LastEditors: Leo l024983409@qq.com
+ * @LastEditTime: 2023-11-14 18:32:53
+ * @FilePath: \cms\src\modules\goods-info\dto\create-goods-info.dto.ts
+ * @Description:
+ */
 import { ApiProperty } from "@nestjs/swagger";
 import {
 	IsNotEmpty,

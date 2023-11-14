@@ -1,3 +1,11 @@
+/*
+ * @Author: Leo l024983409@qq.com
+ * @Date: 2023-11-14 14:13:44
+ * @LastEditors: Leo l024983409@qq.com
+ * @LastEditTime: 2023-11-14 18:51:02
+ * @FilePath: \cms\src\shared\decorators\validate-number-array.decorator.ts
+ * @Description:
+ */
 import { BadRequestException } from "@nestjs/common";
 import { Transform } from "class-transformer";
 

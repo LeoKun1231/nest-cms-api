@@ -1,3 +1,11 @@
+/*
+ * @Author: Leo l024983409@qq.com
+ * @Date: 2023-10-18 19:40:09
+ * @LastEditors: Leo l024983409@qq.com
+ * @LastEditTime: 2023-11-14 18:35:44
+ * @FilePath: \cms\src\shared\config\validateEnv.config.ts
+ * @Description:
+ */
 import * as Joi from "joi";
 import { EnvEnum } from "../enums/env.enum";
 export const validationSchema = Joi.object({

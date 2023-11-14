@@ -1,3 +1,11 @@
+/*
+ * @Author: Leo l024983409@qq.com
+ * @Date: 2023-11-11 22:22:28
+ * @LastEditors: Leo l024983409@qq.com
+ * @LastEditTime: 2023-11-14 18:51:28
+ * @FilePath: \cms\src\shared\entities\base\BaseTree.entity.ts
+ * @Description:
+ */
 import { Column, Tree, TreeChildren, TreeParent } from "typeorm";
 import { BaseEntity } from "./Base.entity";
 

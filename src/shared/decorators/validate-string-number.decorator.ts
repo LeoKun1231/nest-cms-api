@@ -1,3 +1,11 @@
+/*
+ * @Author: Leo l024983409@qq.com
+ * @Date: 2023-11-11 16:02:53
+ * @LastEditors: Leo l024983409@qq.com
+ * @LastEditTime: 2023-11-14 18:51:06
+ * @FilePath: \cms\src\shared\decorators\validate-string-number.decorator.ts
+ * @Description:
+ */
 import { ValidationOptions, registerDecorator } from "class-validator";
 
 /**

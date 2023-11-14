@@ -1,3 +1,11 @@
+/*
+ * @Author: Leo l024983409@qq.com
+ * @Date: 2023-11-06 11:10:38
+ * @LastEditors: Leo l024983409@qq.com
+ * @LastEditTime: 2023-11-14 18:53:36
+ * @FilePath: \cms\src\shared\utils\filter-tree.ts
+ * @Description:
+ */
 import { BaseTreeEntity } from "../entities/base/BaseTree.entity";
 
 /**

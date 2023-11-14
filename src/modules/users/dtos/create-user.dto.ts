@@ -1,3 +1,11 @@
+/*
+ * @Author: Leo l024983409@qq.com
+ * @Date: 2023-11-11 19:12:21
+ * @LastEditors: Leo l024983409@qq.com
+ * @LastEditTime: 2023-11-14 18:35:02
+ * @FilePath: \cms\src\modules\users\dtos\create-user.dto.ts
+ * @Description:
+ */
 import { ValidateStringNumber } from "@/shared/decorators/validate-string-number.decorator";
 import { ApiProperty } from "@nestjs/swagger";
 import {

@@ -1,4 +1,11 @@
-// redis.service.ts
+/*
+ * @Author: Leo l024983409@qq.com
+ * @Date: 2023-11-13 21:26:38
+ * @LastEditors: Leo l024983409@qq.com
+ * @LastEditTime: 2023-11-14 18:53:11
+ * @FilePath: \cms\src\shared\redis\redis.service.ts
+ * @Description:
+ */
 
 import { Injectable, OnModuleInit } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";

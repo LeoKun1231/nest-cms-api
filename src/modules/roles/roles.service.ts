@@ -1,3 +1,11 @@
+/*
+ * @Author: Leo l024983409@qq.com
+ * @Date: 2023-11-11 22:22:28
+ * @LastEditors: Leo l024983409@qq.com
+ * @LastEditTime: 2023-11-14 18:31:01
+ * @FilePath: \cms\src\modules\roles\roles.service.ts
+ * @Description:
+ */
 import { Role } from "@/shared/entities/role.entity";
 import { AppLoggerSevice } from "@/shared/logger/logger.service";
 import {
