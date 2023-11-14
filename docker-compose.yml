@@ -1,5 +1,5 @@
 # Use root/example as user/password credentials
-version: '3.8'
+version: "3.8"
 
 services:
   mysql:
@@ -21,6 +21,26 @@ services:
       - 3306:3306
     networks:
       - mynetwork
+
+  redis:
+    restart: always
+    image: redis
+    hostname: redis
+    container_name: redis
+    ports:
+      # 端口映射
+      - 6379:6379
+    volumes:
+      - /opt/ztt/redis/conf/redis.conf:/etc/redis.conf
+      - /opt/ztt/redis/data:/data:rw
+      - /opt/ztt/redis/logs:/logs:rw
+    command:
+      # 执行的命令
+      # mkdir /var/lib/redis &
+      redis-server /etc/redis.conf
+    networks:
+      - mynetwork
+
   adminer:
     image: adminer
     restart: always
