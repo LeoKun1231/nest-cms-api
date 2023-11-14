@@ -12,6 +12,7 @@ import {
 	Post,
 } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
+import { AssignRoleDto } from "./dto/assign-role.dto";
 import { CreateRoleDto } from "./dto/create-role.dto";
 import { QueryRoleDto } from "./dto/query-role.dto";
 import { UpdateRoleDto } from "./dto/update-role.dto";
@@ -78,5 +79,21 @@ export class RolesController {
 	@RequirePermission(PermissionEnum.SYSTEM_ROLE_DELETE)
 	remove(@Param("id") id: string) {
 		return this.rolesService.remove(+id);
+	}
+
+	@Get(":id/menu")
+	findRoleMenu(@Param("id") id: string) {
+		return this.rolesService.findRoleMenuById(+id);
+	}
+
+	@Get(":id/menuIds")
+	findRoleMenuIds(@Param("id") id: string) {
+		return this.rolesService.findRoleMenuIdsById(+id);
+	}
+
+	@Post("assign")
+	@HttpCode(HttpStatus.OK)
+	assignRole(@Body() assignRoleDto: AssignRoleDto) {
+		return this.rolesService.assignRole(assignRoleDto);
 	}
 }
