@@ -6,7 +6,14 @@
  * @FilePath: \cms\src\shared\entities\user.entity.ts
  * @Description:
  */
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne } from "typeorm";
+import {
+	Column,
+	Entity,
+	JoinTable,
+	ManyToMany,
+	ManyToOne,
+	Relation,
+} from "typeorm";
 import { EntityEnum } from "../enums/entity.enum";
 import { BaseEntity } from "./base/Base.entity";
 import { Department } from "./department.entity";
@@ -28,8 +35,8 @@ export class User extends BaseEntity {
 
 	@ManyToMany(() => Role, (role) => role.users)
 	@JoinTable({ name: "user_role" })
-	roles: Role[];
+	roles: Relation<Role[]>;
 
 	@ManyToOne(() => Department, (department) => department.users)
-	department: Department;
+	department: Relation<Department>;
 }

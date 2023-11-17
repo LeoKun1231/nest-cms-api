@@ -6,17 +6,21 @@
  * @FilePath: \cms\src\modules\users\users.service.ts
  * @Description:
  */
+import { WrapperType } from "@/@types/typeorm";
 import { Department } from "@/shared/entities/department.entity";
 import { Role } from "@/shared/entities/role.entity";
 import { User } from "@/shared/entities/user.entity";
 import { RedisKeyEnum } from "@/shared/enums/redis-key.enum";
 import { AppLoggerSevice } from "@/shared/logger/logger.service";
 import { RedisService } from "@/shared/redis/redis.service";
+import { filterEmpty } from "@/shared/utils/filer-empty";
 import {
 	BadRequestException,
 	ForbiddenException,
+	Inject,
 	Injectable,
 	UnauthorizedException,
+	forwardRef,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { compare, hash } from "bcrypt";
@@ -37,7 +41,8 @@ export class UsersService {
 		private readonly logger: AppLoggerSevice,
 		@InjectRepository(User)
 		private readonly usersRespository: Repository<User>,
-		private readonly rolseService: RolesService,
+		@Inject(forwardRef(() => RolesService))
+		private readonly rolseService: WrapperType<RolesService>,
 		private readonly departmentService: DepartmentService,
 		private readonly redisService: RedisService,
 	) {
@@ -102,6 +107,7 @@ export class UsersService {
 				roles: [plainToInstance(Role, role)],
 				department: plainToInstance(Department, department),
 			});
+			this.redisService._delKeysWithPrefix(RedisKeyEnum.UserKey);
 			return "创建用户成功~";
 		} catch (error) {
 			this.logger.error(error);
@@ -127,7 +133,7 @@ export class UsersService {
 		this.judgeCanDo(id);
 		try {
 			//判断用户是否存在
-			await this.findUserById(id);
+			const findUser = await this.findUserById(id);
 			const { departmentId, password, roleId, cellphone } = updateUserDto;
 			const user = this.usersRespository.create({
 				...updateUserDto,
@@ -147,9 +153,19 @@ export class UsersService {
 				user.department = plainToInstance(Department, department);
 			}
 
-			if (!user.enable) {
-				//禁用用户
-				await this.redisService._delKeysWithPrefix(RedisKeyEnum.LoginKey + id);
+			//启用用户之前 先判断角色或者部门是否被禁用
+			if (user.enable == true) {
+				const [role, department] = await Promise.all([
+					this.rolseService.findOne(findUser.role.id),
+					this.departmentService.findOne(findUser.department.id),
+				]);
+				//判断角色或者部门是否被禁用
+				if (role.enable == 0) {
+					throw new BadRequestException("该用户角色已被禁用");
+				}
+				if (department.enable == 0) {
+					throw new BadRequestException("该用户部门已被禁用");
+				}
 			}
 
 			await this.usersRespository.save({
@@ -157,6 +173,12 @@ export class UsersService {
 				id,
 				isDelete: false,
 			});
+			if (user.enable == false) {
+				//禁用用户
+				await this.redisService._delKeysWithPrefix(RedisKeyEnum.LoginKey + id);
+			}
+			this.redisService._delKeysWithPrefix(RedisKeyEnum.UserKey);
+
 			return "更新用户成功~";
 		} catch (error) {
 			this.logger.error(error);
@@ -220,6 +242,12 @@ export class UsersService {
 			updateAt,
 		} = queryUserDto;
 		try {
+			const filterQueryUserDto = filterEmpty(queryUserDto);
+			const redisUserList = await this.redisService._get(
+				RedisKeyEnum.UserKey + JSON.stringify(filterQueryUserDto),
+			);
+			if (redisUserList) return redisUserList;
+
 			const [list, totalCount] = await this.usersRespository.findAndCount({
 				select: {
 					roles: {
@@ -251,13 +279,21 @@ export class UsersService {
 					id: "DESC",
 				},
 			});
-			return plainToInstance(
+
+			const userList = plainToInstance(
 				ExportUserListDto,
 				{ list, totalCount },
 				{
 					excludeExtraneousValues: true,
 				},
 			);
+
+			this.redisService._set(
+				RedisKeyEnum.UserKey + JSON.stringify(filterQueryUserDto),
+				userList,
+			);
+
+			return userList;
 		} catch (error) {
 			this.logger.error(error);
 			throw new BadRequestException("查找用户列表失败");
@@ -281,12 +317,55 @@ export class UsersService {
 					name: "已删除" + "_" + user.name + "_" + UUID(),
 				},
 			);
-			await this.redisService.del(RedisKeyEnum.LoginKey + id);
+			this.redisService.del(RedisKeyEnum.LoginKey + id);
+			this.redisService._delKeysWithPrefix(RedisKeyEnum.UserKey);
 			return "删除用户成功~";
 		} catch (error) {
 			this.logger.error(error);
 			if (error.message) throw new BadRequestException(error.message);
 			throw new BadRequestException("删除用户失败");
+		}
+	}
+
+	/**
+	 * 禁用用户
+	 * @param id 禁用类id
+	 * @type "role" | "department"
+	 * @returns
+	 */
+	async disabledUser(id: number, type: "role" | "department") {
+		this.logger.log(`${this.disabledUser.name} was called`);
+		try {
+			if (type == "role") {
+				const users = await this.usersRespository.find({
+					where: {
+						roles: {
+							id,
+							isDelete: false,
+						},
+					},
+				});
+				users.forEach((role) => {
+					role.enable = false;
+				});
+				await this.usersRespository.save(users);
+			} else if (type == "department") {
+				const users = await this.usersRespository.find({
+					where: {
+						department: {
+							id,
+							isDelete: false,
+						},
+					},
+				});
+				users.forEach((user) => {
+					user.enable = false;
+				});
+				await this.usersRespository.save(users);
+			}
+		} catch (error) {
+			this.logger.error(error);
+			throw new BadRequestException("禁用用户失败");
 		}
 	}
 

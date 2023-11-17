@@ -8,10 +8,10 @@
  */
 export enum PermissionEnum {
 	ALL = "*:*:*",
-	SYSTEM_USER_CREATE = "system:user:create",
-	SYSTEM_USER_UPDATE = "system:user:update",
-	SYSTEM_USER_DELETE = "system:user:delete",
-	SYSTEM_USER_QUERY = "system:user:query",
+	SYSTEM_USERS_CREATE = "system:users:create",
+	SYSTEM_USERS_UPDATE = "system:users:update",
+	SYSTEM_USERS_DELETE = "system:users:delete",
+	SYSTEM_USERS_QUERY = "system:users:query",
 
 	SYSTEM_DEPARTMENT_CREATE = "system:department:create",
 	SYSTEM_DEPARTMENT_UPDATE = "system:department:update",
