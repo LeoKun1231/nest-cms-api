@@ -10,6 +10,7 @@ import {
 	Column,
 	Entity,
 	OneToMany,
+	Relation,
 	Tree,
 	TreeChildren,
 	TreeParent,
@@ -37,5 +38,5 @@ export class Department extends BaseEntity {
 	parentId: number;
 
 	@OneToMany(() => User, (user) => user.department)
-	users: User[];
+	users: Relation<User[]>;
 }

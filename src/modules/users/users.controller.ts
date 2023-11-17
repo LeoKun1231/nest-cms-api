@@ -37,7 +37,7 @@ export class UsersController {
 	 */
 	@Post()
 	@HttpCode(HttpStatus.OK)
-	@RequirePermission(PermissionEnum.SYSTEM_USER_CREATE)
+	@RequirePermission(PermissionEnum.SYSTEM_USERS_CREATE)
 	register(@Body() createUserDto: CreateUserDto) {
 		return this.usersService.createUser(createUserDto);
 	}
@@ -59,7 +59,7 @@ export class UsersController {
 	 */
 	@Post("list")
 	@HttpCode(HttpStatus.OK)
-	@RequirePermission(PermissionEnum.SYSTEM_USER_QUERY)
+	@RequirePermission(PermissionEnum.SYSTEM_USERS_QUERY)
 	findAll(@Body() queryUserDto: QueryUserDto) {
 		return this.usersService.findAll(queryUserDto);
 	}
@@ -71,7 +71,7 @@ export class UsersController {
 	 * @returns
 	 */
 	@Patch(":id")
-	@RequirePermission(PermissionEnum.SYSTEM_USER_UPDATE)
+	@RequirePermission(PermissionEnum.SYSTEM_USERS_UPDATE)
 	update(@Param("id") id: string, @Body() updateUserDto: UpdateUserDto) {
 		return this.usersService.updateUser(+id, updateUserDto);
 	}
@@ -83,7 +83,7 @@ export class UsersController {
 	 */
 	@Delete(":id")
 	@HttpCode(HttpStatus.OK)
-	@RequirePermission(PermissionEnum.SYSTEM_USER_DELETE)
+	@RequirePermission(PermissionEnum.SYSTEM_USERS_DELETE)
 	remove(@Param("id") id: string) {
 		return this.usersService.remove(+id);
 	}

@@ -6,6 +6,7 @@
  * @FilePath: \cms\src\modules\department\department.service.ts
  * @Description:
  */
+import { WrapperType } from "@/@types/typeorm";
 import { Department } from "@/shared/entities/department.entity";
 import { RedisKeyEnum } from "@/shared/enums/redis-key.enum";
 import { AppLoggerSevice } from "@/shared/logger/logger.service";
@@ -13,13 +14,15 @@ import { RedisService } from "@/shared/redis/redis.service";
 import { filterEmpty } from "@/shared/utils/filer-empty";
 import {
 	BadRequestException,
-	ForbiddenException,
+	Inject,
 	Injectable,
+	forwardRef,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToInstance } from "class-transformer";
 import { Between, Like, QueryFailedError, Repository } from "typeorm";
 import { v4 as UUID } from "uuid";
+import { UsersService } from "../users/users.service";
 import { CreateDepartmentDto } from "./dto/create-department.dto";
 import { ExportDepartmentListDto } from "./dto/export-department-list.dto";
 import { ExportDepartmentDto } from "./dto/export-department.dto";
@@ -33,6 +36,8 @@ export class DepartmentService {
 		@InjectRepository(Department)
 		private readonly departmentRepository: Repository<Department>,
 		private readonly redisService: RedisService,
+		@Inject(forwardRef(() => UsersService))
+		private readonly userService: WrapperType<UsersService>,
 	) {
 		this.logger.setContext(DepartmentService.name);
 	}
@@ -174,7 +179,13 @@ export class DepartmentService {
 				{ id, isDelete: false },
 				updateDepartmentDto,
 			);
+
+			if (updateDepartmentDto.enable === false) {
+				// 禁用部门下的所有用户
+				await this.userService.disabledUser(id, "department");
+			}
 			this.redisService._delKeysWithPrefix(RedisKeyEnum.DepartmentKey);
+			this.redisService._delKeysWithPrefix(RedisKeyEnum.UserKey);
 			return "更新部门成功~";
 		} catch (error) {
 			this.logger.error(error);
@@ -212,6 +223,7 @@ export class DepartmentService {
 				},
 			);
 			this.redisService._delKeysWithPrefix(RedisKeyEnum.DepartmentKey);
+			this.redisService._delKeysWithPrefix(RedisKeyEnum.UserKey);
 			return "删除部门成功~";
 		} catch (error) {
 			this.logger.error(error);
@@ -227,7 +239,7 @@ export class DepartmentService {
 	 */
 	judgeCanDo(id: number) {
 		if (id <= 5) {
-			throw new ForbiddenException("系统部门不能操作");
+			throw new BadRequestException("系统默认部门不可操作");
 		}
 	}
 }

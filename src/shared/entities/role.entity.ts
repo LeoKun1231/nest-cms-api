@@ -6,7 +6,7 @@
  * @FilePath: \cms\src\shared\entities\role.entity.ts
  * @Description:
  */
-import { Column, Entity, ManyToMany } from "typeorm";
+import { Column, Entity, ManyToMany, Relation } from "typeorm";
 import { EntityEnum } from "../enums/entity.enum";
 import { BaseEntity } from "./base/Base.entity";
 import { Menu } from "./menu.entity";
@@ -24,5 +24,5 @@ export class Role extends BaseEntity {
 	menuList: Menu[];
 
 	@ManyToMany(() => User, (user) => user.roles)
-	users: User[];
+	users: Relation<User[]>;
 }

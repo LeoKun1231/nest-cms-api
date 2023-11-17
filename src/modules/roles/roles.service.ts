@@ -6,6 +6,7 @@
  * @FilePath: \cms\src\modules\roles\roles.service.ts
  * @Description:
  */
+import { WrapperType } from "@/@types/typeorm";
 import { Role } from "@/shared/entities/role.entity";
 import { RedisKeyEnum } from "@/shared/enums/redis-key.enum";
 import { AppLoggerSevice } from "@/shared/logger/logger.service";
@@ -15,7 +16,9 @@ import { generateTree } from "@/shared/utils/generate-tree";
 import {
 	BadRequestException,
 	ForbiddenException,
+	Inject,
 	Injectable,
+	forwardRef,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToInstance } from "class-transformer";
@@ -23,6 +26,7 @@ import { Between, In, Like, QueryFailedError, Repository } from "typeorm";
 import { v4 as UUID } from "uuid";
 import { ExportMenuDto } from "../menus/dto/export-menu.dto";
 import { MenusService } from "../menus/menus.service";
+import { UsersService } from "../users/users.service";
 import { AssignRoleDto } from "./dto/assign-role.dto";
 import { CreateRoleDto } from "./dto/create-role.dto";
 import { ExportRoleListDto } from "./dto/export-role-list.dto";
@@ -37,6 +41,8 @@ export class RolesService {
 		@InjectRepository(Role) private readonly roleRepository: Repository<Role>,
 		private readonly menusService: MenusService,
 		private readonly redisService: RedisService,
+		@Inject(forwardRef(() => UsersService))
+		private readonly userService: WrapperType<UsersService>,
 	) {
 		this.logger.setContext(RolesService.name);
 	}
@@ -230,8 +236,13 @@ export class RolesService {
 				name,
 				menuList,
 			});
-			this.redisService._delKeysWithPrefix(RedisKeyEnum.RoleKey);
 
+			if (updateRoleDto.enable == false) {
+				//如果禁用角色，禁用该角色下的所有用户
+				await this.userService.disabledUser(id, "role");
+			}
+			this.redisService._delKeysWithPrefix(RedisKeyEnum.RoleKey);
+			this.redisService._delKeysWithPrefix(RedisKeyEnum.UserKey);
 			return "更新角色成功~";
 		} catch (error) {
 			this.logger.error(error);
@@ -261,8 +272,10 @@ export class RolesService {
 				isDelete: true,
 				name: "已删除" + "_" + role.name + "_" + UUID(),
 				menuList: [],
+				users: [],
 			});
 			this.redisService._delKeysWithPrefix(RedisKeyEnum.RoleKey);
+			this.redisService._delKeysWithPrefix(RedisKeyEnum.UserKey);
 			return "删除角色成功~";
 		} catch (error) {
 			this.logger.error(error);
