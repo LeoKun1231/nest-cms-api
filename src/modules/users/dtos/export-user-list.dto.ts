@@ -2,7 +2,7 @@
  * @Author: Leo l024983409@qq.com
  * @Date: 2023-11-11 19:30:20
  * @LastEditors: Leo l024983409@qq.com
- * @LastEditTime: 2023-11-14 18:35:06
+ * @LastEditTime: 2023-11-15 11:00:50
  * @FilePath: \cms\src\modules\users\dtos\export-user-list.dto.ts
  * @Description:
  */
@@ -62,6 +62,7 @@ class ExportUserListItem {
 		example: "1",
 		type: Number,
 	})
+	@Type(() => Number)
 	@Expose()
 	enable: number;
 

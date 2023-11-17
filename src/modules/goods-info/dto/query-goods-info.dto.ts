@@ -6,13 +6,20 @@
  * @FilePath: \cms\src\modules\goods-info\dto\query-goods-info.dto.ts
  * @Description:
  */
-import { ValidateNumberArrary } from "@/shared/decorators/validate-number-array.decorator";
+import { ValidateArrary } from "@/shared/decorators/validate-array.decorator";
+import { ValidateStringNumber } from "@/shared/decorators/validate-string-number.decorator";
 import { BaseQueryDto } from "@/shared/dtos/base-query.dto";
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsNumber, IsOptional, IsString } from "class-validator";
 
 export class QueryGoodsInfoDto extends BaseQueryDto {
+	@ApiProperty({ name: "商品分类id", example: 1, type: Number })
+	@ValidateStringNumber({ message: "商品分类id必须是字符串或者数字" })
+	@Type(() => Number)
+	@IsOptional()
+	categoryId: number;
+
 	@ApiProperty({
 		name: "商品名称",
 		example: "格姬2018秋装4",
@@ -23,12 +30,12 @@ export class QueryGoodsInfoDto extends BaseQueryDto {
 	name: string;
 
 	@ApiProperty({ name: "原价", example: [1, 100], type: [Number, Number] })
-	@ValidateNumberArrary("原价")
+	@ValidateArrary("原价")
 	@IsOptional()
 	oldPrice: number[];
 
 	@ApiProperty({ name: "现价", example: [1, 100], type: [Number, Number] })
-	@ValidateNumberArrary("现价")
+	@ValidateArrary("现价")
 	@IsOptional()
 	newPrice: number[];
 
@@ -48,17 +55,17 @@ export class QueryGoodsInfoDto extends BaseQueryDto {
 	status: number;
 
 	@ApiProperty({ name: "库存数量", example: [1, 100], type: [Number, Number] })
-	@ValidateNumberArrary("库存数量")
+	@ValidateArrary("库存数量")
 	@IsOptional()
 	inventoryCount: number[];
 
 	@ApiProperty({ name: "销售数量", example: [1, 100], type: [Number, Number] })
-	@ValidateNumberArrary("销售数量")
+	@ValidateArrary("销售数量")
 	@IsOptional()
 	saleCount: number[];
 
 	@ApiProperty({ name: "收藏数量", example: [1, 100], type: [Number, Number] })
-	@ValidateNumberArrary("收藏数量")
+	@ValidateArrary("收藏数量")
 	@IsOptional()
 	favorCount: number[];
 

@@ -44,6 +44,11 @@ export class GoodsCategoryController {
 		return this.goodsCategoryService.findAll(queryGoodsCategoryDto);
 	}
 
+	@Get("all")
+	findAllCategory() {
+		return this.goodsCategoryService.findAllCategory();
+	}
+
 	@Get(":id")
 	@RequirePermission(PermissionEnum.SYSTEM_CATEGORY_QUERY)
 	findOne(@Param("id") id: string) {

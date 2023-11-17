@@ -27,6 +27,22 @@ export class RedisService extends Redis implements OnModuleInit {
 		this.logger.setContext(RedisService.name);
 	}
 
+	async _get(key: string) {
+		return JSON.parse(await this.get(key));
+	}
+
+	async _set(key: string, value: any) {
+		return await this.set(key, JSON.stringify(value));
+	}
+
+	async _delKeysWithPrefix(prefix: string) {
+		const keys = await this.keys(`${prefix}*`);
+		if (keys.length === 0) {
+			return 0;
+		}
+		return await this.del(...keys);
+	}
+
 	async onModuleInit() {
 		this.logger.log("redis connect success");
 		await this.ping();

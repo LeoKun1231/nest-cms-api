@@ -7,7 +7,10 @@
  * @Description:
  */
 import { Department } from "@/shared/entities/department.entity";
+import { RedisKeyEnum } from "@/shared/enums/redis-key.enum";
 import { AppLoggerSevice } from "@/shared/logger/logger.service";
+import { RedisService } from "@/shared/redis/redis.service";
+import { filterEmpty } from "@/shared/utils/filer-empty";
 import {
 	BadRequestException,
 	ForbiddenException,
@@ -29,6 +32,7 @@ export class DepartmentService {
 		private readonly logger: AppLoggerSevice,
 		@InjectRepository(Department)
 		private readonly departmentRepository: Repository<Department>,
+		private readonly redisService: RedisService,
 	) {
 		this.logger.setContext(DepartmentService.name);
 	}
@@ -42,6 +46,7 @@ export class DepartmentService {
 		this.logger.log(`${this.create.name} was called`);
 		try {
 			await this.departmentRepository.save(createDepartmentDto);
+			this.redisService._delKeysWithPrefix(RedisKeyEnum.DepartmentKey);
 			return "创建部门成功~";
 		} catch (error) {
 			this.logger.error(error);
@@ -81,6 +86,12 @@ export class DepartmentService {
 				updateAt,
 			} = queryDepartmentDto;
 
+			const filterQueryDepartmentDto = filterEmpty(queryDepartmentDto);
+			const redisDepartmentList = await this.redisService._get(
+				RedisKeyEnum.DepartmentKey + JSON.stringify(filterQueryDepartmentDto),
+			);
+			if (redisDepartmentList) return redisDepartmentList;
+
 			const [list, totalCount] = await this.departmentRepository.findAndCount({
 				where: {
 					id,
@@ -94,8 +105,12 @@ export class DepartmentService {
 				},
 				skip: offset,
 				take: size,
+				order: {
+					id: "DESC",
+				},
 			});
-			return plainToInstance(
+
+			const departmentList = plainToInstance(
 				ExportDepartmentListDto,
 				{
 					list,
@@ -105,6 +120,12 @@ export class DepartmentService {
 					excludeExtraneousValues: true,
 				},
 			);
+
+			this.redisService._set(
+				RedisKeyEnum.DepartmentKey + JSON.stringify(filterQueryDepartmentDto),
+				departmentList,
+			);
+			return departmentList;
 		} catch (error) {
 			this.logger.error(error);
 			throw new BadRequestException("获取部门列表失败");
@@ -119,6 +140,7 @@ export class DepartmentService {
 	async findOne(id: number) {
 		this.logger.log(`${this.findOne.name} was called`);
 		try {
+			if (!id) throw new BadRequestException("部门不存在");
 			const department = await this.departmentRepository.findOne({
 				where: {
 					id,
@@ -152,6 +174,7 @@ export class DepartmentService {
 				{ id, isDelete: false },
 				updateDepartmentDto,
 			);
+			this.redisService._delKeysWithPrefix(RedisKeyEnum.DepartmentKey);
 			return "更新部门成功~";
 		} catch (error) {
 			this.logger.error(error);
@@ -188,6 +211,7 @@ export class DepartmentService {
 					name: "已删除" + "_" + department.name + "_" + UUID(),
 				},
 			);
+			this.redisService._delKeysWithPrefix(RedisKeyEnum.DepartmentKey);
 			return "删除部门成功~";
 		} catch (error) {
 			this.logger.error(error);

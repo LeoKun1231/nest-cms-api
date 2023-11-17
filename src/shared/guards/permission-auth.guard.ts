@@ -12,18 +12,22 @@ import {
 	ExecutionContext,
 	ForbiddenException,
 	Injectable,
+	UnauthorizedException,
 } from "@nestjs/common";
 import { Reflector } from "@nestjs/core";
 import { RequirePermissionOptions } from "../decorators/require-permission.decorator";
 import { DecoratorEnum } from "../enums/decorator.enum";
 import { PermissionEnum } from "../enums/permission.enum";
+import { RedisKeyEnum } from "../enums/redis-key.enum";
 import { JwtPayloadInterface } from "../interfaces/jwt-payload.interface";
+import { RedisService } from "../redis/redis.service";
 
 @Injectable()
 export class PermissionAuthGuard implements CanActivate {
 	constructor(
 		private readonly reflector: Reflector,
 		private readonly roleService: RolesService,
+		private readonly redisService: RedisService,
 	) {}
 
 	async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -42,19 +46,23 @@ export class PermissionAuthGuard implements CanActivate {
 		const request = context.switchToHttp().getRequest();
 
 		const user = request.user as JwtPayloadInterface;
-		console.log(
-			"🚀 ~ file: permission-auth.guard.ts:37 ~ PermissionAuthGuard ~ canActivate ~ user:",
-			user,
-		);
-		// 3.如果没有用户信息，直接返回false->表示不可以访问
-		if (!user) return false;
 
-		// 4.如果是超级管理员，直接返回true->表示可以访问
+		const accessToken = await this.redisService.get(
+			RedisKeyEnum.LoginKey + user.id,
+		);
+
+		// 3.如果没有accessToken，直接返回false->表示不可以访问
+		if (!accessToken) throw new UnauthorizedException("请先登录~");
+
+		// 4.如果没有用户信息，直接返回false->表示不可以访问
+		if (!user) throw new UnauthorizedException("请先登录~");
+
+		// 5.如果是超级管理员，直接返回true->表示可以访问
 		if (user.roleId === 1) return true;
 
-		// 5.获取用户角色
+		// 6.获取用户角色
 		const role = await this.roleService.findRoleWithMenuList(user.roleId);
-		// 6.获取用户权限
+		// 7.获取用户权限
 		const userPermissions = role.menuList
 			.map((item) => {
 				if (item.permission !== "null" && item.permission) {
@@ -62,11 +70,19 @@ export class PermissionAuthGuard implements CanActivate {
 				}
 			})
 			.filter((item) => item);
+		console.log(
+			"🚀 ~ file: permission-auth.guard.ts:73 ~ PermissionAuthGuard ~ canActivate ~ userPermissions:",
+			userPermissions,
+		);
 		const { permission: requirePermissions, logical } = permissionOptions;
-		// 7.如果用PermissionEnum.All 则直接放行
+		console.log(
+			"🚀 ~ file: permission-auth.guard.ts:78 ~ PermissionAuthGuard ~ canActivate ~ requirePermissions:",
+			requirePermissions,
+		);
+		// 8.如果用PermissionEnum.All 则直接放行
 		if (userPermissions.includes(PermissionEnum.ALL)) return true;
 
-		// 8.判断是否有权限
+		// 9.判断是否有权限
 		const hasPermission =
 			logical == "or"
 				? requirePermissions.some((item) => userPermissions.includes(item))

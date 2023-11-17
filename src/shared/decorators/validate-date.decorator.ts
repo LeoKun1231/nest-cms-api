@@ -2,7 +2,7 @@
  * @Author: Leo l024983409@qq.com
  * @Date: 2023-11-10 18:31:40
  * @LastEditors: Leo l024983409@qq.com
- * @LastEditTime: 2023-11-14 18:50:58
+ * @LastEditTime: 2023-11-15 10:44:17
  * @FilePath: \cms\src\shared\decorators\validate-date.decorator.ts
  * @Description:
  */
@@ -15,6 +15,7 @@ import { Transform } from "class-transformer";
  */
 export function ValidateDate() {
 	return Transform(({ value, key }) => {
+		if (!value) return undefined;
 		//1.判断是否是数组
 		if (!Array.isArray(value)) {
 			throw new BadRequestException(`${key} 必须是数组`);

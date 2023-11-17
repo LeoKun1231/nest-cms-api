@@ -2,7 +2,7 @@
  * @Author: Leo l024983409@qq.com
  * @Date: 2023-10-15 12:37:59
  * @LastEditors: Leo l024983409@qq.com
- * @LastEditTime: 2023-11-14 19:02:59
+ * @LastEditTime: 2023-11-14 22:50:47
  * @FilePath: \cms\src\app.module.ts
  * @Description:
  */
@@ -15,7 +15,6 @@ import { AuthModule } from "./modules/auth/auth.module";
 import { DepartmentModule } from "./modules/department/department.module";
 import { GoodsCategoryModule } from "./modules/goods-category/goods-category.module";
 import { GoodsInfoModule } from "./modules/goods-info/goods-info.module";
-import { GoodsModule } from "./modules/goods/goods.module";
 import { MenusModule } from "./modules/menus/menus.module";
 import { RolesModule } from "./modules/roles/roles.module";
 import { StoryModule } from "./modules/story/story.module";
@@ -32,7 +31,6 @@ import { SharedModule } from "./shared/shared.module";
 		DepartmentModule,
 		GoodsInfoModule,
 		GoodsCategoryModule,
-		GoodsModule,
 		StoryModule,
 	],
 	controllers: [AppController],

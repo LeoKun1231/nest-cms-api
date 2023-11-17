@@ -6,17 +6,24 @@
  * @FilePath: \cms\src\modules\goods-category\goods-category.service.ts
  * @Description:
  */
+import { WrapperType } from "@/@types/typeorm";
 import { GoodsCategory } from "@/shared/entities/goods-category.entity";
+import { RedisKeyEnum } from "@/shared/enums/redis-key.enum";
 import { AppLoggerSevice } from "@/shared/logger/logger.service";
+import { RedisService } from "@/shared/redis/redis.service";
+import { filterEmpty } from "@/shared/utils/filer-empty";
 import {
 	BadRequestException,
 	ForbiddenException,
+	Inject,
 	Injectable,
+	forwardRef,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { plainToInstance } from "class-transformer";
 import { Between, Like, QueryFailedError, Repository } from "typeorm";
 import { v4 as UUID } from "uuid";
+import { GoodsInfoService } from "../goods-info/goods-info.service";
 import { CreateGoodsCategoryDto } from "./dto/create-goods-category.dto";
 import { ExportGoodsCategoryListDto } from "./dto/export-goods-category-list";
 import { ExportGoodsCategoryDto } from "./dto/export-goods-category.dto";
@@ -29,6 +36,9 @@ export class GoodsCategoryService {
 		private readonly logger: AppLoggerSevice,
 		@InjectRepository(GoodsCategory)
 		private readonly goodCategoryRepository: Repository<GoodsCategory>,
+		private readonly redisService: RedisService,
+		@Inject(forwardRef(() => GoodsInfoService))
+		private readonly goodsInfoService: WrapperType<GoodsInfoService>,
 	) {
 		this.logger.setContext(GoodsCategoryService.name);
 	}
@@ -42,6 +52,7 @@ export class GoodsCategoryService {
 		this.logger.log(`${this.create.name} was called`);
 		try {
 			await this.goodCategoryRepository.save(createGoodsCategoryDto);
+			this.redisService._delKeysWithPrefix(RedisKeyEnum.GoodsCategoryKey);
 			return "创建商品分类成功~";
 		} catch (error) {
 			this.logger.error(error);
@@ -62,6 +73,14 @@ export class GoodsCategoryService {
 		try {
 			const { createAt, enable, id, name, offset, size, updateAt } =
 				queryGoodsCategoryDto;
+
+			const filterQueryGoodsCategory = filterEmpty(queryGoodsCategoryDto);
+			const redisGoodsCategoryList = await this.redisService._get(
+				RedisKeyEnum.GoodsCategoryKey +
+					JSON.stringify(filterQueryGoodsCategory),
+			);
+			if (redisGoodsCategoryList) return redisGoodsCategoryList;
+
 			const [list, totalCount] = await this.goodCategoryRepository.findAndCount(
 				{
 					where: {
@@ -74,10 +93,12 @@ export class GoodsCategoryService {
 					},
 					skip: offset,
 					take: size,
+					order: {
+						id: "DESC",
+					},
 				},
 			);
-
-			return plainToInstance(
+			const goodCategoryList = plainToInstance(
 				ExportGoodsCategoryListDto,
 				{
 					list,
@@ -87,6 +108,44 @@ export class GoodsCategoryService {
 					excludeExtraneousValues: true,
 				},
 			);
+			this.redisService._set(
+				RedisKeyEnum.GoodsCategoryKey +
+					JSON.stringify(filterQueryGoodsCategory),
+				goodCategoryList,
+			);
+			return goodCategoryList;
+		} catch (error) {
+			this.logger.error(error);
+			throw new BadRequestException("获取商品分类列表失败");
+		}
+	}
+
+	/**
+	 * 获取商品分类列表
+	 * @returns
+	 */
+	async findAllCategory() {
+		this.logger.log(`${this.findAllCategory.name} was called`);
+		try {
+			const redisCategoryList = await this.redisService._get(
+				RedisKeyEnum.GoodsCategoryKey,
+			);
+			if (redisCategoryList) return redisCategoryList;
+			const categoryList = await this.goodCategoryRepository.find({
+				select: {
+					id: true,
+					name: true,
+				},
+				where: {
+					isDelete: false,
+					enable: true,
+				},
+				order: {
+					id: "DESC",
+				},
+			});
+			this.redisService._set(RedisKeyEnum.GoodsCategoryKey, categoryList);
+			return categoryList;
 		} catch (error) {
 			this.logger.error(error);
 			throw new BadRequestException("获取商品分类列表失败");
@@ -100,17 +159,15 @@ export class GoodsCategoryService {
 	 */
 	async findOne(id: number) {
 		this.logger.log(`${this.findOne.name} was called`);
-
 		try {
+			if (!id) throw new BadRequestException("商品分类不存在");
 			const goodsCategory = await this.goodCategoryRepository.findOne({
 				where: {
 					id,
 					isDelete: false,
 				},
 			});
-
 			if (!goodsCategory) throw new BadRequestException("商品分类不存在");
-
 			return plainToInstance(ExportGoodsCategoryDto, goodsCategory, {
 				excludeExtraneousValues: true,
 			});
@@ -132,10 +189,16 @@ export class GoodsCategoryService {
 		this.judgeCanDo(id);
 		try {
 			await this.findOne(id);
-			await this.goodCategoryRepository.update(
-				{ id, isDelete: false },
-				updateGoodsCategoryDto,
-			);
+			await this.goodCategoryRepository.save({
+				id,
+				isDelete: false,
+				...updateGoodsCategoryDto,
+			});
+			if (updateGoodsCategoryDto.enable === false) {
+				this.goodsInfoService.disableMany(id);
+			}
+			this.redisService._delKeysWithPrefix(RedisKeyEnum.GoodsCategoryKey);
+			this.redisService._delKeysWithPrefix(RedisKeyEnum.GoodsInfoKey);
 			return "更新商品分类成功~";
 		} catch (error) {
 			this.logger.error(error);
@@ -156,17 +219,14 @@ export class GoodsCategoryService {
 		this.judgeCanDo(id);
 		try {
 			const goodsCategory = await this.findOne(id);
-
-			await this.goodCategoryRepository.update(
-				{
-					id,
-					isDelete: false,
-				},
-				{
-					name: `已删除_${goodsCategory.name}_${UUID()}`,
-					isDelete: true,
-				},
-			);
+			await this.goodCategoryRepository.save({
+				id,
+				name: `已删除_${goodsCategory.name}_${UUID()}`,
+				isDelete: true,
+				goods: [],
+			});
+			this.redisService._delKeysWithPrefix(RedisKeyEnum.GoodsCategoryKey);
+			this.redisService._delKeysWithPrefix(RedisKeyEnum.GoodsInfoKey);
 			return "删除商品分类成功~";
 		} catch (error) {
 			this.logger.error(error);

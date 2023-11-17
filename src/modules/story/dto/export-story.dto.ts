@@ -2,12 +2,12 @@
  * @Author: Leo l024983409@qq.com
  * @Date: 2023-11-13 11:40:24
  * @LastEditors: Leo l024983409@qq.com
- * @LastEditTime: 2023-11-14 18:34:38
+ * @LastEditTime: 2023-11-15 10:55:38
  * @FilePath: \cms\src\modules\story\dto\export-story.dto.ts
  * @Description:
  */
 import { ApiProperty } from "@nestjs/swagger";
-import { Expose } from "class-transformer";
+import { Expose, Type } from "class-transformer";
 
 export class ExportExportDto {
 	@ApiProperty({
@@ -40,7 +40,8 @@ export class ExportExportDto {
 		type: Boolean,
 	})
 	@Expose()
-	enable: boolean;
+	@Type(() => Number)
+	enable: number;
 
 	@ApiProperty({
 		description: "创建时间",

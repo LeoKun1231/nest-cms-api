@@ -26,6 +26,7 @@ import { TransformResultInterceptor } from "./interceptors/transform.interceptor
 import { LoggerModule } from "./logger/logger.module";
 import { LogMiddleware } from "./middleware/log.middleware";
 import { RedisModule } from "./redis/redis.module";
+import { SharedService } from "./shared.service";
 import { UploadModule } from "./upload/upload.module";
 
 const envFilePath = `.env.${process.env.NODE_ENV || `development`}`;
@@ -45,6 +46,7 @@ const envFilePath = `.env.${process.env.NODE_ENV || `development`}`;
 		RedisModule,
 	],
 	providers: [
+		SharedService,
 		Logger,
 		//全局异常拦截器
 		{
@@ -66,7 +68,7 @@ const envFilePath = `.env.${process.env.NODE_ENV || `development`}`;
 			useClass: PermissionAuthGuard,
 		},
 	],
-	exports: [Logger, LoggerModule, RedisModule],
+	exports: [SharedService, Logger, LoggerModule, RedisModule],
 })
 
 //配置请求日志中间件

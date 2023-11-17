@@ -48,7 +48,6 @@ export class UsersController {
 	 * @returns
 	 */
 	@Get(":id")
-	@RequirePermission(PermissionEnum.SYSTEM_USER_QUERY)
 	findOne(@Param("id") id: string) {
 		return this.usersService.findUserById(+id);
 	}

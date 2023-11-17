@@ -7,13 +7,17 @@
  * @Description:
  */
 import { GoodsCategory } from "@/shared/entities/goods-category.entity";
-import { Module } from "@nestjs/common";
+import { Module, forwardRef } from "@nestjs/common";
 import { TypeOrmModule } from "@nestjs/typeorm";
+import { GoodsInfoModule } from "../goods-info/goods-info.module";
 import { GoodsCategoryController } from "./goods-category.controller";
 import { GoodsCategoryService } from "./goods-category.service";
 
 @Module({
-	imports: [TypeOrmModule.forFeature([GoodsCategory])],
+	imports: [
+		TypeOrmModule.forFeature([GoodsCategory]),
+		forwardRef(() => GoodsInfoModule),
+	],
 	controllers: [GoodsCategoryController],
 	providers: [GoodsCategoryService],
 	exports: [GoodsCategoryService],
