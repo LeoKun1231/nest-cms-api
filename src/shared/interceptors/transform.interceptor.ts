@@ -2,8 +2,8 @@
  * @Author: Leo l024983409@qq.com
  * @Date: 2023-10-15 18:09:41
  * @LastEditors: Leo l024983409@qq.com
- * @LastEditTime: 2023-10-17 10:35:23
- * @FilePath: \cms\src\common\interceptors\transform.interceptor.ts
+ * @LastEditTime: 2023-11-14 22:51:58
+ * @FilePath: \cms\src\shared\interceptors\transform.interceptor.ts
  * @Description:.
  */
 import { AppLoggerSevice } from "@/shared/logger/logger.service";

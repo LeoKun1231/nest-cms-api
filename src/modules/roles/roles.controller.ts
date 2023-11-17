@@ -50,7 +50,6 @@ export class RolesController {
 	 */
 	@Post("list")
 	@HttpCode(HttpStatus.OK)
-	@RequirePermission(PermissionEnum.SYSTEM_ROLE_QUERY)
 	findAll(@Body() queryRoleDto: QueryRoleDto) {
 		return this.rolesService.findAll(queryRoleDto);
 	}
@@ -90,7 +89,6 @@ export class RolesController {
 	}
 
 	@Get(":id/menu")
-	@RequirePermission(PermissionEnum.SYSTEM_ROLE_QUERY)
 	findRoleMenu(@Param("id") id: string) {
 		return this.rolesService.findRoleMenuById(+id);
 	}

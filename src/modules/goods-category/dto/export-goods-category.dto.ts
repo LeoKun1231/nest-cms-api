@@ -2,12 +2,12 @@
  * @Author: Leo l024983409@qq.com
  * @Date: 2023-11-12 22:29:18
  * @LastEditors: Leo l024983409@qq.com
- * @LastEditTime: 2023-11-14 18:32:21
+ * @LastEditTime: 2023-11-15 11:03:05
  * @FilePath: \cms\src\modules\goods-category\dto\export-goods-category.dto.ts
  * @Description:
  */
 import { ApiProperty } from "@nestjs/swagger";
-import { Expose } from "class-transformer";
+import { Expose, Type } from "class-transformer";
 
 export class ExportGoodsCategoryDto {
 	@ApiProperty({
@@ -29,10 +29,11 @@ export class ExportGoodsCategoryDto {
 	@ApiProperty({
 		description: "是否启用",
 		example: true,
-		type: Boolean,
+		type: Number,
 	})
+	@Type(() => Number)
 	@Expose()
-	enable: boolean;
+	enable: number;
 
 	@ApiProperty({
 		description: "创建时间",

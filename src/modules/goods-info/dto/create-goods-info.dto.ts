@@ -6,32 +6,33 @@
  * @FilePath: \cms\src\modules\goods-info\dto\create-goods-info.dto.ts
  * @Description:
  */
+import { ValidateStringNumber } from "@/shared/decorators/validate-string-number.decorator";
 import { ApiProperty } from "@nestjs/swagger";
-import {
-	IsNotEmpty,
-	IsNumber,
-	IsOptional,
-	IsString,
-	Max,
-	Min,
-} from "class-validator";
+import { Type } from "class-transformer";
+import { IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 export class CreateGoodsInfoDto {
+	@ApiProperty({ description: "商品分类ID", example: 8, type: Number })
+	@ValidateStringNumber({ message: "商品原价必须是数字或字符串" })
+	@IsNotEmpty({ message: "商品原价不能为空" })
+	@Type(() => Number)
+	categoryId: number;
+
 	@ApiProperty({ example: "iPhone 12", description: "商品名称", type: String })
 	@IsString({ message: "商品名称必须是字符串" })
 	@IsNotEmpty({ message: "商品名称不能为空" })
 	name: string;
 
 	@ApiProperty({ example: 9999, description: "商品原价", type: Number })
-	@IsNumber({}, { message: "商品原价必须是数字" })
-	@Min(0, { message: "商品原价不能小于0" })
+	@ValidateStringNumber({ message: "商品原价必须是数字或字符串" })
 	@IsNotEmpty({ message: "商品原价不能为空" })
+	@Type(() => Number)
 	oldPrice: number;
 
 	@ApiProperty({ example: 8888, description: "商品现价", type: Number })
-	@IsNumber({}, { message: "商品现价必须是数字" })
-	@Min(0, { message: "商品现价不能小于0" })
+	@ValidateStringNumber({ message: "商品现价必须是数字或字符串" })
 	@IsNotEmpty({ message: "商品现价不能为空" })
+	@Type(() => Number)
 	newPrice: number;
 
 	@ApiProperty({
@@ -48,10 +49,9 @@ export class CreateGoodsInfoDto {
 		description: "商品状态（1：在售，0：下架）",
 		type: Number,
 	})
-	@IsNumber({}, { message: "商品状态必须是数字" })
-	@Min(0, { message: "商品状态不能小于0" })
-	@Max(1, { message: "商品状态不能大于1" })
+	@ValidateStringNumber({ message: "商品状态必须是数字或字符串" })
 	@IsNotEmpty({ message: "商品状态不能为空" })
+	@Type(() => Number)
 	status: number;
 
 	@ApiProperty({
@@ -64,19 +64,19 @@ export class CreateGoodsInfoDto {
 	imgUrl: string;
 
 	@ApiProperty({ example: 100, description: "商品库存数量", type: Number })
-	@IsNumber({}, { message: "商品库存数量必须是数字" })
-	@Min(0, { message: "商品库存数量不能小于0" })
+	@ValidateStringNumber({ message: "商品库存数量必须是数字或字符串" })
+	@Type(() => Number)
 	inventoryCount: number;
 
 	@ApiProperty({ example: 1000, description: "商品销售数量", type: Number })
-	@IsNumber({}, { message: "商品销售数量必须是数字" })
-	@Min(0, { message: "商品销售数量不能小于0" })
+	@ValidateStringNumber({ message: "商品销售数量必须是数字或字符串" })
 	@IsOptional()
+	@Type(() => Number)
 	saleCount: number;
 
 	@ApiProperty({ example: 999, description: "商品收藏数量", type: Number })
-	@IsNumber({}, { message: "商品收藏数量必须是数字" })
-	@Min(0, { message: "商品收藏数量不能小于0" })
+	@ValidateStringNumber({ message: "商品收藏数量必须是数字或字符串" })
+	@Type(() => Number)
 	@IsOptional()
 	favorCount: number;
 

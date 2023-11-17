@@ -6,7 +6,7 @@
  * @FilePath: \cms\src\shared\entities\goods-info.entity.ts
  * @Description:
  */
-import { Column, Entity, ManyToOne } from "typeorm";
+import { Column, Entity, ManyToOne, Relation } from "typeorm";
 import { EntityEnum } from "../enums/entity.enum";
 import { BaseEntity } from "./base/Base.entity";
 import { GoodsCategory } from "./goods-category.entity";
@@ -40,6 +40,6 @@ export class GoodsInfo extends BaseEntity {
 	@Column({ comment: "商品地址" })
 	address: string;
 
-	@ManyToOne(EntityEnum.GoodsCategory, EntityEnum.GoodsInfo)
-	category: GoodsCategory;
+	@ManyToOne(() => GoodsCategory, (category) => category.goods)
+	category: Relation<GoodsCategory>;
 }

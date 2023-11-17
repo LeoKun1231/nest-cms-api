@@ -2,7 +2,7 @@
  * @Author: Leo l024983409@qq.com
  * @Date: 2023-11-11 19:12:21
  * @LastEditors: Leo l024983409@qq.com
- * @LastEditTime: 2023-11-14 18:35:09
+ * @LastEditTime: 2023-11-15 10:58:12
  * @FilePath: \cms\src\modules\users\dtos\export-user.dto.ts
  * @Description:
  */
@@ -49,10 +49,11 @@ export class ExportUserDto {
 
 	@ApiProperty({
 		description: "用户是否启用",
-		example: "1",
+		example: 1,
 		type: Number,
 	})
 	@Expose()
+	@Type(() => Number)
 	enable: number;
 
 	@ApiProperty({

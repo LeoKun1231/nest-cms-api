@@ -7,6 +7,7 @@
  * @Description:
  */
 import { ApiProperty } from "@nestjs/swagger";
+import { Type } from "class-transformer";
 import {
 	IsInt,
 	IsNotEmpty,
@@ -30,6 +31,7 @@ export class CreateMenuDto {
 	@ApiProperty({ description: "菜单层级", example: 0, type: Number })
 	@IsInt({ message: "菜单层级必须是数字" })
 	@IsNotEmpty({ message: "菜单层级不能为空" })
+	@Type(() => Number)
 	type: number;
 
 	@ApiProperty({ description: "菜单url", example: "/menu", type: String })
@@ -40,6 +42,7 @@ export class CreateMenuDto {
 	@ApiProperty({ description: "菜单排序", example: 0, type: Number })
 	@IsInt({ message: "菜单排序必须是数字" })
 	@IsOptional()
+	@Type(() => Number)
 	sort: number;
 
 	@ApiProperty({
@@ -54,6 +57,7 @@ export class CreateMenuDto {
 	@ApiProperty({ description: "菜单父级id", example: 0, type: Number })
 	@IsInt({ message: "菜单父级id必须是数字" })
 	@IsOptional()
+	@Type(() => Number)
 	parentId: number;
 
 	@ApiProperty({ description: "菜单权限", example: "admin", type: String })

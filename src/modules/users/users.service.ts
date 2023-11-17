@@ -9,7 +9,9 @@
 import { Department } from "@/shared/entities/department.entity";
 import { Role } from "@/shared/entities/role.entity";
 import { User } from "@/shared/entities/user.entity";
+import { RedisKeyEnum } from "@/shared/enums/redis-key.enum";
 import { AppLoggerSevice } from "@/shared/logger/logger.service";
+import { RedisService } from "@/shared/redis/redis.service";
 import {
 	BadRequestException,
 	ForbiddenException,
@@ -37,6 +39,7 @@ export class UsersService {
 		private readonly usersRespository: Repository<User>,
 		private readonly rolseService: RolesService,
 		private readonly departmentService: DepartmentService,
+		private readonly redisService: RedisService,
 	) {
 		this.logger.setContext(UsersService.name);
 	}
@@ -57,6 +60,7 @@ export class UsersService {
 				department: true,
 			},
 		});
+
 		//判断用户是否存在
 		if (!user) throw new UnauthorizedException("用户不存在");
 
@@ -96,7 +100,7 @@ export class UsersService {
 				realname,
 				cellphone,
 				roles: [plainToInstance(Role, role)],
-				department,
+				department: plainToInstance(Department, department),
 			});
 			return "创建用户成功~";
 		} catch (error) {
@@ -142,13 +146,17 @@ export class UsersService {
 				const department = await this.departmentService.findOne(departmentId);
 				user.department = plainToInstance(Department, department);
 			}
-			await this.usersRespository.update(
-				{
-					id,
-					isDelete: false,
-				},
-				user,
-			);
+
+			if (!user.enable) {
+				//禁用用户
+				await this.redisService._delKeysWithPrefix(RedisKeyEnum.LoginKey + id);
+			}
+
+			await this.usersRespository.save({
+				...user,
+				id,
+				isDelete: false,
+			});
 			return "更新用户成功~";
 		} catch (error) {
 			this.logger.error(error);
@@ -171,8 +179,9 @@ export class UsersService {
 	async findUserById(id: number) {
 		this.logger.log(`${this.findUserById.name} was called`);
 		try {
+			if (!id) throw new BadRequestException("该用户不存在");
 			const user = await this.usersRespository.findOne({
-				where: { id, isDelete: false, enable: true },
+				where: { id, isDelete: false },
 				relations: {
 					roles: true,
 					department: true,
@@ -238,6 +247,9 @@ export class UsersService {
 					roles: true,
 					department: true,
 				},
+				order: {
+					id: "DESC",
+				},
 			});
 			return plainToInstance(
 				ExportUserListDto,
@@ -269,6 +281,7 @@ export class UsersService {
 					name: "已删除" + "_" + user.name + "_" + UUID(),
 				},
 			);
+			await this.redisService.del(RedisKeyEnum.LoginKey + id);
 			return "删除用户成功~";
 		} catch (error) {
 			this.logger.error(error);

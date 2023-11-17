@@ -2,13 +2,13 @@
  * @Author: Leo l024983409@qq.com
  * @Date: 2023-11-12 22:01:59
  * @LastEditors: Leo l024983409@qq.com
- * @LastEditTime: 2023-11-14 18:51:18
+ * @LastEditTime: 2023-11-15 11:20:49
  * @FilePath: \cms\src\shared\dtos\base-query.dto.ts
  * @Description:
  */
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsInt, IsOptional } from "class-validator";
+import { IsOptional } from "class-validator";
 import { ValidateDate } from "../decorators/validate-date.decorator";
 import { ValidateStringNumber } from "../decorators/validate-string-number.decorator";
 import { BasePaginationDto } from "./base-pagination.dto";
@@ -26,7 +26,8 @@ export class BaseQueryDto extends BasePaginationDto {
 		type: Boolean,
 		description: "0:禁用 1:启用",
 	})
-	@IsInt({ message: "是否启用必须是数字" })
+	@ValidateStringNumber({ message: "是否启用必须是数字或字符串" })
+	@Type(() => Number)
 	@IsOptional()
 	enable: number;
 

@@ -7,7 +7,10 @@
  * @Description:
  */
 import { Story } from "@/shared/entities/story.entity";
+import { RedisKeyEnum } from "@/shared/enums/redis-key.enum";
 import { AppLoggerSevice } from "@/shared/logger/logger.service";
+import { RedisService } from "@/shared/redis/redis.service";
+import { filterEmpty } from "@/shared/utils/filer-empty";
 import {
 	BadRequestException,
 	ForbiddenException,
@@ -30,6 +33,7 @@ export class StoryService {
 		private readonly logger: AppLoggerSevice,
 		@InjectRepository(Story)
 		private readonly storyRepository: Repository<Story>,
+		private readonly redisService: RedisService,
 	) {
 		this.logger.setContext(StoryService.name);
 	}
@@ -52,6 +56,8 @@ export class StoryService {
 				title,
 				content: cleanContent,
 			});
+
+			this.redisService._delKeysWithPrefix(RedisKeyEnum.StoryKey);
 			return "创建故事成功~";
 		} catch (error) {
 			this.logger.error(error);
@@ -70,6 +76,13 @@ export class StoryService {
 		try {
 			const { createAt, enable, id, offset, size, title, updateAt } =
 				queryStoryDto;
+
+			const filterQueryStoryDto = filterEmpty(queryStoryDto);
+			const redisStoryList = await this.redisService._get(
+				RedisKeyEnum.StoryKey + JSON.stringify(filterQueryStoryDto),
+			);
+			if (redisStoryList) return redisStoryList;
+
 			const [list, totalCount] = await this.storyRepository.findAndCount({
 				where: {
 					id,
@@ -81,8 +94,12 @@ export class StoryService {
 				},
 				skip: offset,
 				take: size,
+				order: {
+					id: "DESC",
+				},
 			});
-			return plainToInstance(
+
+			const storyList = plainToInstance(
 				ExportStoryListDto,
 				{
 					list,
@@ -90,6 +107,11 @@ export class StoryService {
 				},
 				{ excludeExtraneousValues: true },
 			);
+			this.redisService._set(
+				RedisKeyEnum.StoryKey + JSON.stringify(filterQueryStoryDto),
+				storyList,
+			);
+			return storyList;
 		} catch (error) {
 			this.logger.error(error);
 			throw new BadRequestException("查询故事列表失败");
@@ -104,6 +126,7 @@ export class StoryService {
 	async findOne(id: number) {
 		this.logger.log(`${this.findOne.name} was called`);
 		try {
+			if (!id) throw new BadRequestException("故事不存在");
 			const story = await this.storyRepository.findOne({
 				where: {
 					id,
@@ -132,7 +155,6 @@ export class StoryService {
 	 * @returns
 	 */
 	async update(id: number, updateStoryDto: UpdateStoryDto) {
-		this.logger.log(`${this.update.name} was called`);
 		this.judgeCanDo(id);
 
 		try {
@@ -155,6 +177,7 @@ export class StoryService {
 					title,
 				},
 			);
+			this.redisService._delKeysWithPrefix(RedisKeyEnum.StoryKey);
 			return "更新故事成功~";
 		} catch (error) {
 			this.logger.error(error);
@@ -179,6 +202,7 @@ export class StoryService {
 					isDelete: true,
 				},
 			);
+			this.redisService._delKeysWithPrefix(RedisKeyEnum.StoryKey);
 			return "删除故事成功~";
 		} catch (error) {
 			this.logger.error(error);

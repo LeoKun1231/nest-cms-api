@@ -2,7 +2,7 @@
  * @Author: Leo l024983409@qq.com
  * @Date: 2023-11-11 22:22:28
  * @LastEditors: Leo l024983409@qq.com
- * @LastEditTime: 2023-11-14 18:33:45
+ * @LastEditTime: 2023-11-15 11:03:45
  * @FilePath: \cms\src\modules\menus\dto\export-menu.dto.ts
  * @Description:
  */
@@ -35,6 +35,15 @@ export class ExportMenuDto {
 	@ApiProperty({ description: "菜单排序", example: 1, type: Number })
 	@Expose()
 	sort: number;
+
+	@ApiProperty({
+		description: "是否启用",
+		example: true,
+		type: Number,
+	})
+	@Type(() => Number)
+	@Expose()
+	enable: number;
 
 	@ApiProperty({ description: "菜单父级id", example: "1", type: String })
 	@Expose()

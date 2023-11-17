@@ -7,8 +7,10 @@
  * @Description:
  */
 import { EnvEnum } from "@/shared/enums/env.enum";
+import { RedisKeyEnum } from "@/shared/enums/redis-key.enum";
 import { JwtPayloadInterface } from "@/shared/interfaces/jwt-payload.interface";
 import { AppLoggerSevice } from "@/shared/logger/logger.service";
+import { RedisService } from "@/shared/redis/redis.service";
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
@@ -24,6 +26,7 @@ export class AuthService {
 		private readonly userService: UsersService,
 		private readonly jwtService: JwtService,
 		private readonly configService: ConfigService,
+		private readonly redisService: RedisService,
 	) {
 		this.logger.setContext(AuthService.name);
 	}
@@ -42,11 +45,18 @@ export class AuthService {
 		);
 
 		const roleId = user.roles[0].id;
-		const { accessToken } = await this.getAccessAndRefreshToken(
+		const { accessToken } = this.getAccessAndRefreshToken(
 			user.id,
 			user.name,
 			roleId,
 		);
+
+		await this.redisService.setex(
+			RedisKeyEnum.LoginKey + user.id,
+			60 * 60,
+			accessToken,
+		);
+
 		return {
 			id: user.id,
 			name: user.name,

@@ -15,8 +15,6 @@ services:
       SET_CONTAINER_TIMEZONE: true
       CONTAINER_TIMEZONE: Asia/Shanghai
       MYSQL_DATABASE: cms
-      MYSQL_USER: hqk
-      MYSQL_PASSWORD: hqk123456
     ports:
       - 3306:3306
     networks:

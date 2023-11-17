@@ -2,12 +2,14 @@
  * @Author: Leo l024983409@qq.com
  * @Date: 2023-11-11 22:22:28
  * @LastEditors: Leo l024983409@qq.com
- * @LastEditTime: 2023-11-14 18:33:59
+ * @LastEditTime: 2023-11-14 22:19:51
  * @FilePath: \cms\src\modules\menus\menus.service.ts
  * @Description:
  */
 import { Menu } from "@/shared/entities/menu.entity";
+import { RedisKeyEnum } from "@/shared/enums/redis-key.enum";
 import { AppLoggerSevice } from "@/shared/logger/logger.service";
+import { RedisService } from "@/shared/redis/redis.service";
 import { filterTree } from "@/shared/utils/filter-tree";
 import {
 	BadRequestException,
@@ -28,6 +30,7 @@ export class MenusService {
 		private readonly logger: AppLoggerSevice,
 		@InjectRepository(Menu)
 		private readonly menuRepository: TreeRepository<Menu>,
+		private readonly redisService: RedisService,
 	) {
 		this.logger.setContext(MenusService.name);
 	}
@@ -46,7 +49,7 @@ export class MenusService {
 				// 根据父级id查找父级菜单
 				const parent = await this.menuRepository.findOneBy({ id: parentId });
 				// 创建子菜单
-				const menu = await this.menuRepository.create({
+				const menu = this.menuRepository.create({
 					...rest,
 					parent,
 				});
@@ -60,6 +63,7 @@ export class MenusService {
 			});
 			// 保存一级菜单
 			await this.menuRepository.save(menu);
+			await this.redisService._delKeysWithPrefix(RedisKeyEnum.MenuKey);
 			return "创建菜单成功";
 		} catch (error) {
 			this.logger.error(error);
@@ -80,14 +84,43 @@ export class MenusService {
 	async findAll() {
 		this.logger.log(`${this.findAll.name} was called`);
 		try {
-			const menuList = await this.menuRepository.findTrees();
-			return plainToInstance(ExportMenuDto, filterTree<Menu>(menuList), {
-				excludeExtraneousValues: true,
-			});
+			const redisMenuList = await this.redisService.get(RedisKeyEnum.MenuKey);
+			if (redisMenuList) return JSON.parse(redisMenuList);
+
+			const menuListTrees = await this.menuRepository.findTrees();
+			const menuList = plainToInstance(
+				ExportMenuDto,
+				filterTree<Menu>(menuListTrees),
+				{
+					excludeExtraneousValues: true,
+				},
+			);
+			await this.redisService.set(
+				RedisKeyEnum.MenuKey,
+				JSON.stringify(menuList),
+			);
+			return menuList;
 		} catch (error) {
 			this.logger.error(error);
 			throw new BadRequestException("查找菜单失败");
 		}
+	}
+
+	/**
+	 * 查询所有菜单id
+	 * @returns
+	 */
+	async findAllIds() {
+		this.logger.log(`${this.findAllIds.name} was called`);
+		const menuList = await this.menuRepository.find({
+			select: {
+				id: true,
+			},
+			where: {
+				isDelete: false,
+			},
+		});
+		return menuList.map((item) => item.id);
 	}
 
 	/**
@@ -96,8 +129,8 @@ export class MenusService {
 	 * @returns
 	 */
 	async findOne(id: number) {
-		this.logger.log(`${this.findOne.name} was called`);
 		try {
+			if (!id) throw new BadRequestException("菜单不存在");
 			const menu = await this.menuRepository.findOne({
 				where: {
 					id,
@@ -126,13 +159,13 @@ export class MenusService {
 		this.judgeCanDo(id);
 		try {
 			await this.findOne(id);
-			await this.menuRepository.update(
-				{
-					id,
-					isDelete: false,
-				},
-				updateMenuDto,
-			);
+			await this.menuRepository.save({
+				id,
+				isDelete: false,
+				...updateMenuDto,
+			});
+			await this.redisService._delKeysWithPrefix(RedisKeyEnum.MenuKey);
+			await this.redisService._delKeysWithPrefix(RedisKeyEnum.RoleKey);
 			return "更新菜单成功";
 		} catch (error) {
 			this.logger.error(error);
@@ -157,13 +190,14 @@ export class MenusService {
 		this.judgeCanDo(id);
 		try {
 			const menu = await this.findOne(id);
-			await this.menuRepository.update(
-				{ isDelete: false, id },
-				{
-					isDelete: true,
-					name: "已删除" + "_" + menu.name + "_" + UUID(),
-				},
-			);
+			await this.menuRepository.save({
+				id,
+				isDelete: true,
+				name: "已删除" + "_" + menu.name + "_" + UUID(),
+				roles: [],
+			});
+			await this.redisService._delKeysWithPrefix(RedisKeyEnum.MenuKey);
+			await this.redisService._delKeysWithPrefix(RedisKeyEnum.RoleKey);
 			return "删除菜单成功";
 		} catch (error) {
 			this.logger.error(error);
@@ -184,7 +218,6 @@ export class MenusService {
 				where: {
 					id: In(ids),
 					isDelete: false,
-					enable: true,
 				},
 			});
 		} catch (error) {

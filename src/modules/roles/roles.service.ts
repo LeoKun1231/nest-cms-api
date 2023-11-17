@@ -2,12 +2,16 @@
  * @Author: Leo l024983409@qq.com
  * @Date: 2023-11-11 22:22:28
  * @LastEditors: Leo l024983409@qq.com
- * @LastEditTime: 2023-11-14 18:31:01
+ * @LastEditTime: 2023-11-14 22:21:49
  * @FilePath: \cms\src\modules\roles\roles.service.ts
  * @Description:
  */
 import { Role } from "@/shared/entities/role.entity";
+import { RedisKeyEnum } from "@/shared/enums/redis-key.enum";
 import { AppLoggerSevice } from "@/shared/logger/logger.service";
+import { RedisService } from "@/shared/redis/redis.service";
+import { filterEmpty } from "@/shared/utils/filer-empty";
+import { generateTree } from "@/shared/utils/generate-tree";
 import {
 	BadRequestException,
 	ForbiddenException,
@@ -32,6 +36,7 @@ export class RolesService {
 		private readonly logger: AppLoggerSevice,
 		@InjectRepository(Role) private readonly roleRepository: Repository<Role>,
 		private readonly menusService: MenusService,
+		private readonly redisService: RedisService,
 	) {
 		this.logger.setContext(RolesService.name);
 	}
@@ -57,6 +62,8 @@ export class RolesService {
 
 			//3.保存角色
 			await this.roleRepository.save(role);
+
+			this.redisService._delKeysWithPrefix(RedisKeyEnum.RoleKey);
 			return "创建角色成功";
 		} catch (error) {
 			//判断是否是重复键值
@@ -82,6 +89,12 @@ export class RolesService {
 			const { offset, size, createAt, id, intro, menuList, name, updateAt } =
 				queryRoleDto;
 
+			const filterQueryRoleDto = filterEmpty(queryRoleDto);
+			const redisRoleList = await this.redisService._get(
+				RedisKeyEnum.RoleKey + JSON.stringify(filterQueryRoleDto),
+			);
+			if (redisRoleList) return redisRoleList;
+
 			const [list, totalCount] = await this.roleRepository.findAndCount({
 				where: {
 					id,
@@ -99,8 +112,18 @@ export class RolesService {
 				},
 				skip: offset,
 				take: size,
+				order: {
+					id: "DESC",
+				},
 			});
-			return plainToInstance(
+
+			//如果是超级管理员
+			const admin = list.find((role) => role.id == 1);
+			if (admin) {
+				admin.menuList = await this.menusService.findAll();
+			}
+
+			const roleList = plainToInstance(
 				ExportRoleListDto,
 				{
 					list,
@@ -110,11 +133,13 @@ export class RolesService {
 					excludeExtraneousValues: true,
 				},
 			);
-		} catch (error) {
-			console.log(
-				"🚀 ~ file: roles.service.ts:102 ~ RolesService ~ findAll ~ error:",
-				error.message,
+			//缓存
+			this.redisService._set(
+				RedisKeyEnum.RoleKey + JSON.stringify(filterQueryRoleDto),
+				roleList,
 			);
+			return roleList;
+		} catch (error) {
 			this.logger.error(error);
 			throw new BadRequestException("获取角色列表失败");
 		}
@@ -128,6 +153,7 @@ export class RolesService {
 	async findOne(id: number) {
 		this.logger.log(`${this.findOne.name} was called`);
 		try {
+			if (!id) throw new BadRequestException("角色不存在");
 			const role = await this.roleRepository.findOne({
 				where: {
 					id,
@@ -197,14 +223,15 @@ export class RolesService {
 			}
 
 			//4.更新角色
-			await this.roleRepository.update(
-				{ id, isDelete: false },
-				{
-					intro,
-					name,
-					menuList,
-				},
-			);
+			await this.roleRepository.save({
+				...updateRoleDto,
+				id,
+				intro,
+				name,
+				menuList,
+			});
+			this.redisService._delKeysWithPrefix(RedisKeyEnum.RoleKey);
+
 			return "更新角色成功~";
 		} catch (error) {
 			this.logger.error(error);
@@ -229,13 +256,13 @@ export class RolesService {
 		this.judgeCanDo(id);
 		try {
 			const role = await this.findOne(id);
-			await this.roleRepository.update(
-				{ id, isDelete: false },
-				{
-					isDelete: true,
-					name: "已删除" + "_" + role.name + "_" + UUID(),
-				},
-			);
+			await this.roleRepository.save({
+				id,
+				isDelete: true,
+				name: "已删除" + "_" + role.name + "_" + UUID(),
+				menuList: [],
+			});
+			this.redisService._delKeysWithPrefix(RedisKeyEnum.RoleKey);
 			return "删除角色成功~";
 		} catch (error) {
 			this.logger.error(error);
@@ -252,16 +279,18 @@ export class RolesService {
 	async findRoleMenuById(id: number) {
 		this.logger.log(`${this.findRoleMenuById.name} was called`);
 		try {
-			const role = await this.roleRepository
-				.createQueryBuilder("role")
-				.leftJoinAndSelect("role.menuList", "menuList")
-				.select("role.id")
-				.addSelect("menuList")
-				.where("role.id = :id", { id })
-				.andWhere("role.isDelete = false")
-				.getOne();
+			if (id == 1) {
+				return await this.menusService.findAll();
+			}
+			const role = await this.roleRepository.findOne({
+				where: {
+					id,
+					isDelete: false,
+				},
+				relations: ["menuList"],
+			});
 			if (!role) throw new BadRequestException("角色不存在");
-			return plainToInstance(ExportMenuDto, role.menuList, {
+			return plainToInstance(ExportMenuDto, generateTree(role.menuList), {
 				excludeExtraneousValues: true,
 			});
 		} catch (error) {
@@ -296,7 +325,11 @@ export class RolesService {
 				relations: ["menuList"],
 			});
 			if (!role) throw new BadRequestException("角色不存在");
-			const menuIds = role.menuList.map((menu) => menu.id);
+			let menuIds = role.menuList.map((menu) => menu.id);
+			//如果是超级管理员
+			if (id == 1) {
+				menuIds = await this.menusService.findAllIds();
+			}
 			delete role.menuList;
 			return {
 				...role,
@@ -323,12 +356,9 @@ export class RolesService {
 
 			//2.获取菜单列表
 			const menuList = await this.menusService.findListByIds(ids);
-			console.log(
-				"🚀 ~ file: roles.service.ts:318 ~ RolesService ~ assignRole ~ menuList:",
-				menuList,
-			);
 			//3.更新角色
 			await this.roleRepository.save({ id: roleId, menuList });
+			this.redisService._delKeysWithPrefix(RedisKeyEnum.RoleKey);
 			return "分配权限成功~";
 		} catch (error) {
 			this.logger.error(error);

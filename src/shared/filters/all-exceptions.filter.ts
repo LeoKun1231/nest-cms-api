@@ -2,7 +2,7 @@
  * @Author: Leo l024983409@qq.com
  * @Date: 2023-10-15 18:56:47
  * @LastEditors: Leo l024983409@qq.com
- * @LastEditTime: 2023-10-19 10:18:46
+ * @LastEditTime: 2023-11-14 22:52:10
  * @FilePath: \cms\src\shared\filters\all-exceptions.filter.ts
  * @Description:
  */
@@ -43,6 +43,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 			path: request.url,
 			timestamp: new Date().toLocaleString(),
 		};
+
 		this.logger.error(
 			{
 				...responseBody,
@@ -51,7 +52,11 @@ export class AllExceptionsFilter implements ExceptionFilter {
 			null,
 			"AllExceptions",
 		);
-
+		if (responseBody.message == "TokenExpiredError: jwt expired") {
+			responseBody.message = "登录已过期，请重新登录";
+		} else if (responseBody.message == "Error: No auth token") {
+			responseBody.message = "请先登录";
+		}
 		response.status(httpStatus).json(responseBody);
 	}
 }

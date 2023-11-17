@@ -2,7 +2,7 @@
  * @Author: Leo l024983409@qq.com
  * @Date: 2023-11-11 22:22:28
  * @LastEditors: Leo l024983409@qq.com
- * @LastEditTime: 2023-11-14 18:33:56
+ * @LastEditTime: 2023-11-14 22:32:57
  * @FilePath: \cms\src\modules\menus\menus.controller.ts
  * @Description:
  */
@@ -47,9 +47,10 @@ export class MenusController {
 	 */
 	@Post("list")
 	@HttpCode(HttpStatus.OK)
-	@RequirePermission(PermissionEnum.SYSTEM_MENU_QUERY)
-	findAll() {
-		return this.menusService.findAll();
+	async findAll() {
+		return {
+			list: await this.menusService.findAll(),
+		};
 	}
 
 	/**

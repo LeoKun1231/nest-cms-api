@@ -6,7 +6,7 @@
  * @FilePath: \cms\src\shared\entities\goods-category.entity.ts
  * @Description:
  */
-import { Column, Entity, OneToMany } from "typeorm";
+import { Column, Entity, OneToMany, Relation } from "typeorm";
 import { EntityEnum } from "../enums/entity.enum";
 import { BaseEntity } from "./base/Base.entity";
 import { GoodsInfo } from "./goods-info.entity";
@@ -16,6 +16,6 @@ export class GoodsCategory extends BaseEntity {
 	@Column({ type: "varchar", length: 50, comment: "商品分类名", unique: true })
 	name: string;
 
-	@OneToMany(EntityEnum.GoodsInfo, EntityEnum.GoodsCategory)
-	goods: GoodsInfo[];
+	@OneToMany(() => GoodsInfo, (goods) => goods.category)
+	goods: Relation<GoodsInfo[]>;
 }

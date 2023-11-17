@@ -2,12 +2,12 @@
  * @Author: Leo l024983409@qq.com
  * @Date: 2023-11-14 13:15:54
  * @LastEditors: Leo l024983409@qq.com
- * @LastEditTime: 2023-11-14 18:33:00
+ * @LastEditTime: 2023-11-14 22:29:31
  * @FilePath: \cms\src\modules\goods-info\dto\export-goods-info.dto.ts
  * @Description:
  */
 import { ApiProperty } from "@nestjs/swagger";
-import { Expose } from "class-transformer";
+import { Expose, Transform } from "class-transformer";
 
 export class ExportGoodsInfoDto {
 	@ApiProperty({ description: "商品ID", example: 32, type: Number })
@@ -40,6 +40,7 @@ export class ExportGoodsInfoDto {
 
 	@ApiProperty({ description: "商品状态", example: 1, type: Number })
 	@Expose()
+	@Transform(({ obj }) => (obj.enable ? 1 : 0))
 	status: number;
 
 	@ApiProperty({
@@ -69,6 +70,7 @@ export class ExportGoodsInfoDto {
 
 	@ApiProperty({ description: "商品分类ID", example: 8, type: Number })
 	@Expose()
+	@Transform(({ obj }) => obj?.category?.id)
 	categoryId: number;
 
 	@ApiProperty({

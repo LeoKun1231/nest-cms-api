@@ -49,7 +49,6 @@ export class DepartmentController {
 	 */
 	@Post("list")
 	@HttpCode(HttpStatus.OK)
-	@RequirePermission(PermissionEnum.SYSTEM_DEPARTMENT_QUERY)
 	findAll(@Body() queryDepartmentDto: QueryDepartmentDto) {
 		return this.departmentService.findAll(queryDepartmentDto);
 	}
