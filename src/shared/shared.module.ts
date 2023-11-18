@@ -15,6 +15,7 @@ import {
 } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
+import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { connectionParams } from "../ormconfig";
 import loadEnvConfig from "./config/loadEnv.config";
@@ -44,6 +45,15 @@ const envFilePath = `.env.${process.env.NODE_ENV || `development`}`;
 		LoggerModule,
 		UploadModule,
 		RedisModule,
+		ThrottlerModule.forRoot({
+			throttlers: [
+				{
+					//每秒最多请求5次
+					ttl: 1000,
+					limit: 3,
+				},
+			],
+		}),
 	],
 	providers: [
 		SharedService,
@@ -66,6 +76,10 @@ const envFilePath = `.env.${process.env.NODE_ENV || `development`}`;
 		{
 			provide: APP_GUARD,
 			useClass: PermissionAuthGuard,
+		},
+		{
+			provide: APP_GUARD,
+			useClass: ThrottlerGuard,
 		},
 	],
 	exports: [SharedService, Logger, LoggerModule, RedisModule],
