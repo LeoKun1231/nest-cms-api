@@ -10,6 +10,7 @@ import { ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
 import { NestExpressApplication } from "@nestjs/platform-express";
+import helmet from "helmet";
 import * as path from "path";
 import { AppModule } from "./app.module";
 import { setupLogger } from "./log";
@@ -26,6 +27,8 @@ async function bootstrap() {
 	app.useStaticAssets(path.resolve(__dirname, "../files"), {
 		prefix: "/api/v1/static/",
 	});
+
+	app.use(helmet());
 
 	//swagger
 	setupSwagger(app);
