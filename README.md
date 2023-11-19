@@ -80,6 +80,8 @@ To run the server without Docker we need this pre-requisite:
 
 Commands:
 
+<b>after pnpm start:dev,you should execute sql/all.sql.</b>
+
 ```bash
 # watch mode
 $ pnpm start:dev
@@ -92,14 +94,6 @@ $ pnpm start:prod
 
 ```bash
 # build image
-$ docker network create mynetwork
-
-$ docker build -t my-app .
-
-# run container from image
-$ docker run -p 3000:3000 --volume 'pwd':/usr/src/app --network mynetwork --env-file .env.prodution my-app
-
-# run using docker compose
 $ docker compose up
 ```
 

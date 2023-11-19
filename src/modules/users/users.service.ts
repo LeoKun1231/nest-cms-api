@@ -370,6 +370,22 @@ export class UsersService {
 	}
 
 	/**
+	 * 记录用户ip
+	 * @param id 用户id
+	 * @param ip 用户ip
+	 * @returns
+	 */
+	async recordUserIp(id: number, ip: string) {
+		this.logger.log(`${this.recordUserIp.name} was called`);
+		try {
+			await this.usersRespository.update(id, { ip });
+		} catch (error) {
+			this.logger.error(error);
+			throw new BadRequestException("记录用户ip失败");
+		}
+	}
+
+	/**
 	 * 判断是否可以操作
 	 * @param id
 	 * @returns
