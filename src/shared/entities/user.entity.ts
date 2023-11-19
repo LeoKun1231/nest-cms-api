@@ -33,6 +33,9 @@ export class User extends BaseEntity {
 	@Column({ comment: "手机号码", nullable: true })
 	cellphone: string;
 
+	@Column({ comment: "ip", nullable: true, select: false })
+	ip: string;
+
 	@ManyToMany(() => Role, (role) => role.users)
 	@JoinTable({ name: "user_role" })
 	roles: Relation<Role[]>;

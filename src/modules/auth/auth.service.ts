@@ -15,6 +15,8 @@ import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { plainToClass } from "class-transformer";
+import type { Request } from "express";
+import * as requestIp from "request-ip";
 import { UsersService } from "../users/users.service";
 import { ExportLoginDto } from "./dtos/export-login.dto";
 import { LoginAccountDto } from "./dtos/login-account.dto";
@@ -36,13 +38,16 @@ export class AuthService {
 	 * @param loginAccountDto 登录信息
 	 * @returns
 	 */
-	async login(loginAccountDto: LoginAccountDto) {
+	async login(loginAccountDto: LoginAccountDto, req: Request) {
 		this.logger.log(`${this.login.name} was called`);
 
 		const user = await this.userService.validateUser(
 			loginAccountDto.name,
 			loginAccountDto.password,
 		);
+		const ip = requestIp.getClientIp(req);
+
+		await this.userService.recordUserIp(user.id, ip);
 
 		const roleId = user.roles[0].id;
 		const { accessToken } = this.getAccessAndRefreshToken(

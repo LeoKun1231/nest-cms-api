@@ -23,10 +23,12 @@ import {
 	HttpCode,
 	HttpStatus,
 	Post,
+	Req,
 	UseGuards,
 	UseInterceptors,
 } from "@nestjs/common";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import type { Request } from "express";
 import { AuthService } from "./auth.service";
 import { ExportLoginDto } from "./dtos/export-login.dto";
 import { LoginAccountDto } from "./dtos/login-account.dto";
@@ -63,8 +65,8 @@ export class AuthController {
 	@HttpCode(HttpStatus.OK)
 	@Public()
 	@UseInterceptors(ClassSerializerInterceptor)
-	login(@Body() loginAccountDto: LoginAccountDto) {
-		return this.authService.login(loginAccountDto);
+	login(@Body() loginAccountDto: LoginAccountDto, @Req() req: Request) {
+		return this.authService.login(loginAccountDto, req);
 	}
 
 	@Get("/test")
