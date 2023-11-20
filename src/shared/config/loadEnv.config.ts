@@ -31,5 +31,6 @@ export default (): Record<EnvEnum, unknown> => {
 		REDIS_HOST: process.env.REDIS_HOST,
 		REDIS_PASSWORD: process.env.REDIS_PASSWORD,
 		REDIS_PORT: process.env.REDIS_PORT,
+		UPLOAD_ADDRESS: process.env.UPLOAD_ADDRESS,
 	};
 };

@@ -37,8 +37,8 @@ export class UploadService {
 		//提取出file.destination日期文件夹路径
 		const dateFolder = file.destination.split("files")[1].slice(1);
 		return {
-			url: `http://localhost:${this.configService.get(
-				EnvEnum.APP_PORT,
+			url: `${this.configService.get(
+				EnvEnum.UPLOAD_ADDRESS,
 			)}/api/v1/static/${dateFolder}/${file.filename}`,
 			name: file.originalname,
 		};
