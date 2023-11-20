@@ -94,6 +94,12 @@ $ pnpm start:prod
 
 ```bash
 # build image
+$ docker build -t my-app .
+
+# run container from image
+$ docker run -p 3000:3000 --volume 'pwd':/usr/src/app --network mynetwork --env-file .env.development my-app
+
+# run docker-compose
 $ docker compose up
 ```
 
