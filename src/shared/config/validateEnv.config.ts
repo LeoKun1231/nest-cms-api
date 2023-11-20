@@ -22,4 +22,5 @@ export const validationSchema = Joi.object({
 	JWT_REFRESH_TOKEN_EXPIRES_IN: Joi.string().default("7d"),
 	JWT_PRIVATE_KEY: Joi.string().required(),
 	JWT_PUBLIC_KEY: Joi.string().required(),
+	UPLOAD_ADDRESS: Joi.string().required(),
 } as Record<EnvEnum, Joi.Schema>);

@@ -26,4 +26,5 @@ interface ENV {
 
 	JWT_ACCESS_TOKEN_EXPIRES_IN: string;
 	JWT_REFRESH_TOKEN_EXPIRES_IN: string;
+	UPLOAD_ADDRESS: string;
 }
