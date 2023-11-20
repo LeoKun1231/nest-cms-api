@@ -2,52 +2,69 @@
 version: "3.8"
 
 services:
+  app:
+    container_name: cms
+    build:
+      context: .
+      args:
+        - APP_ENV
+    command: npm run start:dev
+    env_file:
+      - .env.development
+    ports:
+      - 3000:3000
+    volumes:
+      - ./:/app
+      - node_modules:/app/node_modules/
+    networks:
+      - mynetwork
+    depends_on:
+      - mysql
+      - redis
   mysql:
     image: mysql
-    command: --default-authentication-plugin=mysql_native_password
     container_name: mysql
     restart: always
+    privileged: true
     environment:
       MYSQL_ROOT_PASSWORD: 123456
       TZ: Asia/Shanghai
-      SET_CONTAINER_TIMEZONE: true
-      CONTAINER_TIMEZONE: Asia/Shanghai
       MYSQL_DATABASE: cms
     ports:
       - 3306:3306
     networks:
       - mynetwork
+    volumes:
+      # 数据挂载 - Data mounting
+      - /opt/software/mysql/data:/var/lib/mysql
+    command:
+      # 将mysql8.0默认密码策略 修改为 原先 策略 (mysql8.0对其默认策略做了更改 会导致密码无法匹配)
+      # Modify the Mysql 8.0 default password strategy to the original strategy (MySQL8.0 to change its default strategy will cause the password to be unable to match)
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_general_ci
+      --explicit_defaults_for_timestamp=true
+      --lower_case_table_names=1
 
   redis:
     restart: always
     image: redis
     hostname: redis
     container_name: redis
+    privileged: true
     ports:
       # 端口映射
       - 6379:6379
     volumes:
-      - /opt/software/redis/conf/redis.conf:/etc/redis.conf
       - /opt/software/redis/data:/data:rw
-      - /opt/software/redis/logs:/logs:rw
-    command:
-      # 执行的命令
-      # mkdir /var/lib/redis &
-      redis-server /etc/redis.conf
+      - /opt/software/redis/data/redis.conf:/usr/local/etc/redis/redis.conf
+      - /opt/software/redis/data/logs:/logs
+    command: "redis-server /usr/local/etc/redis/redis.conf --requirepass 123456  --appendonly yes"
     networks:
       - mynetwork
 
-  adminer:
-    image: adminer
-    restart: always
-    container_name: adminer
-    environment:
-      ADMINER_DEFAULT_SERVER: mysql
-    networks:
-      - mynetwork
-
-    ports:
-      - 8080:8080
+volumes:
+  node_modules:
 
 networks:
   mynetwork:
