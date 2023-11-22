@@ -28,3 +28,5 @@ interface ENV {
 	JWT_REFRESH_TOKEN_EXPIRES_IN: string;
 	UPLOAD_ADDRESS: string;
 }
+
+declare module "qrcode";

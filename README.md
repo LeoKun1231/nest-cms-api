@@ -18,7 +18,7 @@
 | 7   | 编译器   | swc     | 完成 |
 | 8   | 鉴权     | jwt     | 完成 |
 | 9   | rbac     | rbac    | 完成 |
-| 10  | husky    | husky   | 完成 |
+| 10  | 二维码登录    | qrcode   | 完成 |
 | ... | ...      | ...     | ...  |
 
 ## Installation

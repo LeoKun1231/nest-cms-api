@@ -16,6 +16,7 @@ import { DepartmentModule } from "./modules/department/department.module";
 import { GoodsCategoryModule } from "./modules/goods-category/goods-category.module";
 import { GoodsInfoModule } from "./modules/goods-info/goods-info.module";
 import { MenusModule } from "./modules/menus/menus.module";
+import { QrcodeModule } from "./modules/qrcode/qrcode.module";
 import { RolesModule } from "./modules/roles/roles.module";
 import { StoryModule } from "./modules/story/story.module";
 import { UsersModule } from "./modules/users/users.module";
@@ -32,6 +33,7 @@ import { SharedModule } from "./shared/shared.module";
 		GoodsInfoModule,
 		GoodsCategoryModule,
 		StoryModule,
+		QrcodeModule,
 	],
 	controllers: [AppController],
 	providers: [AppService],

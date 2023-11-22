@@ -7,4 +7,5 @@ export enum RedisKeyEnum {
 	GoodsInfoKey = "goodsInfo-->",
 	GoodsCategoryKey = "goodsCategory-->",
 	UserKey = "user-->",
+	QrcodeKey = "qrcode-->",
 }
