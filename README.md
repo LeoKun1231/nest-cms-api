@@ -1,10 +1,14 @@
 # 写在前面
 
-1. 该项目是cms的后端项目，增加了一部分功能，具体可以看apifox的接口。
+1. 该项目是cms的后端项目，具体前端代码在<a href="https://github.com/LeoKun1231/VUE3-CMS-TS-PINIA">VUE3-CMS-TS-PINIA</a>，<a href="https://vue3-cms.hqk10.xyz">在这里可以访问体验网站</a>。具体后端接口可以看<a href="https://apifox.com/apidoc/shared-ede0e4ad-7f38-42fd-a749-3c8df4d8b7ba">apifox</a>里的接口。
 2. 这边推荐使用docker-compose进行环境搭建，如果不使用docker-compose，需要自行安装mysql、redis。
-3. jwt所需要使用的公钥和私钥，需要自行生成，并且在.env.\*文件中配置，如果不想则直接使用默认的即可。
-4. 具体操作步骤，请看后面的安装步骤。
-5. 如果有什么问题，可以在issue中提出，我会尽快回复。
+    ```bash 
+    # 如果你有安装docker，且不介意JWT公钥私钥，你只需执行下面的命令即可运行项目。
+    $ docker compose up -d
+    ```
+4. jwt所需要使用的公钥和私钥，需要自行生成，并且在.env.\*文件中配置，如果不想则直接使用默认的即可。
+5. 具体操作步骤，请看后面的安装步骤。
+6. 如果有什么问题，可以在issue中提出，我会尽快回复。
 
 ## 技术栈
 
