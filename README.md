@@ -1,9 +1,10 @@
 # 写在前面
 
 1. 该项目是cms的后端项目，增加了一部分功能，具体可以看apifox的接口。
-2. 这边推荐使用docker-compose进行环境搭建，如果不使用docker-compose，需要自行安装mysql、redis。jwt所需要使用的公钥和私钥，需要自行生成，并且在.env.\*文件中配置，如果不想则直接使用默认的即可。
-3. 具体操作步骤，请看后面的安装步骤。
-4. 如果有什么问题，可以在issue中提出，我会尽快回复。
+2. 这边推荐使用docker-compose进行环境搭建，如果不使用docker-compose，需要自行安装mysql、redis。
+3. jwt所需要使用的公钥和私钥，需要自行生成，并且在.env.\*文件中配置，如果不想则直接使用默认的即可。
+4. 具体操作步骤，请看后面的安装步骤。
+5. 如果有什么问题，可以在issue中提出，我会尽快回复。
 
 ## 技术栈
 
@@ -21,91 +22,81 @@
 | 10  | 二维码登录    | qrcode   | 完成 |
 | ... | ...      | ...     | ...  |
 
-## Installation
-
+## 安装
+推荐直接使用pnpm进行安装，如果没有安装pnpm，可以使用npm进行安装。
 ```bash
 $ pnpm install
 ```
 
-### With docker
-
-Run this command:
-
+## 生成jwt的公钥和私钥
+### 1.通过docker生成脚本
 ```bash
 ./scripts/generate-jwt-keys
 ```
-
-It will output something like this. You only need to add it to your `.env` file.
-
+将输出类似于此的内容。 您只需要将其添加到.env文件中。
 ```
-To setup the JWT keys, please add the following values to your .env file:
+为了设置JWT密钥，请将以下值添加到.env文件中：
 JWT_PUBLIC_KEY_BASE64="(long base64 content)"
 JWT_PRIVATE_KEY_BASE64="(long base64 content)"
 ```
 
-### Without docker
+### 2.不通过docker生成脚本
 
 ```bash
+$ cd local
 $ ssh-keygen -t rsa -b 2048 -m PEM -f jwtRS256.key
 # Don't add passphrase
 $ openssl rsa -in jwtRS256.key -pubout -outform PEM -out jwtRS256.key.pub
 ```
 
-You may save these key files in `./local` directory as it is ignored in git.
-
-Encode keys to base64:
-
+你应该这些密钥文件保存在`./local`目录中，并使用base64编码密钥：
 ```bash
 $ base64 -i local/jwtRS256.key
 
 $ base64 -i local/jwtRS256.key.pub
 ```
-
-Must enter the base64 of the key files in `.env`:
+必须在.env中输入密钥文件的base64：
 
 ```bash
-JWT_PUBLIC_KEY_BASE64=BASE64_OF_JWT_PUBLIC_KEY
-JWT_PRIVATE_KEY_BASE64=BASE64_OF_JWT_PRIVATE_KEY
+JWT_PUBLIC_KEY_BASE64=这里填入经过base64编码的公钥
+JWT_PRIVATE_KEY_BASE64=这里填入经过base64编码的私钥
 ```
 
-## Running the app
+## 运行项目
 
-We can run the project with or without docker.
+你可以使用docker运行项目，也可以不使用docker运行项目。
+这边建议使用docker-compose进行运行，如果不使用docker-compose，需要自行安装mysql、redis。
 
-### Local
+### 1.不使用docker运行
 
-To run the server without Docker we need this pre-requisite:
-
-- mysql server running
-
-Commands:
-
-<b>after pnpm start:dev,you should execute sql/all.sql.</b>
+为了运行不使用Docker的服务器，我们需要这个前提条件：
+- 那就是你需要安装mysql、redis。
 
 ```bash
-# watch mode
+# watch mode 它将使用swc编译器进行编译 非常的快
 $ pnpm start:dev
 
 # production mode
 $ pnpm start:prod
 ```
 
-### Docker
-
+### 2.使用docker运行
+直接使用docker-compose进行运行即可(推荐)
 ```bash
+$ docker compose up -d
+```
+如果不想使用docker-compose，可以使用下面的命令进行运行(这种方法也需要手动安装redis和Mysql)。
+```bash
+
 # build image
 $ docker build -t my-app .
 
-# run container from image
+$ docker network create mynetwork
+
 $ docker run -p 3000:3000 --volume 'pwd':/usr/src/app --network mynetwork --env-file .env.development my-app
-
-# run docker-compose
-$ docker compose up
 ```
-
-## Migrations
-
-generate migration (replace users with name of the migration)
+## typeorm操作
+当你添加一个新的实体时，你需要运行以下命令来生成迁移文件：
 
 ```bash
 $ npm_config_name=users pnpm migration:generate
