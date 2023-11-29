@@ -154,6 +154,9 @@ devDependencies:
   '@types/passport-local':
     specifier: ^1.0.36
     version: 1.0.37
+  '@types/qrcode':
+    specifier: ^1.5.5
+    version: 1.5.5
   '@types/request-ip':
     specifier: ^0.0.41
     version: 0.0.41
@@ -1838,6 +1841,12 @@ packages:
     resolution: {integrity: sha512-D6p2ygR2S7Cq5PO7iUaEIQu/5WrM0tONu6Lxgk0C9r3lafQIlVpWCo3V/KI9To3OqHBxcfQaOeK+8AvwW5RYmw==}
     dependencies:
       '@types/express': 4.17.20
+    dev: true
+
+  /@types/qrcode@1.5.5:
+    resolution: {integrity: sha512-CdfBi/e3Qk+3Z/fXYShipBT13OJ2fDO2Q2w5CIP5anLTLIndQG9z6P1cnm+8zCWSpm5dnxMFd/uREtb0EXuQzg==}
+    dependencies:
+      '@types/node': 16.18.59
     dev: true
 
   /@types/qs@6.9.9:
