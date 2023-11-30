@@ -6,10 +6,20 @@
  * @FilePath: \cms\src\modules\menus\menus.service.ts
  * @Description:
  */
+import { PrismaErrorCode, RedisKeyEnum } from "@/shared/enums";
 import { AppLoggerSevice } from "@/shared/logger";
+import { PrismaService } from "@/shared/prisma";
 import { RedisService } from "@/shared/redis";
-import { ForbiddenException, Injectable } from "@nestjs/common";
+import { generateTree, getRandomId } from "@/shared/utils";
+import {
+	BadRequestException,
+	ForbiddenException,
+	Injectable,
+} from "@nestjs/common";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
+import { plainToInstance } from "class-transformer";
 import { CreateMenuDto } from "./dto/create-menu.dto";
+import { ExportMenuDto } from "./dto/export-menu.dto";
 import { UpdateMenuDto } from "./dto/update-menu.dto";
 
 @Injectable()
@@ -17,6 +27,7 @@ export class MenusService {
 	constructor(
 		private readonly logger: AppLoggerSevice,
 		private readonly redisService: RedisService,
+		private readonly prismaService: PrismaService,
 	) {
 		this.logger.setContext(MenusService.name);
 	}
@@ -27,40 +38,36 @@ export class MenusService {
 	 * @returns
 	 */
 	async create(createMenuDto: CreateMenuDto) {
-		// this.logger.log(`${this.create.name} was called`);
-		// const { parentId, ...rest } = createMenuDto;
-		// try {
-		// 	// 如果有父级id，就创建子菜单
-		// 	if (parentId) {
-		// 		// 根据父级id查找父级菜单
-		// 		const parent = await this.menuRepository.findOneBy({ id: parentId });
-		// 		// 创建子菜单
-		// 		const menu = this.menuRepository.create({
-		// 			...rest,
-		// 			parent,
-		// 		});
-		// 		// 保存子菜单
-		// 		await this.menuRepository.save(menu);
-		// 		return "创建菜单成功";
-		// 	}
-		// 	// 如果没有父级id，就创建一级菜单
-		// 	const menu = await this.menuRepository.create({
-		// 		...rest,
-		// 	});
-		// 	// 保存一级菜单
-		// 	await this.menuRepository.save(menu);
-		// 	await this.redisService._delKeysWithPrefix(RedisKeyEnum.MenuKey);
-		// 	return "创建菜单成功";
-		// } catch (error) {
-		// 	this.logger.error(error);
-		// 	if (
-		// 		error instanceof QueryFailedError &&
-		// 		error.driverError.errno == 1062
-		// 	) {
-		// 		throw new BadRequestException("菜单名已存在");
-		// 	}
-		// 	throw new BadRequestException("创建菜单失败");
-		// }
+		this.logger.log(`${this.create.name} was called`);
+		const { parentId, ...rest } = createMenuDto;
+		try {
+			// 如果有父级id，就创建子菜单
+			if (parentId) {
+				// 保存子菜单
+				await this.prismaService.menu.create({
+					data: {
+						...rest,
+						parentId,
+					},
+				});
+				return "创建菜单成功";
+			}
+			// 如果没有父级id，就保存一级菜单
+			await this.prismaService.menu.create({
+				data: rest,
+			});
+			await this.redisService._delKeysWithPrefix(RedisKeyEnum.MenuKey);
+			return "创建菜单成功";
+		} catch (error) {
+			this.logger.error(error);
+			if (
+				error instanceof PrismaClientKnownRequestError &&
+				error.code == PrismaErrorCode.UniqueConstraintViolation
+			) {
+				throw new BadRequestException("菜单名已存在");
+			}
+			throw new BadRequestException("创建菜单失败");
+		}
 	}
 
 	/**
@@ -68,27 +75,33 @@ export class MenusService {
 	 * @returns
 	 */
 	async findAll() {
-		// this.logger.log(`${this.findAll.name} was called`);
-		// try {
-		// 	const redisMenuList = await this.redisService.get(RedisKeyEnum.MenuKey);
-		// 	if (redisMenuList) return JSON.parse(redisMenuList);
-		// 	const menuListTrees = await this.menuRepository.findTrees();
-		// 	const menuList = plainToInstance(
-		// 		ExportMenuDto,
-		// 		filterTree<Menu>(menuListTrees),
-		// 		{
-		// 			excludeExtraneousValues: true,
-		// 		},
-		// 	);
-		// 	await this.redisService.set(
-		// 		RedisKeyEnum.MenuKey,
-		// 		JSON.stringify(menuList),
-		// 	);
-		// 	return menuList;
-		// } catch (error) {
-		// 	this.logger.error(error);
-		// 	throw new BadRequestException("查找菜单失败");
-		// }
+		this.logger.log(`${this.findAll.name} was called`);
+		try {
+			const redisMenuList = await this.redisService.get(RedisKeyEnum.MenuKey);
+			if (redisMenuList) return JSON.parse(redisMenuList);
+
+			const menuListTrees = await this.prismaService.menu.findMany({
+				where: {
+					isDelete: false,
+					enable: true,
+				},
+			});
+			const menuList = plainToInstance(
+				ExportMenuDto,
+				generateTree(menuListTrees),
+				{
+					excludeExtraneousValues: true,
+				},
+			);
+			await this.redisService.set(
+				RedisKeyEnum.MenuKey,
+				JSON.stringify(menuList),
+			);
+			return menuList;
+		} catch (error) {
+			this.logger.error(error);
+			throw new BadRequestException("查找菜单失败");
+		}
 	}
 
 	/**
@@ -96,16 +109,16 @@ export class MenusService {
 	 * @returns
 	 */
 	async findAllIds() {
-		// this.logger.log(`${this.findAllIds.name} was called`);
-		// const menuList = await this.menuRepository.find({
-		// 	select: {
-		// 		id: true,
-		// 	},
-		// 	where: {
-		// 		isDelete: false,
-		// 	},
-		// });
-		// return menuList.map((item) => item.id);
+		this.logger.log(`${this.findAllIds.name} was called`);
+		const menuList = await this.prismaService.menu.findMany({
+			select: {
+				id: true,
+			},
+			where: {
+				isDelete: false,
+			},
+		});
+		return menuList.map((item) => item.id);
 	}
 
 	/**
@@ -114,23 +127,23 @@ export class MenusService {
 	 * @returns
 	 */
 	async findOne(id: number) {
-		// try {
-		// 	if (!id) throw new BadRequestException("菜单不存在");
-		// 	const menu = await this.menuRepository.findOne({
-		// 		where: {
-		// 			id,
-		// 			isDelete: false,
-		// 		},
-		// 	});
-		// 	if (!menu) throw new BadRequestException("菜单不存在");
-		// 	return plainToInstance(ExportMenuDto, menu, {
-		// 		excludeExtraneousValues: true,
-		// 	});
-		// } catch (error) {
-		// 	this.logger.error(error);
-		// 	if (error.message) throw new BadRequestException(error.message);
-		// 	throw new BadRequestException("查找菜单失败");
-		// }
+		try {
+			if (!id) throw new BadRequestException("菜单不存在");
+			const menu = await this.prismaService.menu.findUnique({
+				where: {
+					id,
+					isDelete: false,
+				},
+			});
+			if (!menu) throw new BadRequestException("菜单不存在");
+			return plainToInstance(ExportMenuDto, menu, {
+				excludeExtraneousValues: true,
+			});
+		} catch (error) {
+			this.logger.error(error);
+			if (error.message) throw new BadRequestException(error.message);
+			throw new BadRequestException("查找菜单失败");
+		}
 	}
 
 	/**
@@ -140,29 +153,31 @@ export class MenusService {
 	 * @returns
 	 */
 	async update(id: number, updateMenuDto: UpdateMenuDto) {
-		// this.logger.log(`${this.update.name} was called`);
-		// this.judgeCanDo(id);
-		// try {
-		// 	await this.findOne(id);
-		// 	await this.menuRepository.save({
-		// 		id,
-		// 		isDelete: false,
-		// 		...updateMenuDto,
-		// 	});
-		// 	await this.redisService._delKeysWithPrefix(RedisKeyEnum.MenuKey);
-		// 	await this.redisService._delKeysWithPrefix(RedisKeyEnum.RoleKey);
-		// 	return "更新菜单成功";
-		// } catch (error) {
-		// 	this.logger.error(error);
-		// 	if (
-		// 		error instanceof QueryFailedError &&
-		// 		error.driverError.errno == 1062
-		// 	) {
-		// 		throw new BadRequestException("菜单名已存在");
-		// 	}
-		// 	if (error.message) throw new BadRequestException(error.message);
-		// 	throw new BadRequestException("更新菜单失败");
-		// }
+		this.logger.log(`${this.update.name} was called`);
+		this.judgeCanDo(id);
+		try {
+			await this.findOne(id);
+			await this.prismaService.menu.update({
+				where: {
+					id,
+					isDelete: false,
+				},
+				data: updateMenuDto,
+			});
+			await this.redisService._delKeysWithPrefix(RedisKeyEnum.MenuKey);
+			await this.redisService._delKeysWithPrefix(RedisKeyEnum.RoleKey);
+			return "更新菜单成功";
+		} catch (error) {
+			this.logger.error(error);
+			if (
+				error instanceof PrismaClientKnownRequestError &&
+				error.code == PrismaErrorCode.UniqueConstraintViolation
+			) {
+				throw new BadRequestException("菜单名已存在");
+			}
+			if (error.message) throw new BadRequestException(error.message);
+			throw new BadRequestException("更新菜单失败");
+		}
 	}
 
 	/**
@@ -171,24 +186,31 @@ export class MenusService {
 	 * @returns
 	 */
 	async remove(id: number) {
-		// this.logger.log(`${this.remove.name} was called`);
-		// this.judgeCanDo(id);
-		// try {
-		// 	const menu = await this.findOne(id);
-		// 	await this.menuRepository.save({
-		// 		id,
-		// 		isDelete: true,
-		// 		name: "已删除" + "_" + menu.name + "_" + UUID(),
-		// 		roles: [],
-		// 	});
-		// 	await this.redisService._delKeysWithPrefix(RedisKeyEnum.MenuKey);
-		// 	await this.redisService._delKeysWithPrefix(RedisKeyEnum.RoleKey);
-		// 	return "删除菜单成功";
-		// } catch (error) {
-		// 	this.logger.error(error);
-		// 	if (error.message) throw new BadRequestException(error.message);
-		// 	throw new BadRequestException("删除菜单失败");
-		// }
+		this.logger.log(`${this.remove.name} was called`);
+		this.judgeCanDo(id);
+		try {
+			const menu = await this.findOne(id);
+			await this.prismaService.menu.update({
+				where: {
+					id,
+					isDelete: false,
+				},
+				data: {
+					isDelete: true,
+					name: "已删除" + "_" + menu.name + "_" + getRandomId(),
+					roles: {
+						set: [],
+					},
+				},
+			});
+			await this.redisService._delKeysWithPrefix(RedisKeyEnum.MenuKey);
+			await this.redisService._delKeysWithPrefix(RedisKeyEnum.RoleKey);
+			return "删除菜单成功";
+		} catch (error) {
+			this.logger.error(error);
+			if (error.message) throw new BadRequestException(error.message);
+			throw new BadRequestException("删除菜单失败");
+		}
 	}
 
 	/**
@@ -197,18 +219,20 @@ export class MenusService {
 	 * @returns
 	 */
 	async findListByIds(ids: number[]) {
-		// this.logger.log(`${this.findListByIds.name} was called`);
-		// try {
-		// 	return await this.menuRepository.find({
-		// 		where: {
-		// 			id: In(ids),
-		// 			isDelete: false,
-		// 		},
-		// 	});
-		// } catch (error) {
-		// 	this.logger.error(error);
-		// 	throw new BadRequestException("查找菜单失败");
-		// }
+		this.logger.log(`${this.findListByIds.name} was called`);
+		try {
+			return await this.prismaService.menu.findMany({
+				where: {
+					id: {
+						in: ids,
+					},
+					isDelete: false,
+				},
+			});
+		} catch (error) {
+			this.logger.error(error);
+			throw new BadRequestException("查找菜单失败");
+		}
 	}
 
 	/**
