@@ -6,7 +6,7 @@
  * @FilePath: \cms\src\modules\users\dtos\create-user.dto.ts
  * @Description:
  */
-import { ValidateStringNumber } from "@/shared/decorators/validate-string-number.decorator";
+import { ValidateStringNumber } from "@/shared/decorators";
 import { ApiProperty } from "@nestjs/swagger";
 import {
 	IsInt,

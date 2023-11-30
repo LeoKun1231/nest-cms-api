@@ -6,7 +6,6 @@
  * @FilePath: \cms\src\shared\interceptors\transform.interceptor.ts
  * @Description:.
  */
-import { AppLoggerSevice } from "@/shared/logger/logger.service";
 import {
 	CallHandler,
 	ExecutionContext,
@@ -14,6 +13,7 @@ import {
 	NestInterceptor,
 } from "@nestjs/common";
 import { Observable, map } from "rxjs";
+import { AppLoggerSevice } from "../logger";
 
 @Injectable()
 export class TransformResultInterceptor implements NestInterceptor {

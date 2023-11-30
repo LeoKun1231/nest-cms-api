@@ -6,8 +6,6 @@
  * @FilePath: \cms\src\modules\roles\roles.controller.ts
  * @Description:
  */
-import { RequirePermission } from "@/shared/decorators/require-permission.decorator";
-import { PermissionEnum } from "@/shared/enums/permission.enum";
 import {
 	Body,
 	Controller,
@@ -25,6 +23,8 @@ import { CreateRoleDto } from "./dto/create-role.dto";
 import { QueryRoleDto } from "./dto/query-role.dto";
 import { UpdateRoleDto } from "./dto/update-role.dto";
 import { RolesService } from "./roles.service";
+import { RequirePermission } from "@/shared/decorators";
+import { PermissionEnum } from "@/shared/enums";
 
 @Controller("role")
 @ApiTags("角色管理模块")

@@ -6,14 +6,11 @@
  * @FilePath: \cms\src\modules\auth\auth.module.ts
  * @Description:
  */
-import { User } from "@/shared/entities/user.entity";
-import { EnvEnum } from "@/shared/enums/env.enum";
-import { StrategyEnum } from "@/shared/enums/strategy.enum";
+import { EnvEnum, StrategyEnum } from "@/shared/enums";
 import { Module } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtModule } from "@nestjs/jwt";
 import { PassportModule } from "@nestjs/passport";
-import { TypeOrmModule } from "@nestjs/typeorm";
 import { UsersService } from "../users/users.service";
 import { AuthController } from "./auth.controller";
 import { AuthService } from "./auth.service";
@@ -23,7 +20,6 @@ import { LocalStrategy } from "./strategies/local.strategy";
 
 @Module({
 	imports: [
-		TypeOrmModule.forFeature([User]),
 		PassportModule.register({ defaultStrategy: StrategyEnum.JWT_ACCESS }),
 		JwtModule.registerAsync({
 			useFactory: async (configService: ConfigService) => ({

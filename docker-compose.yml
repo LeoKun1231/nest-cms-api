@@ -6,16 +6,19 @@ services:
     container_name: cms
     build:
       context: .
+      dockerfile: Dockerfile
+      target: development #指定构建阶段
       args:
         - APP_ENV
-    command: npm run start:dev
+    command: pnpm start:dev
     env_file:
       - .env.development
+    environment:
+      - TZ=Asia/Shanghai
     ports:
       - 3000:3000
     volumes:
-      - ./:/app
-      - node_modules:/app/node_modules/
+      - .:/usr/src/app
     networks:
       - mynetwork
     depends_on:
@@ -62,9 +65,6 @@ services:
     command: "redis-server /usr/local/etc/redis/redis.conf --requirepass 123456  --appendonly yes"
     networks:
       - mynetwork
-
-volumes:
-  node_modules:
 
 networks:
   mynetwork:

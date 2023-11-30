@@ -44,7 +44,7 @@ export class RedisService extends Redis implements OnModuleInit {
 	}
 
 	async onModuleInit() {
-		this.logger.log("redis connect success");
+		this.logger.log("redis connect success ✅");
 		await this.ping();
 	}
 }

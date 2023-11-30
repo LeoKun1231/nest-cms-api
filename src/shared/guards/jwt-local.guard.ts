@@ -6,9 +6,9 @@
  * @FilePath: \cms\src\shared\guards\jwt-local.guard.ts
  * @Description:
  */
-import { StrategyEnum } from "@/shared/enums/strategy.enum";
 import { Injectable } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
+import { StrategyEnum } from "../enums";
 
 @Injectable()
 export class JwtLocalGuard extends AuthGuard(StrategyEnum.LOCAL) {}

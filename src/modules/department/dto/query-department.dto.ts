@@ -6,7 +6,7 @@
  * @FilePath: \cms\src\modules\department\dto\query-department.dto.ts
  * @Description:
  */
-import { BaseQueryDto } from "@/shared/dtos/base-query.dto";
+import { BaseQueryDto } from "@/shared/dtos";
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsNumber, IsOptional, IsString } from "class-validator";

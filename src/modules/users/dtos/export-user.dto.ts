@@ -8,11 +8,9 @@
  */
 import { ExportDepartmentDto } from "@/modules/department/dto/export-department.dto";
 import { ExportRoleDto } from "@/modules/roles/dto/export-role.dto";
-import { Department } from "@/shared/entities/department.entity";
-import { Role } from "@/shared/entities/role.entity";
+import { formatTime } from "@/shared/utils";
 import { ApiProperty } from "@nestjs/swagger";
 import { Expose, Transform, Type } from "class-transformer";
-
 export class ExportUserDto {
 	@ApiProperty({
 		description: "用户ID",
@@ -62,31 +60,33 @@ export class ExportUserDto {
 		type: Date,
 	})
 	@Expose()
+	@Transform(({ value }) => formatTime(value))
 	createAt: Date;
 
 	@ApiProperty({
 		description: "用户最后更新时间",
-		example: "2022-01-01T00:00:00",
+		example: "2022-01-01 00:00:00",
 		type: Date,
 	})
 	@Expose()
+	@Transform(({ value }) => formatTime(value))
 	updateAt: Date;
 
 	@ApiProperty({
 		description: "用户角色",
-		example: Role,
-		type: Role,
+		example: ExportRoleDto,
+		type: ExportRoleDto,
 	})
 	@Expose()
 	@Type(() => ExportRoleDto)
 	@Transform(({ obj }) => {
-		return obj.roles[0];
+		return obj.roles[0].role;
 	})
 	role: ExportRoleDto;
 
 	@ApiProperty({
 		description: "用户部门",
-		example: Department,
+		example: ExportDepartmentDto,
 		type: ExportDepartmentDto,
 	})
 	@Expose()

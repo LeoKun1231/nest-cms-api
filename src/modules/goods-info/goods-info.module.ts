@@ -6,18 +6,13 @@
  * @FilePath: \cms\src\modules\goods-info\goods-info.module.ts
  * @Description:
  */
-import { GoodsInfo } from "@/shared/entities/goods-info.entity";
 import { Module, forwardRef } from "@nestjs/common";
-import { TypeOrmModule } from "@nestjs/typeorm";
 import { GoodsCategoryModule } from "../goods-category/goods-category.module";
 import { GoodsInfoController } from "./goods-info.controller";
 import { GoodsInfoService } from "./goods-info.service";
 
 @Module({
-	imports: [
-		TypeOrmModule.forFeature([GoodsInfo]),
-		forwardRef(() => GoodsCategoryModule),
-	],
+	imports: [forwardRef(() => GoodsCategoryModule)],
 	controllers: [GoodsInfoController],
 	providers: [GoodsInfoService],
 	exports: [GoodsInfoService],

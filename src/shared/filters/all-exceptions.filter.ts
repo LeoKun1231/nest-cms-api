@@ -6,7 +6,6 @@
  * @FilePath: \cms\src\shared\filters\all-exceptions.filter.ts
  * @Description:
  */
-import { AppLoggerSevice } from "@/shared/logger/logger.service";
 import {
 	ArgumentsHost,
 	Catch,
@@ -16,6 +15,8 @@ import {
 } from "@nestjs/common";
 import { Request, Response } from "express";
 import * as requestIp from "request-ip";
+import { AppLoggerSevice } from "../logger";
+import { formatTime } from "../utils";
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -41,7 +42,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 			code: httpStatus,
 			message,
 			path: request.url,
-			timestamp: new Date().toLocaleString(),
+			timestamp: formatTime(new Date()),
 		};
 
 		if (responseBody.message == "TokenExpiredError: jwt expired") {

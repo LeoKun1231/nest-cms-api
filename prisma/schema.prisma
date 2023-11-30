@@ -1,0 +1,221 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url= env("DATABASE_URL")
+}
+
+
+///用户表
+model User{
+  ///用户id
+  id Int @id @default(autoincrement())
+  ///用户账号
+  name String @unique
+  ///用户密码
+  password String
+  ///用户真名
+  realname String?
+  ///用户手机号码
+  cellphone String?
+  ///是否启用
+  enable Boolean? @default(true)
+  ///用户登录ip
+  ip String?
+  ///是否删除
+  isDelete Boolean? @default(false)
+  ///用户创建时间
+  createAt DateTime @default(now())
+  ///用户更新时间
+  updateAt DateTime @updatedAt
+
+  ///用户所在部门id
+  departmentId Int? 
+  department Department? @relation(fields:[departmentId],references:[id])
+
+  ///用户所拥有的角色
+  roles UserRole[] 
+}
+
+
+///角色表
+model Role{
+  ///角色id
+  id Int @id @default(autoincrement())
+  ///角色名称
+  name String @unique
+  ///角色描述
+  intro String?
+  ///是否启用
+  enable Boolean? @default(true)
+  ///是否删除
+  isDelete Boolean? @default(false)
+  ///角色创建时间
+  createAt DateTime @default(now())
+  ///角色更新时间
+  updateAt DateTime @updatedAt
+
+  ///角色下的用户
+  users UserRole[]
+
+  ///角色下的菜单
+  menus RoleMenu[]
+}
+
+
+
+///部门表
+model Department {
+  ///部门id
+  id Int @id @default(autoincrement())
+  ///部门名称
+  name String @unique
+  ///部门领导
+  leader String?
+  ///是否启用
+  enable Boolean? @default(true)
+  ///是否删除
+  isDelete Boolean? @default(false)
+  ///部门创建时间
+  createAt DateTime @default(now())
+  ///部门更新时间
+  updateAt DateTime @updatedAt
+
+  ///父级id
+  parentId Int?
+  ///父级部门
+  parnet Department? @relation("parent",fields:[parentId],references:[id])
+  ///子级部门
+  children Department[] @relation("parent")
+
+  ///部门下的用户
+  user User[]
+}
+
+
+///菜单表
+model Menu{
+  ///菜单id
+  id Int @id @default(autoincrement())
+  ///菜单名称
+  name String @unique
+  ///菜单层级
+  type Int 
+  ///菜单路径
+  url String?
+  ///菜单图标
+  icon String?
+  ///菜单排序
+  sort Int?
+  ///菜单权限
+  permission String?
+  ///是否启用
+  enable Boolean? @default(true)
+  ///是否删除
+  isDelete Boolean? @default(false)
+  ///菜单创建时间
+  createAt DateTime @default(now())
+  ///菜单更新时间
+  updateAt DateTime @updatedAt
+
+  ///父级id
+  parentId Int?
+  parent Menu? @relation("parent",fields:[parentId],references:[id])
+  children Menu[] @relation("parent")
+
+  ///菜单下的角色
+  roles RoleMenu[]
+}
+
+
+///用户角色表
+model UserRole{
+  ///用户id
+  userId Int 
+  user User @relation(fields:[userId],references:[id])
+  ///角色id
+  roleId Int
+  role Role @relation(fields:[roleId],references:[id])
+  ///联合主键
+  @@id([userId,roleId])
+  @@map("user_role")
+}
+
+///角色菜单表
+model RoleMenu{
+  ///角色id
+  roleId Int
+  role Role @relation(fields:[roleId],references:[id])
+  ///菜单id
+  menuId Int
+  menu Menu @relation(fields:[menuId],references:[id])
+  ///联合主键
+  @@id([roleId,menuId])
+  @@map("role_menu")
+}
+
+
+///商品分类表
+model GoodsCategory{
+  ///分类id
+  id Int @id @default(autoincrement())
+  ///分类名称
+  name String @unique
+  ///是否启用
+  enable Boolean? @default(true)
+  ///是否删除
+  isDelete Boolean? @default(false)
+  ///分类创建时间
+  createAt DateTime @default(now())
+  ///分类更新时间
+  updateAt DateTime @updatedAt
+
+  ///分类下的商品
+  goods GoodsInfo[]
+
+  @@map("goods_category")
+}
+
+
+///商品信息表
+model GoodsInfo{
+  ///商品id
+  id Int @id @default(autoincrement())
+  ///商品名称
+  name String
+  ///商品描述
+  desc String
+  ///商品原价
+  oldPrice Float
+  ///商品现价
+  newPrice Float
+  ///商品照片url
+  imgUrl String
+  ///商品库存
+  inventoryCount Int
+  ///商品销量
+  saleCount Int?
+  ///商品收藏数
+  favorCount Int?
+  ///商品地址
+  address String
+  ///商品状态
+  status Boolean? @default(true)
+  ///是否删除
+  isDelete Boolean? @default(false)
+  ///商品创建时间
+  createAt DateTime @default(now())
+  ///商品更新时间
+  updateAt DateTime @updatedAt
+
+  ///商品分类id
+  categoryId Int?
+  category GoodsCategory? @relation(fields:[categoryId],references:[id])
+
+  @@map("goods_info")
+}

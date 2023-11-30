@@ -14,7 +14,7 @@ import helmet from "helmet";
 import * as path from "path";
 import { AppModule } from "./app.module";
 import { setupLogger } from "./log";
-import { EnvEnum } from "./shared/enums/env.enum";
+import { EnvEnum } from "./shared/enums";
 import { setupSwagger } from "./swagger";
 
 async function bootstrap() {

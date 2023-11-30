@@ -6,7 +6,7 @@
  * @FilePath: \cms\src\modules\menus\dto\export-menu.dto.ts
  * @Description:
  */
-import { ExposeNotNull } from "@/shared/decorators/expose-not-null.decorator";
+import { ExposeNotNull } from "@/shared/decorators";
 import { ApiProperty } from "@nestjs/swagger";
 import { Expose, Type } from "class-transformer";
 

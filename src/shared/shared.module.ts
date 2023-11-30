@@ -16,20 +16,17 @@ import {
 import { ConfigModule } from "@nestjs/config";
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from "@nestjs/core";
 import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
-import { TypeOrmModule } from "@nestjs/typeorm";
-import { connectionParams } from "../ormconfig";
-import loadEnvConfig from "./config/loadEnv.config";
-import { validationSchema } from "./config/validateEnv.config";
-import { AllExceptionsFilter } from "./filters/all-exceptions.filter";
-import { JwtAccessGuard } from "./guards/jwt-access.guard";
-import { PermissionAuthGuard } from "./guards/permission-auth.guard";
-import { TransformResultInterceptor } from "./interceptors/transform.interceptor";
-import { LoggerModule } from "./logger/logger.module";
-import { LogMiddleware } from "./middleware/log.middleware";
-import { RedisModule } from "./redis/redis.module";
-import { SharedService } from "./shared.service";
-import { UploadModule } from "./upload/upload.module";
 
+import { loadEnvConfig, validationSchema } from "./config";
+import { AllExceptionsFilter } from "./filters";
+import { JwtAccessGuard, PermissionAuthGuard } from "./guards";
+import { TransformResultInterceptor } from "./interceptors";
+import { LoggerModule } from "./logger";
+import { LogMiddleware } from "./middleware";
+import { PrismaModule } from "./prisma";
+import { RedisModule } from "./redis";
+import { SharedService } from "./shared.service";
+import { UploadModule } from "./upload";
 const envFilePath = `.env.${process.env.NODE_ENV || `development`}`;
 
 @Global()
@@ -41,10 +38,11 @@ const envFilePath = `.env.${process.env.NODE_ENV || `development`}`;
 			isGlobal: true,
 			load: [loadEnvConfig],
 		}),
-		TypeOrmModule.forRoot(connectionParams),
-		LoggerModule,
 		UploadModule,
 		RedisModule,
+		PrismaModule,
+		LoggerModule,
+
 		ThrottlerModule.forRoot({
 			throttlers: [
 				{
@@ -82,7 +80,7 @@ const envFilePath = `.env.${process.env.NODE_ENV || `development`}`;
 			useClass: ThrottlerGuard,
 		},
 	],
-	exports: [SharedService, Logger, LoggerModule, RedisModule],
+	exports: [SharedService, Logger, LoggerModule, RedisModule, PrismaModule],
 })
 
 //配置请求日志中间件

@@ -6,14 +6,12 @@
  * @FilePath: \cms\src\modules\department\department.module.ts
  * @Description:
  */
-import { Department } from "@/shared/entities/department.entity";
 import { Module } from "@nestjs/common";
-import { TypeOrmModule } from "@nestjs/typeorm";
 import { DepartmentController } from "./department.controller";
 import { DepartmentService } from "./department.service";
 
 @Module({
-	imports: [TypeOrmModule.forFeature([Department])],
+	imports: [],
 	controllers: [DepartmentController],
 	providers: [DepartmentService],
 	exports: [DepartmentService],

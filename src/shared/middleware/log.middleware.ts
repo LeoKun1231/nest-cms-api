@@ -6,10 +6,10 @@
  * @FilePath: \cms\src\shared\middleware\log.middleware.ts
  * @Description:
  */
-import { AppLoggerSevice } from "@/shared/logger/logger.service";
-import { getReqMainInfo } from "@/shared/utils";
 import { Injectable, NestMiddleware } from "@nestjs/common";
 import { Request, Response } from "express";
+import { AppLoggerSevice } from "../logger/logger.service";
+import { getReqMainInfo } from "../utils";
 @Injectable()
 export class LogMiddleware implements NestMiddleware {
 	constructor(private readonly logger: AppLoggerSevice) {}

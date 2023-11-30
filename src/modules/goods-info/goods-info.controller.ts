@@ -6,8 +6,8 @@
  * @FilePath: \cms\src\modules\goods-info\goods-info.controller.ts
  * @Description:
  */
-import { RequirePermission } from "@/shared/decorators/require-permission.decorator";
-import { PermissionEnum } from "@/shared/enums/permission.enum";
+import { RequirePermission } from "@/shared/decorators";
+import { PermissionEnum } from "@/shared/enums";
 import {
 	Body,
 	Controller,

@@ -6,7 +6,6 @@
  * @FilePath: \cms\src\shared\guards\jwt-refresh.guard.ts
  * @Description:
  */
-import { StrategyEnum } from "@/shared/enums/strategy.enum";
 import {
 	ExecutionContext,
 	Injectable,
@@ -14,6 +13,7 @@ import {
 } from "@nestjs/common";
 import { AuthGuard } from "@nestjs/passport";
 import { Observable } from "rxjs";
+import { StrategyEnum } from "../enums";
 
 @Injectable()
 export class JwtRefreshGuard extends AuthGuard(StrategyEnum.JWT_REFRESH) {

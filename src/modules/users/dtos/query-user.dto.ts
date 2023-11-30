@@ -6,8 +6,8 @@
  * @FilePath: \cms\src\modules\users\dtos\query-user.dto.ts
  * @Description:
  */
-import { ValidateStringNumber } from "@/shared/decorators/validate-string-number.decorator";
-import { BaseQueryDto } from "@/shared/dtos/base-query.dto";
+import { ValidateStringNumber } from "@/shared/decorators";
+import { BaseQueryDto } from "@/shared/dtos";
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsInt, IsOptional, IsString } from "class-validator";

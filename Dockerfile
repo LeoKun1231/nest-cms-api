@@ -1,10 +1,11 @@
-# lts-gallium refers to v16
-# Using this instead of node:16 to avoid dependabot updates
-FROM node:18 as builder
+FROM node:18 AS development
 
-WORKDIR /app
+#指定工作目录
+WORKDIR /usr/src/app
 
-COPY package.json pnpm-lock.yaml ./
+#复制package.json和pnpm-lock.yaml 到工作目录 这里单独复制是为了利用缓存
+COPY package.json ./
+COPY pnpm-lock.yaml ./
 
 RUN npm config set registry https://registry.npmmirror.com/
 
@@ -14,29 +15,33 @@ RUN pnpm install
 
 COPY . .
 
+#设置默认环境变量
+ARG APP_ENV=development
+#暴露环境变量
+ENV NODE_ENV=${APP_ENV}
+
+RUN pnpm build
+
+
+FROM node:18 AS production
+
+
 ARG APP_ENV=development
 ENV NODE_ENV=${APP_ENV}
 
-
-RUN pnpm run build
-
-RUN pnpm prune
-
-FROM node:18
-ARG APP_ENV=development
-ENV NODE_ENV=${APP_ENV}
+#指定工作目录
+WORKDIR /usr/src/app
 
 
-WORKDIR /app
+RUN npm install -g pnpm
 
-
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./
-COPY --from=builder /app/pnpm-lock.yaml ./
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /usr/src/app/node_modules ./node_modules
+COPY --from=builder /usr/src/app/package.json ./
+COPY --from=builder /usr/src/app/pnpm-lock.yaml ./
+COPY --from=builder /usr/src/app/dist ./dist
 
 
 EXPOSE 3000
 
 
-CMD [ "npm","run", "start:prod"]
+CMD ["node", "dist/main"]

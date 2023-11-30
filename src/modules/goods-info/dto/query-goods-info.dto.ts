@@ -6,9 +6,8 @@
  * @FilePath: \cms\src\modules\goods-info\dto\query-goods-info.dto.ts
  * @Description:
  */
-import { ValidateArrary } from "@/shared/decorators/validate-array.decorator";
-import { ValidateStringNumber } from "@/shared/decorators/validate-string-number.decorator";
-import { BaseQueryDto } from "@/shared/dtos/base-query.dto";
+import { ValidateArrary, ValidateStringNumber } from "@/shared/decorators";
+import { BaseQueryDto } from "@/shared/dtos";
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsNumber, IsOptional, IsString } from "class-validator";

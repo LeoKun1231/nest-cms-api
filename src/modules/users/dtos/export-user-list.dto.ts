@@ -8,6 +8,7 @@
  */
 import { ExportDepartmentDto } from "@/modules/department/dto/export-department.dto";
 import { ExportRoleDto } from "@/modules/roles/dto/export-role.dto";
+import { formatTime } from "@/shared/utils";
 import { ApiProperty } from "@nestjs/swagger";
 import { Expose, Transform, Type } from "class-transformer";
 import { ExportUserDto } from "./export-user.dto";
@@ -72,6 +73,7 @@ class ExportUserListItem {
 		type: Date,
 	})
 	@Expose()
+	@Transform(({ value }) => formatTime(value))
 	createAt: Date;
 
 	@ApiProperty({
@@ -80,6 +82,7 @@ class ExportUserListItem {
 		type: Date,
 	})
 	@Expose()
+	@Transform(({ value }) => formatTime(value))
 	updateAt: Date;
 
 	@ApiProperty({

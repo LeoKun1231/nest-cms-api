@@ -7,8 +7,8 @@
  * @Description:
  */
 import { UsersService } from "@/modules/users/users.service";
-import { StrategyEnum } from "@/shared/enums/strategy.enum";
-import { AppLoggerSevice } from "@/shared/logger/logger.service";
+import { StrategyEnum } from "@/shared/enums";
+import { AppLoggerSevice } from "@/shared/logger";
 import { Injectable } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
 import { Request } from "express";

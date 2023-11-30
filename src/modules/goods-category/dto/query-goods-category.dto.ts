@@ -6,7 +6,7 @@
  * @FilePath: \cms\src\modules\goods-category\dto\query-goods-category.dto.ts
  * @Description:
  */
-import { BaseQueryDto } from "@/shared/dtos/base-query.dto";
+import { BaseQueryDto } from "@/shared/dtos";
 import { ApiProperty } from "@nestjs/swagger";
 import { IsOptional, IsString } from "class-validator";
 

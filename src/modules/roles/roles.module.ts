@@ -6,15 +6,13 @@
  * @FilePath: \cms\src\modules\roles\roles.module.ts
  * @Description:
  */
-import { Role } from "@/shared/entities/role.entity";
 import { Module } from "@nestjs/common";
-import { TypeOrmModule } from "@nestjs/typeorm";
 import { MenusModule } from "../menus/menus.module";
 import { RolesController } from "./roles.controller";
 import { RolesService } from "./roles.service";
 
 @Module({
-	imports: [TypeOrmModule.forFeature([Role]), MenusModule],
+	imports: [MenusModule],
 	controllers: [RolesController],
 	providers: [RolesService],
 	exports: [RolesService],

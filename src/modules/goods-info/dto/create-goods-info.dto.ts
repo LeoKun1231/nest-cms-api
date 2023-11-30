@@ -6,7 +6,7 @@
  * @FilePath: \cms\src\modules\goods-info\dto\create-goods-info.dto.ts
  * @Description:
  */
-import { ValidateStringNumber } from "@/shared/decorators/validate-string-number.decorator";
+import { ValidateStringNumber } from "@/shared/decorators";
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsNotEmpty, IsOptional, IsString } from "class-validator";

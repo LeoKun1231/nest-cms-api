@@ -6,7 +6,6 @@
  * @FilePath: \cms\src\shared\guards\jwt-access.guard.ts
  * @Description:
  */
-import { StrategyEnum } from "@/shared/enums/strategy.enum";
 import {
 	ExecutionContext,
 	Injectable,
@@ -15,6 +14,7 @@ import {
 import { Reflector } from "@nestjs/core";
 import { AuthGuard } from "@nestjs/passport";
 import { Observable } from "rxjs";
+import { StrategyEnum } from "../enums";
 import { DecoratorEnum } from "../enums/decorator.enum";
 
 @Injectable()

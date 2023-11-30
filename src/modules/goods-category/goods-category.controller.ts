@@ -6,8 +6,6 @@
  * @FilePath: \cms\src\modules\goods-category\goods-category.controller.ts
  * @Description:
  */
-import { RequirePermission } from "@/shared/decorators/require-permission.decorator";
-import { PermissionEnum } from "@/shared/enums/permission.enum";
 import {
 	Body,
 	Controller,
@@ -24,6 +22,8 @@ import { CreateGoodsCategoryDto } from "./dto/create-goods-category.dto";
 import { QueryGoodsCategoryDto } from "./dto/query-goods-category.dto";
 import { UpdateGoodsCategoryDto } from "./dto/update-goods-category.dto";
 import { GoodsCategoryService } from "./goods-category.service";
+import { PermissionEnum } from "@/shared/enums";
+import { RequirePermission } from "@/shared/decorators";
 
 @Controller("category")
 @ApiTags("商品分类模块")

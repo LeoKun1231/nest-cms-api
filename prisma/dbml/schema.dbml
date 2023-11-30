@@ -1,0 +1,146 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table User {
+  id Int [pk, increment, note: '用户id']
+  name String [unique, not null, note: '用户账号']
+  password String [not null, note: '用户密码']
+  realName String [note: '用户真名']
+  cellphone String [note: '用户手机号码']
+  enable Boolean [default: true, note: '是否启用']
+  ip String [note: '用户登录ip']
+  isDelete Boolean [default: false, note: '是否删除']
+  createAt DateTime [default: `now()`, not null, note: '用户创建时间']
+  updateAt DateTime [not null, note: '用户更新时间']
+  departmentId Int [note: '用户所在部门id']
+  department Department
+  roles user_role [not null, note: '用户所拥有的角色']
+
+  Note: '用户表'
+}
+
+Table Role {
+  id Int [pk, increment, note: '角色id']
+  name String [unique, not null, note: '角色名称']
+  intro String [note: '角色描述']
+  enable Boolean [default: true, note: '是否启用']
+  isDelete Boolean [default: false, note: '是否删除']
+  createAt DateTime [default: `now()`, not null, note: '角色创建时间']
+  updateAt DateTime [not null, note: '角色更新时间']
+  users user_role [not null, note: '角色下的用户']
+  menus role_menu [not null, note: '角色下的菜单']
+
+  Note: '角色表'
+}
+
+Table Department {
+  id Int [pk, increment, note: '部门id']
+  name String [unique, not null, note: '部门名称']
+  leader String [note: '部门领导']
+  enable Boolean [default: true, note: '是否启用']
+  isDelete Boolean [default: false, note: '是否删除']
+  createAt DateTime [default: `now()`, not null, note: '部门创建时间']
+  updateAt DateTime [not null, note: '部门更新时间']
+  parentId Int [note: '父级id']
+  parnet Department [note: '父级部门']
+  children Department [not null, note: '子级部门']
+  user User [not null, note: '部门下的用户']
+
+  Note: '部门表'
+}
+
+Table Menu {
+  id Int [pk, increment, note: '菜单id']
+  name String [unique, not null, note: '菜单名称']
+  type Int [not null, note: '菜单层级']
+  url String [note: '菜单路径']
+  icon String [note: '菜单图标']
+  sort Int [note: '菜单排序']
+  permission String [note: '菜单权限']
+  enable Boolean [default: true, note: '是否启用']
+  isDelete Boolean [default: false, note: '是否删除']
+  createAt DateTime [default: `now()`, not null, note: '菜单创建时间']
+  updateAt DateTime [not null, note: '菜单更新时间']
+  parentId Int [note: '父级id']
+  parent Menu
+  children Menu [not null]
+  roles role_menu [not null, note: '菜单下的角色']
+
+  Note: '菜单表'
+}
+
+Table user_role {
+  userId Int [not null, note: '用户id']
+  user User [not null]
+  roleId Int [not null, note: '角色id']
+  role Role [not null]
+
+  indexes {
+    (userId, roleId) [pk]
+  }
+
+  Note: '用户角色表'
+}
+
+Table role_menu {
+  roleId Int [not null, note: '角色id']
+  role Role [not null]
+  menuId Int [not null, note: '菜单id']
+  menu Menu [not null]
+
+  indexes {
+    (roleId, menuId) [pk]
+  }
+
+  Note: '角色菜单表'
+}
+
+Table goods_category {
+  id Int [pk, increment, note: '分类id']
+  name String [unique, not null, note: '分类名称']
+  enable Boolean [default: true, note: '是否启用']
+  isDelete Boolean [default: false, note: '是否删除']
+  createAt DateTime [default: `now()`, not null, note: '分类创建时间']
+  updateAt DateTime [not null, note: '分类更新时间']
+  goods goods_info [not null, note: '分类下的商品']
+
+  Note: '商品分类表'
+}
+
+Table goods_info {
+  id Int [pk, increment, note: '商品id']
+  name String [not null, note: '商品名称']
+  desc String [not null, note: '商品描述']
+  oldPrice Float [not null, note: '商品原价']
+  newPrice Float [not null, note: '商品现价']
+  imgUrl String [not null, note: '商品照片url']
+  inventoryCount Int [not null, note: '商品库存']
+  saleCount Int [note: '商品销量']
+  favorCount Int [note: '商品收藏数']
+  address String [not null, note: '商品地址']
+  status Boolean [default: true, note: '商品状态']
+  isDelete Boolean [default: false, note: '是否删除']
+  createAt DateTime [default: `now()`, not null, note: '商品创建时间']
+  updateAt DateTime [not null, note: '商品更新时间']
+  categoryId Int [note: '商品分类id']
+  category goods_category
+
+  Note: '商品信息表'
+}
+
+Ref: User.departmentId > Department.id
+
+Ref: Department.parentId - Department.id
+
+Ref: Menu.parentId - Menu.id
+
+Ref: user_role.userId > User.id
+
+Ref: user_role.roleId > Role.id
+
+Ref: role_menu.roleId > Role.id
+
+Ref: role_menu.menuId > Menu.id
+
+Ref: goods_info.categoryId > goods_category.id

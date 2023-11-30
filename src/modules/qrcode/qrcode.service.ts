@@ -1,7 +1,6 @@
-import { RedisKeyEnum } from "@/shared/enums/redis-key.enum";
-import { ScanStatusEnum } from "@/shared/enums/scan-status.enum";
-import { AppLoggerSevice } from "@/shared/logger/logger.service";
-import { RedisService } from "@/shared/redis/redis.service";
+import { RedisKeyEnum, ScanStatusEnum } from "@/shared/enums";
+import { AppLoggerSevice } from "@/shared/logger";
+import { RedisService } from "@/shared/redis";
 import { BadRequestException, Injectable } from "@nestjs/common";
 import * as QRCode from "qrcode";
 import { v4 as UUID } from "uuid";

@@ -6,28 +6,32 @@
  * @FilePath: \cms\src\app.controller.ts
  * @Description:
  */
-import { User } from "@/shared/entities/user.entity";
 import { Controller, Get } from "@nestjs/common";
 import { Body, Post } from "@nestjs/common/decorators";
 import { AppService } from "./app.service";
-import { AppLoggerSevice } from "./shared/logger/logger.service";
+import { Public } from "./shared/decorators/public.decorator";
+import { PrismaService } from "./shared/prisma";
 
 @Controller()
 export class AppController {
 	constructor(
 		private readonly appService: AppService,
-		private readonly logger: AppLoggerSevice,
-	) {
-		this.logger.setContext(AppController.name);
-	}
+		private readonly prismaService: PrismaService,
+	) {}
 
 	@Get("aa")
+	@Public()
 	getHello() {
-		return 11;
+		return this.prismaService.role.create({
+			data: {
+				name: "112211",
+				intro: "111",
+			},
+		});
 	}
 
 	@Post("bb")
-	getHello2(@Body() user: User) {
+	getHello2(@Body() user: any) {
 		return user;
 	}
 }

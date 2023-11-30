@@ -6,8 +6,7 @@
  * @FilePath: \cms\src\modules\auth\strategies\jwt-refresh.strategy.ts
  * @Description:
  */
-import { EnvEnum } from "@/shared/enums/env.enum";
-import { StrategyEnum } from "@/shared/enums/strategy.enum";
+import { EnvEnum, StrategyEnum } from "@/shared/enums";
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";

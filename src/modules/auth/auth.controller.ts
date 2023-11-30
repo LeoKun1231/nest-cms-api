@@ -6,15 +6,11 @@
  * @FilePath: \cms\src\modules\auth\auth.controller.ts
  * @Description:
  */
-import { GetCurrentUserID } from "@/shared/decorators/get-current-user-id.decorator";
-import { Public } from "@/shared/decorators/public.decorator";
-import {
-	BaseApiErrorResponse,
-	SwaggerBaseApiResponse,
-} from "@/shared/dtos/base-api-response.dto";
-import { JwtAccessGuard } from "@/shared/guards/jwt-access.guard";
-import { JwtRefreshGuard } from "@/shared/guards/jwt-refresh.guard";
-import { AppLoggerSevice } from "@/shared/logger/logger.service";
+
+import { GetCurrentUserID, Public } from "@/shared/decorators";
+import { BaseApiErrorResponse, SwaggerBaseApiResponse } from "@/shared/dtos";
+import { JwtAccessGuard, JwtRefreshGuard } from "@/shared/guards";
+import { AppLoggerSevice } from "@/shared/logger";
 import {
 	Body,
 	ClassSerializerInterceptor,

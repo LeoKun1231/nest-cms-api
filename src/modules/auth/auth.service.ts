@@ -6,11 +6,10 @@
  * @FilePath: \cms\src\modules\auth\auth.service.ts
  * @Description:
  */
-import { EnvEnum } from "@/shared/enums/env.enum";
-import { RedisKeyEnum } from "@/shared/enums/redis-key.enum";
-import { JwtPayloadInterface } from "@/shared/interfaces/jwt-payload.interface";
-import { AppLoggerSevice } from "@/shared/logger/logger.service";
-import { RedisService } from "@/shared/redis/redis.service";
+import { EnvEnum, RedisKeyEnum } from "@/shared/enums";
+import { JwtPayloadInterface } from "@/shared/interfaces";
+import { AppLoggerSevice } from "@/shared/logger";
+import { RedisService } from "@/shared/redis";
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
@@ -41,15 +40,17 @@ export class AuthService {
 	async login(loginAccountDto: LoginAccountDto, req: Request) {
 		this.logger.log(`${this.login.name} was called`);
 
+		//1.验证用户信息
 		const user = await this.userService.validateUser(
 			loginAccountDto.name,
 			loginAccountDto.password,
 		);
 		const ip = requestIp.getClientIp(req);
-
+		//2.记录用户登录ip
 		await this.userService.recordUserIp(user.id, ip);
 
-		const roleId = user.roles[0].id;
+		const roleId = user.roles[0].roleId;
+		//3.生成token
 		const { accessToken } = this.getAccessAndRefreshToken(
 			user.id,
 			user.name,
@@ -87,11 +88,7 @@ export class AuthService {
 	 * @param name 用户名
 	 * @returns
 	 */
-	getAccessAndRefreshToken(
-		id: number,
-		name: string,
-		roleId: number,
-	): ExportLoginDto {
+	getAccessAndRefreshToken(id: number, name: string, roleId: number) {
 		this.logger.log(`${this.getAccessAndRefreshToken.name} was called`);
 		const payload = { id, name, roleId } as JwtPayloadInterface;
 		return plainToClass(ExportLoginDto, {

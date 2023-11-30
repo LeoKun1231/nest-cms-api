@@ -6,8 +6,6 @@
  * @FilePath: \cms\src\modules\story\story.controller.ts
  * @Description:
  */
-import { RequirePermission } from "@/shared/decorators/require-permission.decorator";
-import { PermissionEnum } from "@/shared/enums/permission.enum";
 import {
 	Body,
 	Controller,
@@ -24,6 +22,8 @@ import { CreateStoryDto } from "./dto/create-story.dto";
 import { QueryStoryDto } from "./dto/query-story.dto";
 import { UpdateStoryDto } from "./dto/update-story.dto";
 import { StoryService } from "./story.service";
+import { RequirePermission } from "@/shared/decorators";
+import { PermissionEnum } from "@/shared/enums";
 
 @Controller("story")
 @ApiTags("故事管理模块")

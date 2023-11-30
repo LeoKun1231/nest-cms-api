@@ -1,6 +1,6 @@
-import { Public } from "@/shared/decorators/public.decorator";
 import { Controller, Get, Param } from "@nestjs/common";
 import { QrcodeService } from "./qrcode.service";
+import { Public } from "@/shared/decorators";
 
 @Public()
 @Controller("qrcode")
