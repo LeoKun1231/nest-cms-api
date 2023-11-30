@@ -6,8 +6,9 @@
  * @FilePath: \cms\src\modules\department\dto\export-department.dto.ts
  * @Description:
  */
+import { formatTime } from "@/shared/utils";
 import { ApiProperty } from "@nestjs/swagger";
-import { Expose, Type } from "class-transformer";
+import { Expose, Transform, Type } from "class-transformer";
 
 export class ExportDepartmentDto {
 	@ApiProperty({ description: "部门id", example: 1, type: Number })
@@ -37,6 +38,7 @@ export class ExportDepartmentDto {
 		type: Date,
 	})
 	@Expose()
+	@Transform(({ value }) => formatTime(value))
 	createAt: Date;
 
 	@ApiProperty({
@@ -45,5 +47,6 @@ export class ExportDepartmentDto {
 		type: Date,
 	})
 	@Expose()
+	@Transform(({ value }) => formatTime(value))
 	updateAt: Date;
 }

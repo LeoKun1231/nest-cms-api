@@ -6,6 +6,7 @@
  * @FilePath: \cms\src\modules\goods-info\dto\export-goods-info.dto.ts
  * @Description:
  */
+import { formatTime } from "@/shared/utils";
 import { ApiProperty } from "@nestjs/swagger";
 import { Expose, Transform } from "class-transformer";
 
@@ -79,6 +80,7 @@ export class ExportGoodsInfoDto {
 		type: Date,
 	})
 	@Expose()
+	@Transform(({ value }) => formatTime(value))
 	createAt: Date;
 
 	@ApiProperty({
@@ -87,5 +89,6 @@ export class ExportGoodsInfoDto {
 		type: Date,
 	})
 	@Expose()
+	@Transform(({ value }) => formatTime(value))
 	updateAt: Date;
 }

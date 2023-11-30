@@ -324,39 +324,35 @@ export class UsersService {
 	 * @returns
 	 */
 	async disabledUser(id: number, type: "role" | "department") {
-		// this.logger.log(`${this.disabledUser.name} was called`);
-		// try {
-		// 	if (type == "role") {
-		// 		const users = await this.usersRespository.find({
-		// 			where: {
-		// 				roles: {
-		// 					id,
-		// 					isDelete: false,
-		// 				},
-		// 			},
-		// 		});
-		// 		users.forEach((role) => {
-		// 			role.enable = false;
-		// 		});
-		// 		await this.usersRespository.save(users);
-		// 	} else if (type == "department") {
-		// 		const users = await this.usersRespository.find({
-		// 			where: {
-		// 				department: {
-		// 					id,
-		// 					isDelete: false,
-		// 				},
-		// 			},
-		// 		});
-		// 		users.forEach((user) => {
-		// 			user.enable = false;
-		// 		});
-		// 		await this.usersRespository.save(users);
-		// 	}
-		// } catch (error) {
-		// 	this.logger.error(error);
-		// 	throw new BadRequestException("禁用用户失败");
-		// }
+		this.logger.log(`${this.disabledUser.name} was called`);
+		try {
+			if (type == "role") {
+				await this.prismaService.user.updateMany({
+					where: {
+						roles: {
+							every: {
+								roleId: id,
+							},
+						},
+					},
+					data: {
+						enable: false,
+					},
+				});
+			} else if (type == "department") {
+				await this.prismaService.user.updateMany({
+					where: {
+						departmentId: id,
+					},
+					data: {
+						enable: false,
+					},
+				});
+			}
+		} catch (error) {
+			this.logger.error(error);
+			throw new BadRequestException("禁用用户失败");
+		}
 	}
 
 	/**

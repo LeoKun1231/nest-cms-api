@@ -6,4 +6,7 @@
  * @FilePath: \cms\src\enums\http-status.enum.ts
  * @Description:
  */
-export enum HTTP_STATUS {}
+export enum PrismaErrorCode {
+	UniqueConstraintViolation = "P2002",
+	ForeignKeyConstraintViolation = "P2003",
+}

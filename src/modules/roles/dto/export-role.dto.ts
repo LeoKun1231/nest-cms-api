@@ -7,8 +7,9 @@
  * @Description:
  */
 import { ExportMenuDto } from "@/modules/menus/dto/export-menu.dto";
+import { formatTime } from "@/shared/utils";
 import { ApiProperty } from "@nestjs/swagger";
-import { Expose, Type } from "class-transformer";
+import { Expose, Transform, Type } from "class-transformer";
 
 export class ExportRoleDto {
 	@ApiProperty({ description: "角色 ID", example: 1, type: Number })
@@ -42,6 +43,7 @@ export class ExportRoleDto {
 		type: Date,
 	})
 	@Expose()
+	@Transform(({ value }) => formatTime(value))
 	createAt: Date;
 
 	@ApiProperty({
@@ -50,6 +52,7 @@ export class ExportRoleDto {
 		type: Date,
 	})
 	@Expose()
+	@Transform(({ value }) => formatTime(value))
 	updateAt: Date;
 
 	@Expose()

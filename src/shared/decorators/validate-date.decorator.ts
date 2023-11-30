@@ -33,6 +33,6 @@ export function ValidateDate() {
 		) {
 			throw new BadRequestException(`${key} 数组元素必须为日期`);
 		}
-		return value;
+		return [new Date(value[0]), new Date(value[1])];
 	});
 }

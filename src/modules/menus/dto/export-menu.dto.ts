@@ -7,8 +7,9 @@
  * @Description:
  */
 import { ExposeNotNull } from "@/shared/decorators";
+import { formatTime } from "@/shared/utils";
 import { ApiProperty } from "@nestjs/swagger";
-import { Expose, Type } from "class-transformer";
+import { Expose, Transform, Type } from "class-transformer";
 
 @Expose()
 export class ExportMenuDto {
@@ -59,6 +60,7 @@ export class ExportMenuDto {
 		type: Date,
 	})
 	@Expose()
+	@Transform(({ value }) => formatTime(value))
 	createAt: Date;
 
 	@ApiProperty({
@@ -67,6 +69,7 @@ export class ExportMenuDto {
 		type: Date,
 	})
 	@Expose()
+	@Transform(({ value }) => formatTime(value))
 	updateAt: Date;
 
 	@ApiProperty({ description: "子菜单", example: [], type: [ExportMenuDto] })
