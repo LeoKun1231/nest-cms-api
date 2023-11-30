@@ -10,6 +10,7 @@
 import { Injectable, OnModuleInit } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import Redis from "ioredis";
+import { RecordTime } from "../decorators/record-time.decorator";
 import { EnvEnum } from "../enums/env.enum";
 import { AppLoggerSevice } from "../logger/logger.service";
 
@@ -27,14 +28,17 @@ export class RedisService extends Redis implements OnModuleInit {
 		this.logger.setContext(RedisService.name);
 	}
 
+	@RecordTime()
 	async _get(key: string) {
 		return JSON.parse(await this.get(key));
 	}
 
+	@RecordTime()
 	async _set(key: string, value: any) {
 		return await this.set(key, JSON.stringify(value));
 	}
 
+	@RecordTime()
 	async _delKeysWithPrefix(prefix: string) {
 		const keys = await this.keys(`${prefix}*`);
 		if (keys.length === 0) {

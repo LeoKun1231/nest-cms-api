@@ -71,7 +71,6 @@ export class ExportGoodsInfoDto {
 
 	@ApiProperty({ description: "商品分类ID", example: 8, type: Number })
 	@Expose()
-	@Transform(({ obj }) => obj?.category?.id)
 	categoryId: number;
 
 	@ApiProperty({
