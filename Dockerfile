@@ -1,4 +1,5 @@
-FROM node:18-alpine3.16 AS development
+#prisma问题 不使用alpine
+FROM node:18 AS development
 
 #指定工作目录
 WORKDIR /usr/src/app
@@ -26,7 +27,7 @@ ENV NODE_ENV=${APP_ENV}
 RUN pnpm build
 
 
-FROM node:18-alpine3.16  AS production
+FROM node:18  AS production
 
 
 ARG APP_ENV=development

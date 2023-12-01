@@ -3,7 +3,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  binaryTargets = ["native", "linux-musl"]
 }
 
 datasource db {
@@ -219,4 +218,26 @@ model GoodsInfo{
   category GoodsCategory? @relation(fields:[categoryId],references:[id])
 
   @@map("goods_info")
+}
+
+///故事表
+model Story{
+  ///故事id
+  id Int @id @default(autoincrement())
+  ///故事标题
+  title String
+  ///故事内容
+  content String @db.Text
+
+  ///是否删除
+  isDelete Boolean? @default(false)
+
+  ///是否启用
+  enable Boolean? @default(true)
+
+  ///故事创建时间
+  createAt DateTime @default(now())
+
+  ///故事更新时间
+  updateAt DateTime @updatedAt
 }

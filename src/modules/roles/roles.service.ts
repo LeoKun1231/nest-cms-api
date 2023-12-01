@@ -358,39 +358,39 @@ export class RolesService {
 	 */
 	async findRoleMenuIdsById(id: number) {
 		this.logger.log(`${this.findRoleMenuIdsById.name} was called`);
-
-		// try {
-		// 	const role = await this.roleRepository.findOne({
-		// 		select: {
-		// 			id: true,
-		// 			intro: true,
-		// 			name: true,
-		// 			menuList: {
-		// 				id: true,
-		// 			},
-		// 		},
-		// 		where: {
-		// 			id,
-		// 			isDelete: false,
-		// 		},
-		// 		relations: ["menuList"],
-		// 	});
-		// 	if (!role) throw new BadRequestException("角色不存在");
-		// 	let menuIds = role.menuList.map((menu) => menu.id);
-		// 	//如果是超级管理员
-		// 	if (id == 1) {
-		// 		menuIds = await this.menusService.findAllIds();
-		// 	}
-		// 	delete role.menuList;
-		// 	return {
-		// 		...role,
-		// 		menuIds,
-		// 	};
-		// } catch (error) {
-		// 	this.logger.error(error);
-		// 	if (error.message) throw new BadRequestException(error.message);
-		// 	throw new BadRequestException("获取角色菜单ids失败");
-		// }
+		try {
+			const role = await this.prismaService.role.findUnique({
+				select: {
+					id: true,
+					intro: true,
+					name: true,
+					menus: {
+						select: {
+							menuId: true,
+						},
+					},
+				},
+				where: {
+					id,
+					isDelete: false,
+				},
+			});
+			if (!role) throw new BadRequestException("角色不存在");
+			let menuIds = role.menus.map((menu) => menu.menuId);
+			//如果是超级管理员
+			if (id == 1) {
+				menuIds = await this.menusService.findAllIds();
+			}
+			delete role.menus;
+			return {
+				...role,
+				menuIds,
+			};
+		} catch (error) {
+			handleError(this.logger, error, {
+				common: "获取角色菜单ids失败",
+			});
+		}
 	}
 
 	/**
@@ -400,22 +400,37 @@ export class RolesService {
 	 */
 	async assignRole(assignRoleDto: AssignRoleDto) {
 		this.logger.log(`${this.assignRole.name} was called`);
-		// try {
-		// 	const { roleId, menuList: ids } = assignRoleDto;
-		// 	//1.判断角色是否存在
-		// 	await this.findOne(roleId);
-
-		// 	//2.获取菜单列表
-		// 	const menuList = await this.menusService.findListByIds(ids);
-		// 	//3.更新角色
-		// 	await this.roleRepository.save({ id: roleId, menuList });
-		// 	this.redisService._delKeysWithPrefix(RedisKeyEnum.RoleKey);
-		// 	return "分配权限成功~";
-		// } catch (error) {
-		// 	this.logger.error(error);
-		// 	if (error.message) throw new BadRequestException(error.message);
-		// 	throw new BadRequestException("分配权限失败");
-		// }
+		try {
+			const { roleId, menuList: ids } = assignRoleDto;
+			//1.判断角色是否存在
+			await this.findOne(roleId);
+			//2.获取菜单列表
+			const menuList = await this.prismaService.roleMenu.findMany({
+				where: {
+					menuId: {
+						in: ids,
+					},
+				},
+			});
+			//3.更新角色
+			await this.prismaService.role.update({
+				where: {
+					id: roleId,
+					isDelete: false,
+				},
+				data: {
+					menus: {
+						set: menuList.map((menu) => ({ roleId_menuId: menu })),
+					},
+				},
+			});
+			this.redisService._delKeysWithPrefix(RedisKeyEnum.RoleKey);
+			return "分配权限成功~";
+		} catch (error) {
+			handleError(this.logger, error, {
+				common: "分配权限失败",
+			});
+		}
 	}
 
 	/**
