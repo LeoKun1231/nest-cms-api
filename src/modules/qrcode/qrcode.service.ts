@@ -1,6 +1,7 @@
 import { RedisKeyEnum, ScanStatusEnum } from "@/shared/enums";
 import { AppLoggerSevice } from "@/shared/logger";
 import { RedisService } from "@/shared/redis";
+import { handleError } from "@/shared/utils";
 import { BadRequestException, Injectable } from "@nestjs/common";
 import * as QRCode from "qrcode";
 import { v4 as UUID } from "uuid";
@@ -32,8 +33,9 @@ export class QrcodeService {
 				url: dataUrl,
 			};
 		} catch (error) {
-			this.logger.error(error);
-			throw new BadRequestException("生成二维码失败");
+			handleError(this.logger, error, {
+				common: "生成二维码失败",
+			});
 		}
 	}
 
@@ -47,8 +49,9 @@ export class QrcodeService {
 			}
 			return { status };
 		} catch (error) {
-			this.logger.error(error);
-			throw new BadRequestException("获取二维码状态失败");
+			handleError(this.logger, error, {
+				common: "获取二维码状态失败",
+			});
 		}
 	}
 
@@ -65,8 +68,9 @@ export class QrcodeService {
 			);
 			return "扫码成功";
 		} catch (error) {
-			this.logger.error(error);
-			throw new BadRequestException("扫码失败");
+			handleError(this.logger, error, {
+				common: "扫码失败",
+			});
 		}
 	}
 
@@ -83,8 +87,9 @@ export class QrcodeService {
 			);
 			return "确认登录成功";
 		} catch (error) {
-			this.logger.error(error);
-			throw new BadRequestException("确认登录失败");
+			handleError(this.logger, error, {
+				common: "确认登录失败",
+			});
 		}
 	}
 
@@ -101,7 +106,9 @@ export class QrcodeService {
 			);
 			return "取消成功";
 		} catch (error) {
-			this.logger.error(error);
+			handleError(this.logger, error, {
+				common: "取消登录失败",
+			});
 		}
 	}
 }

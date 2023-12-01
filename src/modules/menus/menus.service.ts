@@ -6,17 +6,16 @@
  * @FilePath: \cms\src\modules\menus\menus.service.ts
  * @Description:
  */
-import { PrismaErrorCode, RedisKeyEnum } from "@/shared/enums";
+import { RedisKeyEnum } from "@/shared/enums";
 import { AppLoggerSevice } from "@/shared/logger";
 import { PrismaService } from "@/shared/prisma";
 import { RedisService } from "@/shared/redis";
-import { generateTree, getRandomId } from "@/shared/utils";
+import { generateTree, getRandomId, handleError } from "@/shared/utils";
 import {
 	BadRequestException,
 	ForbiddenException,
 	Injectable,
 } from "@nestjs/common";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { plainToInstance } from "class-transformer";
 import { CreateMenuDto } from "./dto/create-menu.dto";
 import { ExportMenuDto } from "./dto/export-menu.dto";
@@ -59,14 +58,10 @@ export class MenusService {
 			await this.redisService._delKeysWithPrefix(RedisKeyEnum.MenuKey);
 			return "创建菜单成功";
 		} catch (error) {
-			this.logger.error(error);
-			if (
-				error instanceof PrismaClientKnownRequestError &&
-				error.code == PrismaErrorCode.UniqueConstraintViolation
-			) {
-				throw new BadRequestException("菜单名已存在");
-			}
-			throw new BadRequestException("创建菜单失败");
+			handleError(this.logger, error, {
+				common: "创建菜单失败",
+				unique: "菜单名已存在",
+			});
 		}
 	}
 
@@ -99,8 +94,9 @@ export class MenusService {
 			);
 			return menuList;
 		} catch (error) {
-			this.logger.error(error);
-			throw new BadRequestException("查找菜单失败");
+			handleError(this.logger, error, {
+				common: "查找菜单失败",
+			});
 		}
 	}
 
@@ -127,6 +123,7 @@ export class MenusService {
 	 * @returns
 	 */
 	async findOne(id: number) {
+		this.logger.error(`${this.findOne.name} was called`);
 		try {
 			if (!id) throw new BadRequestException("菜单不存在");
 			const menu = await this.prismaService.menu.findUnique({
@@ -140,9 +137,9 @@ export class MenusService {
 				excludeExtraneousValues: true,
 			});
 		} catch (error) {
-			this.logger.error(error);
-			if (error.message) throw new BadRequestException(error.message);
-			throw new BadRequestException("查找菜单失败");
+			handleError(this.logger, error, {
+				common: "查找菜单失败",
+			});
 		}
 	}
 
@@ -168,15 +165,10 @@ export class MenusService {
 			await this.redisService._delKeysWithPrefix(RedisKeyEnum.RoleKey);
 			return "更新菜单成功";
 		} catch (error) {
-			this.logger.error(error);
-			if (
-				error instanceof PrismaClientKnownRequestError &&
-				error.code == PrismaErrorCode.UniqueConstraintViolation
-			) {
-				throw new BadRequestException("菜单名已存在");
-			}
-			if (error.message) throw new BadRequestException(error.message);
-			throw new BadRequestException("更新菜单失败");
+			handleError(this.logger, error, {
+				common: "更新菜单失败",
+				unique: "菜单名已存在",
+			});
 		}
 	}
 
@@ -207,9 +199,9 @@ export class MenusService {
 			await this.redisService._delKeysWithPrefix(RedisKeyEnum.RoleKey);
 			return "删除菜单成功";
 		} catch (error) {
-			this.logger.error(error);
-			if (error.message) throw new BadRequestException(error.message);
-			throw new BadRequestException("删除菜单失败");
+			handleError(this.logger, error, {
+				common: "删除菜单失败",
+			});
 		}
 	}
 
@@ -219,7 +211,6 @@ export class MenusService {
 	 * @returns
 	 */
 	async findListByIds(ids: number[]) {
-		this.logger.log(`${this.findListByIds.name} was called`);
 		try {
 			return await this.prismaService.menu.findMany({
 				where: {
@@ -230,8 +221,9 @@ export class MenusService {
 				},
 			});
 		} catch (error) {
-			this.logger.error(error);
-			throw new BadRequestException("查找菜单失败");
+			handleError(this.logger, error, {
+				common: "查找菜单失败",
+			});
 		}
 	}
 

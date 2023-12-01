@@ -6,19 +6,19 @@
  * @FilePath: \cms\src\modules\goods-info\goods-info.service.ts
  * @Description:
  */
-import { PrismaErrorCode, RedisKeyEnum } from "@/shared/enums";
+import { RedisKeyEnum } from "@/shared/enums";
 import { AppLoggerSevice } from "@/shared/logger";
 import { PrismaService } from "@/shared/prisma";
 import { RedisService } from "@/shared/redis";
-import { filterEmpty, getRandomId } from "@/shared/utils";
+import { filterEmpty, getRandomId, handleError } from "@/shared/utils";
 import {
 	BadRequestException,
+	ForbiddenException,
 	Inject,
 	Injectable,
 	forwardRef,
 } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { plainToInstance } from "class-transformer";
 import { GoodsCategoryService } from "../goods-category/goods-category.service";
 import { CreateGoodsInfoDto } from "./dto/create-goods-info.dto";
@@ -67,14 +67,10 @@ export class GoodsInfoService {
 			this.redisService._delKeysWithPrefix(RedisKeyEnum.GoodsInfoKey);
 			return "创建商品成功~";
 		} catch (error) {
-			this.logger.error(error);
-			if (
-				error instanceof PrismaClientKnownRequestError &&
-				error.code == PrismaErrorCode.UniqueConstraintViolation
-			) {
-				throw new BadRequestException("商品名已存在");
-			}
-			throw new BadRequestException("创建商品失败");
+			handleError(this.logger, error, {
+				common: "创建商品失败",
+				unique: "商品名已存在",
+			});
 		}
 	}
 
@@ -112,17 +108,10 @@ export class GoodsInfoService {
 			this.redisService._delKeysWithPrefix(RedisKeyEnum.GoodsInfoKey);
 			return "更新商品信息成功~";
 		} catch (error) {
-			this.logger.error(error);
-			if (
-				error instanceof PrismaClientKnownRequestError &&
-				error.code === PrismaErrorCode.UniqueConstraintViolation
-			) {
-				throw new BadRequestException("商品名已存在");
-			}
-			if (error.message) {
-				throw new BadRequestException(error.message);
-			}
-			throw new BadRequestException("更新商品信息失败");
+			handleError(this.logger, error, {
+				common: "更新商品信息失败",
+				unique: "商品名已存在",
+			});
 		}
 	}
 
@@ -219,8 +208,9 @@ export class GoodsInfoService {
 			);
 			return goodsList;
 		} catch (error) {
-			this.logger.error(error);
-			throw new BadRequestException("获取商品列表失败");
+			handleError(this.logger, error, {
+				common: "获取商品列表失败",
+			});
 		}
 	}
 
@@ -245,11 +235,9 @@ export class GoodsInfoService {
 				excludeExtraneousValues: true,
 			});
 		} catch (error) {
-			this.logger.error(error);
-			if (error.message) {
-				throw new BadRequestException(error.message);
-			}
-			throw new BadRequestException("获取商品信息失败");
+			handleError(this.logger, error, {
+				common: "获取商品信息失败",
+			});
 		}
 	}
 
@@ -278,11 +266,9 @@ export class GoodsInfoService {
 			this.redisService._delKeysWithPrefix(RedisKeyEnum.GoodsInfoKey);
 			return "删除商品成功~";
 		} catch (error) {
-			this.logger.log(error);
-			if (error.message) {
-				throw new BadRequestException(error.message);
-			}
-			throw new BadRequestException("删除商品失败");
+			handleError(this.logger, error, {
+				common: "删除商品失败",
+			});
 		}
 	}
 
@@ -292,8 +278,8 @@ export class GoodsInfoService {
 	 * @returns
 	 */
 	async disableMany(id: number) {
+		this.logger.log(`${this.disableMany.name} was called`);
 		try {
-			this.logger.log(`${this.disableMany.name} was called`);
 			await this.prismaService.goodsInfo.updateMany({
 				where: {
 					categoryId: id,
@@ -305,8 +291,9 @@ export class GoodsInfoService {
 				},
 			});
 		} catch (error) {
-			this.logger.error(error);
-			throw new BadRequestException("禁用商品失败");
+			handleError(this.logger, error, {
+				common: "禁用商品失败",
+			});
 		}
 	}
 
@@ -355,8 +342,9 @@ export class GoodsInfoService {
 			);
 			return exportCategoryCountList;
 		} catch (error) {
-			this.logger.error(error);
-			throw new BadRequestException("获取商品分类数量失败");
+			handleError(this.logger, error, {
+				common: "获取商品分类数量失败",
+			});
 		}
 	}
 
@@ -398,8 +386,9 @@ export class GoodsInfoService {
 			);
 			return exportCategorySaleList;
 		} catch (error) {
-			this.logger.error(error);
-			throw new BadRequestException("获取商品分类销量失败");
+			handleError(this.logger, error, {
+				common: "获取商品分类销量失败",
+			});
 		}
 	}
 
@@ -440,8 +429,9 @@ export class GoodsInfoService {
 			);
 			return exportCategoryFavorList;
 		} catch (error) {
-			this.logger.error(error);
-			throw new BadRequestException("获取商品分类收藏数失败");
+			handleError(this.logger, error, {
+				common: "获取商品分类收藏数失败",
+			});
 		}
 	}
 
@@ -483,8 +473,9 @@ export class GoodsInfoService {
 			);
 			return exportSaleTop10List;
 		} catch (error) {
-			this.logger.error(error);
-			throw new BadRequestException("获取商品销量top10失败");
+			handleError(this.logger, error, {
+				common: "获取商品销量top10失败",
+			});
 		}
 	}
 
@@ -531,8 +522,9 @@ export class GoodsInfoService {
 			);
 			return exportAddressSaleList;
 		} catch (error) {
-			this.logger.error(error);
-			throw new BadRequestException("获取商品发货地销量失败");
+			handleError(this.logger, error, {
+				common: "获取商品发货地销量失败",
+			});
 		}
 	}
 
@@ -608,10 +600,15 @@ export class GoodsInfoService {
 			);
 			return exportAmountList;
 		} catch (error) {
-			this.logger.error(error);
-			throw new BadRequestException("获取商品统计信息失败");
+			handleError(this.logger, error, {
+				common: "获取商品统计信息失败",
+			});
 		}
 	}
 
-	judgeCanDo(id: number) {}
+	judgeCanDo(id: number) {
+		if (id <= 183) {
+			throw new ForbiddenException("系统商品不可操作");
+		}
+	}
 }

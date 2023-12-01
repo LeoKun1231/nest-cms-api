@@ -7,11 +7,11 @@
  * @Description:
  */
 import { WrapperType } from "@/@types/typeorm";
-import { PrismaErrorCode, RedisKeyEnum } from "@/shared/enums";
+import { RedisKeyEnum } from "@/shared/enums";
 import { AppLoggerSevice } from "@/shared/logger";
 import { PrismaService } from "@/shared/prisma";
 import { RedisService } from "@/shared/redis";
-import { filterEmpty, getRandomId } from "@/shared/utils";
+import { filterEmpty, getRandomId, handleError } from "@/shared/utils";
 import {
 	BadRequestException,
 	Inject,
@@ -19,7 +19,6 @@ import {
 	forwardRef,
 } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { plainToInstance } from "class-transformer";
 import { UsersService } from "../users/users.service";
 import { CreateDepartmentDto } from "./dto/create-department.dto";
@@ -54,19 +53,11 @@ export class DepartmentService {
 			this.redisService._delKeysWithPrefix(RedisKeyEnum.DepartmentKey);
 			return "创建部门成功~";
 		} catch (error) {
-			this.logger.error(error);
-			if (
-				error instanceof Prisma.PrismaClientKnownRequestError &&
-				error.code == PrismaErrorCode.UniqueConstraintViolation
-			) {
-				throw new BadRequestException("部门名称已存在");
-			} else if (
-				error instanceof Prisma.PrismaClientKnownRequestError &&
-				error.code == PrismaErrorCode.ForeignKeyConstraintViolation
-			) {
-				throw new BadRequestException("父级部门不存在");
-			}
-			throw new BadRequestException("创建部门失败");
+			handleError(this.logger, error, {
+				common: "创建部门失败",
+				unique: "部门名称已存在",
+				foreign: "父级部门不存在",
+			});
 		}
 	}
 
@@ -143,8 +134,9 @@ export class DepartmentService {
 			);
 			return departmentList;
 		} catch (error) {
-			this.logger.error(error);
-			throw new BadRequestException("获取部门列表失败");
+			handleError(this.logger, error, {
+				common: "获取部门列表失败",
+			});
 		}
 	}
 
@@ -167,9 +159,9 @@ export class DepartmentService {
 				excludeExtraneousValues: true,
 			});
 		} catch (error) {
-			this.logger.error(error);
-			if (error.message) throw new BadRequestException(error.message);
-			throw new BadRequestException("获取部门失败");
+			handleError(this.logger, error, {
+				common: "获取部门失败",
+			});
 		}
 	}
 
@@ -180,7 +172,6 @@ export class DepartmentService {
 	 * @returns
 	 */
 	async update(id: number, updateDepartmentDto: UpdateDepartmentDto) {
-		this.logger.log(`${this.update.name} was called`);
 		this.judgeCanDo(id);
 		try {
 			await this.findOne(id);
@@ -199,20 +190,11 @@ export class DepartmentService {
 			this.redisService._delKeysWithPrefix(RedisKeyEnum.UserKey);
 			return "更新部门成功~";
 		} catch (error) {
-			this.logger.error(error);
-			if (
-				error instanceof PrismaClientKnownRequestError &&
-				error.code == PrismaErrorCode.UniqueConstraintViolation
-			) {
-				throw new BadRequestException("部门名称已存在");
-			} else if (
-				error instanceof PrismaClientKnownRequestError &&
-				error.code == PrismaErrorCode.ForeignKeyConstraintViolation
-			) {
-				throw new BadRequestException("父级部门不存在");
-			}
-			if (error.message) throw new BadRequestException(error.message);
-			throw new BadRequestException("更新部门失败");
+			handleError(this.logger, error, {
+				common: "更新部门失败",
+				unique: "部门名称已存在",
+				foreign: "父级部门不存在",
+			});
 		}
 	}
 
@@ -237,9 +219,9 @@ export class DepartmentService {
 			this.redisService._delKeysWithPrefix(RedisKeyEnum.UserKey);
 			return "删除部门成功~";
 		} catch (error) {
-			this.logger.error(error);
-			if (error.message) throw new BadRequestException(error.message);
-			throw new BadRequestException("删除部门失败");
+			handleError(this.logger, error, {
+				common: "删除部门失败",
+			});
 		}
 	}
 

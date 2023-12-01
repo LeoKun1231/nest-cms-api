@@ -1,16 +1,16 @@
 {
-  "$schema": "https://json.schemastore.org/swcrc",
-  "sourceMaps": true,
-  "jsc": {
-    "parser": {
-      "syntax": "typescript",
-      "decorators": true,
-      "dynamicImport": true
-    },
-    "paths": {
-      "@/*": ["./dist/*"]
-    },
-    "target": "es2022"
-  },
-  "minify": false
+	"$schema": "https://json.schemastore.org/swcrc",
+	"sourceMaps": true,
+	"jsc": {
+		"parser": {
+			"syntax": "typescript",
+			"decorators": true,
+			"dynamicImport": true
+		},
+		"paths": {
+			"@/*": ["./dist/*"]
+		},
+		"target": "es2022"
+	},
+	"minify": false
 }

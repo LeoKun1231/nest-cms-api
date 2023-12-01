@@ -8,3 +8,4 @@ node_modules/
 .eslintrc
 .prettierrc
 .prettierignore
+dist/

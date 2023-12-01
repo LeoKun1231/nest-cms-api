@@ -57,5 +57,6 @@ export class ExportRoleDto {
 
 	@Expose()
 	@Type(() => ExportMenuDto)
+	@Transform(({ obj }) => obj.menus)
 	menuList: ExportMenuDto[];
 }

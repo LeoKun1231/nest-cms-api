@@ -7,11 +7,11 @@
  * @Description:
  */
 import { WrapperType } from "@/@types/typeorm";
-import { PrismaErrorCode, RedisKeyEnum } from "@/shared/enums";
+import { RedisKeyEnum } from "@/shared/enums";
 import { AppLoggerSevice } from "@/shared/logger";
 import { PrismaService } from "@/shared/prisma";
 import { RedisService } from "@/shared/redis";
-import { filterEmpty, getRandomId } from "@/shared/utils";
+import { filterEmpty, getRandomId, handleError } from "@/shared/utils";
 import {
 	BadRequestException,
 	ForbiddenException,
@@ -20,14 +20,13 @@ import {
 	forwardRef,
 } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 import { plainToInstance } from "class-transformer";
 import { GoodsInfoService } from "../goods-info/goods-info.service";
 import { CreateGoodsCategoryDto } from "./dto/create-goods-category.dto";
+import { ExportGoodsCategoryListDto } from "./dto/export-goods-category-list";
 import { ExportGoodsCategoryDto } from "./dto/export-goods-category.dto";
 import { QueryGoodsCategoryDto } from "./dto/query-goods-category.dto";
 import { UpdateGoodsCategoryDto } from "./dto/update-goods-category.dto";
-import { ExportGoodsCategoryListDto } from "./dto/export-goods-category-list";
 
 @Injectable()
 export class GoodsCategoryService {
@@ -55,13 +54,10 @@ export class GoodsCategoryService {
 			this.redisService._delKeysWithPrefix(RedisKeyEnum.GoodsCategoryKey);
 			return "创建商品分类成功~";
 		} catch (error) {
-			this.logger.error(error);
-			if (
-				error instanceof PrismaClientKnownRequestError &&
-				error.code === PrismaErrorCode.UniqueConstraintViolation
-			)
-				throw new BadRequestException("商品分类名已存在");
-			throw new BadRequestException("创建商品分类失败");
+			handleError(this.logger, error, {
+				common: "创建商品分类失败",
+				unique: "商品分类名已存在",
+			});
 		}
 	}
 
@@ -126,8 +122,9 @@ export class GoodsCategoryService {
 			);
 			return goodCategoryList;
 		} catch (error) {
-			this.logger.error(error);
-			throw new BadRequestException("获取商品分类列表失败");
+			handleError(this.logger, error, {
+				common: "获取商品分类列表失败",
+			});
 		}
 	}
 
@@ -158,8 +155,9 @@ export class GoodsCategoryService {
 			this.redisService._set(RedisKeyEnum.GoodsCategoryKey, categoryList);
 			return categoryList;
 		} catch (error) {
-			this.logger.error(error);
-			throw new BadRequestException("获取商品分类列表失败");
+			handleError(this.logger, error, {
+				common: "获取商品分类列表失败",
+			});
 		}
 	}
 
@@ -182,9 +180,9 @@ export class GoodsCategoryService {
 				excludeExtraneousValues: true,
 			});
 		} catch (error) {
-			this.logger.error(error);
-			if (error.message) throw new BadRequestException(error.message);
-			throw new BadRequestException("获取商品分类失败");
+			handleError(this.logger, error, {
+				common: "获取商品分类失败",
+			});
 		}
 	}
 
@@ -213,14 +211,10 @@ export class GoodsCategoryService {
 			this.redisService._delKeysWithPrefix(RedisKeyEnum.GoodsInfoKey);
 			return "更新商品分类成功~";
 		} catch (error) {
-			this.logger.error(error);
-			if (
-				error instanceof PrismaClientKnownRequestError &&
-				error.code === PrismaErrorCode.UniqueConstraintViolation
-			)
-				throw new BadRequestException("商品分类名已存在");
-			if (error.message) throw new BadRequestException(error.message);
-			throw new BadRequestException("更新商品分类失败");
+			handleError(this.logger, error, {
+				common: "更新商品分类失败",
+				unique: "商品分类名已存在",
+			});
 		}
 	}
 
@@ -252,9 +246,9 @@ export class GoodsCategoryService {
 			this.redisService._delKeysWithPrefix(RedisKeyEnum.GoodsInfoKey);
 			return "删除商品分类成功~";
 		} catch (error) {
-			this.logger.error(error);
-			if (error.message) throw new BadRequestException(error.message);
-			throw new BadRequestException("删除商品分类失败");
+			handleError(this.logger, error, {
+				common: "删除商品分类失败",
+			});
 		}
 	}
 

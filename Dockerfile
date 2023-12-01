@@ -1,4 +1,4 @@
-FROM node:18 AS development
+FROM node:18-alpine3.16 AS development
 
 #指定工作目录
 WORKDIR /usr/src/app
@@ -6,12 +6,15 @@ WORKDIR /usr/src/app
 #复制package.json和pnpm-lock.yaml 到工作目录 这里单独复制是为了利用缓存
 COPY package.json ./
 COPY pnpm-lock.yaml ./
+COPY prisma ./prisma
 
 RUN npm config set registry https://registry.npmmirror.com/
 
 RUN npm install -g pnpm
 
 RUN pnpm install 
+
+RUN pnpx prisma generate
 
 COPY . .
 
@@ -23,7 +26,7 @@ ENV NODE_ENV=${APP_ENV}
 RUN pnpm build
 
 
-FROM node:18 AS production
+FROM node:18-alpine3.16  AS production
 
 
 ARG APP_ENV=development
