@@ -10,14 +10,12 @@ import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { EnvEnum } from "../enums/env.enum";
 import { AppLoggerSevice } from "../logger/logger.service";
-import { RedisService } from "../redis/redis.service";
 import { UploadFileInterface } from "./interfaces/file.interface";
 
 @Injectable()
 export class UploadService {
 	constructor(
 		private readonly configService: ConfigService,
-		private readonly redisService: RedisService,
 		private readonly logger: AppLoggerSevice,
 	) {
 		this.logger.setContext(UploadService.name);

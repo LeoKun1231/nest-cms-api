@@ -6,11 +6,12 @@
  * @FilePath: \cms\src\modules\users\users.service.ts
  * @Description:
  */
+import { CacheEvict, Cacheable } from "@/shared/decorators";
 import { RedisKeyEnum } from "@/shared/enums";
 import { AppLoggerSevice } from "@/shared/logger";
 import { PrismaService } from "@/shared/prisma";
 import { RedisService } from "@/shared/redis";
-import { filterEmpty, getRandomId, handleError } from "@/shared/utils";
+import { getRandomId, handleError } from "@/shared/utils";
 import {
 	BadRequestException,
 	ForbiddenException,
@@ -87,6 +88,7 @@ export class UsersService {
 	 * @param password 密码
 	 * @returns
 	 */
+	@CacheEvict(RedisKeyEnum.UserKey)
 	async createUser(createUserDto: CreateUserDto) {
 		this.logger.log(`${this.createUser.name} was called`);
 		try {
@@ -105,19 +107,13 @@ export class UsersService {
 					realname,
 					cellphone,
 					roles: {
-						connect: [
-							{
-								userId_roleId: {
-									roleId,
-									userId: undefined,
-								},
-							},
-						],
+						create: {
+							roleId,
+						},
 					},
 					departmentId,
 				},
 			});
-			this.redisService._delKeysWithPrefix(RedisKeyEnum.UserKey);
 			return "创建用户成功~";
 		} catch (error) {
 			handleError(this.logger, error, {
@@ -133,6 +129,7 @@ export class UsersService {
 	 * @param updateUserDto 更新信息
 	 * @returns
 	 */
+	@CacheEvict(RedisKeyEnum.UserKey)
 	async updateUser(id: number, updateUserDto: UpdateUserDto) {
 		this.logger.log(`${this.updateUser.name} was called`);
 		this.judgeCanDo(id);
@@ -199,7 +196,6 @@ export class UsersService {
 				//禁用用户
 				await this.redisService._delKeysWithPrefix(RedisKeyEnum.LoginKey + id);
 			}
-			this.redisService._delKeysWithPrefix(RedisKeyEnum.UserKey);
 			return "更新用户成功~";
 		} catch (error) {
 			handleError(this.logger, error, {
@@ -247,6 +243,7 @@ export class UsersService {
 	 * @param queryUserDto 查询条件
 	 * @returns
 	 */
+	@Cacheable(RedisKeyEnum.UserKey)
 	async findAll(queryUserDto: QueryUserDto) {
 		this.logger.log(`${this.findAll.name} was called`);
 		const {
@@ -263,12 +260,6 @@ export class UsersService {
 			updateAt,
 		} = queryUserDto;
 		try {
-			const filterQueryUserDto = filterEmpty(queryUserDto);
-			const redisUserList = await this.redisService._get(
-				RedisKeyEnum.UserKey + JSON.stringify(filterQueryUserDto),
-			);
-			if (redisUserList) return redisUserList;
-
 			const where: Prisma.UserWhereInput = {
 				id,
 				cellphone: {
@@ -318,18 +309,13 @@ export class UsersService {
 				this.prismaService.user.count({ where }),
 			]);
 
-			const userList = plainToInstance(
+			return plainToInstance(
 				ExportUserListDto,
 				{ list, totalCount },
 				{
 					excludeExtraneousValues: true,
 				},
 			);
-			this.redisService._set(
-				RedisKeyEnum.UserKey + JSON.stringify(filterQueryUserDto),
-				userList,
-			);
-			return userList;
 		} catch (error) {
 			handleError(this.logger, error, {
 				common: "获取用户列表失败",
@@ -342,6 +328,7 @@ export class UsersService {
 	 * @param id 用户id
 	 * @returns
 	 */
+	@CacheEvict(RedisKeyEnum.UserKey)
 	async remove(id: number) {
 		this.logger.log(`${this.remove.name} was called`);
 		this.judgeCanDo(id);
@@ -355,7 +342,6 @@ export class UsersService {
 				},
 			});
 			this.redisService.del(RedisKeyEnum.LoginKey + id);
-			this.redisService._delKeysWithPrefix(RedisKeyEnum.UserKey);
 			return "删除用户成功~";
 		} catch (error) {
 			handleError(this.logger, error, {

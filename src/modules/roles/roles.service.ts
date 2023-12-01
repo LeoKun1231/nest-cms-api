@@ -7,16 +7,11 @@
  * @Description:
  */
 import { WrapperType } from "@/@types/typeorm";
+import { CacheEvict, Cacheable } from "@/shared/decorators";
 import { RedisKeyEnum } from "@/shared/enums";
 import { AppLoggerSevice } from "@/shared/logger";
 import { PrismaService } from "@/shared/prisma";
-import { RedisService } from "@/shared/redis";
-import {
-	filterEmpty,
-	generateTree,
-	getRandomId,
-	handleError,
-} from "@/shared/utils";
+import { generateTree, getRandomId, handleError } from "@/shared/utils";
 import {
 	BadRequestException,
 	ForbiddenException,
@@ -41,7 +36,6 @@ export class RolesService {
 	constructor(
 		private readonly logger: AppLoggerSevice,
 		private readonly menusService: MenusService,
-		private readonly redisService: RedisService,
 		private readonly prismaService: PrismaService,
 		@Inject(forwardRef(() => UsersService))
 		private readonly userService: WrapperType<UsersService>,
@@ -54,6 +48,7 @@ export class RolesService {
 	 * @param createRoleDto
 	 * @returns
 	 */
+	@CacheEvict(RedisKeyEnum.RoleKey)
 	async create(createRoleDto: CreateRoleDto) {
 		this.logger.log(`${this.create.name} was called`);
 		try {
@@ -80,7 +75,6 @@ export class RolesService {
 				},
 			});
 
-			this.redisService._delKeysWithPrefix(RedisKeyEnum.RoleKey);
 			return "创建角色成功";
 		} catch (error) {
 			handleError(this.logger, error, {
@@ -95,18 +89,13 @@ export class RolesService {
 	 * @param queryRoleDto
 	 * @returns
 	 */
+	@Cacheable(RedisKeyEnum.RoleKey)
 	async findAll(queryRoleDto: QueryRoleDto) {
 		this.logger.log(`${this.findAll.name} was called`);
 
 		try {
 			const { offset, size, createAt, id, intro, menuList, name, updateAt } =
 				queryRoleDto;
-
-			const filterQueryRoleDto = filterEmpty(queryRoleDto);
-			const redisRoleList = await this.redisService._get(
-				RedisKeyEnum.RoleKey + JSON.stringify(filterQueryRoleDto),
-			);
-			if (redisRoleList) return redisRoleList;
 
 			const where: Prisma.RoleWhereInput = {
 				id,
@@ -153,7 +142,7 @@ export class RolesService {
 				admin.menus = await this.menusService.findAll();
 			}
 
-			const roleList = plainToInstance(
+			return plainToInstance(
 				ExportRoleListDto,
 				{
 					list,
@@ -163,12 +152,6 @@ export class RolesService {
 					excludeExtraneousValues: true,
 				},
 			);
-			//缓存
-			this.redisService._set(
-				RedisKeyEnum.RoleKey + JSON.stringify(filterQueryRoleDto),
-				roleList,
-			);
-			return roleList;
 		} catch (error) {
 			handleError(this.logger, error, {
 				common: "获取角色列表失败",
@@ -238,6 +221,7 @@ export class RolesService {
 	 * @param updateRoleDto
 	 * @returns
 	 */
+	@CacheEvict(RedisKeyEnum.RoleKey, RedisKeyEnum.UserKey)
 	async update(id: number, updateRoleDto: UpdateRoleDto) {
 		this.logger.log(`${this.update.name} was called`);
 		this.judgeCanDo(id);
@@ -281,8 +265,6 @@ export class RolesService {
 				//如果禁用角色，禁用该角色下的所有用户
 				await this.userService.disabledUser(id, "role");
 			}
-			this.redisService._delKeysWithPrefix(RedisKeyEnum.RoleKey);
-			this.redisService._delKeysWithPrefix(RedisKeyEnum.UserKey);
 			return "更新角色成功~";
 		} catch (error) {
 			handleError(this.logger, error, {
@@ -297,6 +279,7 @@ export class RolesService {
 	 * @param id
 	 * @returns
 	 */
+	@CacheEvict(RedisKeyEnum.RoleKey, RedisKeyEnum.UserKey)
 	async remove(id: number) {
 		this.logger.log(`${this.remove.name} was called`);
 		this.judgeCanDo(id);
@@ -318,8 +301,6 @@ export class RolesService {
 					},
 				},
 			});
-			this.redisService._delKeysWithPrefix(RedisKeyEnum.RoleKey);
-			this.redisService._delKeysWithPrefix(RedisKeyEnum.UserKey);
 			return "删除角色成功~";
 		} catch (error) {
 			handleError(this.logger, error, {
@@ -398,6 +379,7 @@ export class RolesService {
 	 * @param assignRoleDto
 	 * @returns
 	 */
+	@CacheEvict(RedisKeyEnum.RoleKey)
 	async assignRole(assignRoleDto: AssignRoleDto) {
 		this.logger.log(`${this.assignRole.name} was called`);
 		try {
@@ -424,7 +406,6 @@ export class RolesService {
 					},
 				},
 			});
-			this.redisService._delKeysWithPrefix(RedisKeyEnum.RoleKey);
 			return "分配权限成功~";
 		} catch (error) {
 			handleError(this.logger, error, {

@@ -7,10 +7,18 @@
  * @Description:
  */
 import { Injectable } from "@nestjs/common";
+import { CacheEvict, Cacheable } from "./shared/decorators/cache.decorator";
+import { RedisKeyEnum } from "./shared/enums";
 
 @Injectable()
 export class AppService {
+	@Cacheable(RedisKeyEnum.DepartmentKey)
 	getHello(): string {
 		return "Hello World!";
+	}
+
+	@CacheEvict(RedisKeyEnum.DepartmentKey)
+	testCachePut() {
+		return "testCachePut";
 	}
 }

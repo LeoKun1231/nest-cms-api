@@ -6,11 +6,11 @@
  * @FilePath: \cms\src\modules\goods-info\goods-info.service.ts
  * @Description:
  */
+import { CacheEvict, Cacheable } from "@/shared/decorators";
 import { RedisKeyEnum } from "@/shared/enums";
 import { AppLoggerSevice } from "@/shared/logger";
 import { PrismaService } from "@/shared/prisma";
-import { RedisService } from "@/shared/redis";
-import { filterEmpty, getRandomId, handleError } from "@/shared/utils";
+import { getRandomId, handleError } from "@/shared/utils";
 import {
 	BadRequestException,
 	ForbiddenException,
@@ -37,7 +37,6 @@ import { UpdateGoodsInfoDto } from "./dto/update-goods-info.dto";
 export class GoodsInfoService {
 	constructor(
 		private readonly logger: AppLoggerSevice,
-		private readonly redisService: RedisService,
 		private readonly prismaService: PrismaService,
 		@Inject(forwardRef(() => GoodsCategoryService))
 		private readonly goodsCategoryService: GoodsCategoryService,
@@ -50,6 +49,7 @@ export class GoodsInfoService {
 	 * @param createGoodsInfoDto
 	 * @returns
 	 */
+	@CacheEvict(RedisKeyEnum.GoodsInfoKey)
 	async create(createGoodsInfoDto: CreateGoodsInfoDto) {
 		this.logger.log(`${this.create.name} was called`);
 		try {
@@ -64,7 +64,6 @@ export class GoodsInfoService {
 					},
 				},
 			});
-			this.redisService._delKeysWithPrefix(RedisKeyEnum.GoodsInfoKey);
 			return "创建商品成功~";
 		} catch (error) {
 			handleError(this.logger, error, {
@@ -80,6 +79,7 @@ export class GoodsInfoService {
 	 * @param updateGoodsInfoDto 更新商品信息
 	 * @returns
 	 */
+	@CacheEvict(RedisKeyEnum.GoodsInfoKey)
 	async update(id: number, updateGoodsInfoDto: UpdateGoodsInfoDto) {
 		this.logger.log(`${this.update.name} was called`);
 		this.judgeCanDo(id);
@@ -105,7 +105,6 @@ export class GoodsInfoService {
 					status: !!updateGoodsInfoDto.status,
 				},
 			});
-			this.redisService._delKeysWithPrefix(RedisKeyEnum.GoodsInfoKey);
 			return "更新商品信息成功~";
 		} catch (error) {
 			handleError(this.logger, error, {
@@ -120,6 +119,7 @@ export class GoodsInfoService {
 	 * @param queryGoodsInfoDto
 	 * @returns
 	 */
+	@Cacheable(RedisKeyEnum.GoodsInfoKey)
 	async findAll(queryGoodsInfoDto: QueryGoodsInfoDto) {
 		this.logger.log(`${this.findAll.name} was called`);
 		try {
@@ -140,12 +140,6 @@ export class GoodsInfoService {
 				status,
 				categoryId,
 			} = queryGoodsInfoDto;
-			const filterQueryGoodsInfoDto = filterEmpty(queryGoodsInfoDto);
-			const redisGoodsInfoList = await this.redisService._get(
-				RedisKeyEnum.GoodsInfoKey + JSON.stringify(filterQueryGoodsInfoDto),
-			);
-			if (redisGoodsInfoList) return redisGoodsInfoList;
-
 			const where: Prisma.GoodsInfoWhereInput = {
 				id,
 				name: {
@@ -202,10 +196,6 @@ export class GoodsInfoService {
 					excludeExtraneousValues: true,
 				},
 			);
-			this.redisService._set(
-				RedisKeyEnum.GoodsInfoKey + JSON.stringify(filterQueryGoodsInfoDto),
-				goodsList,
-			);
 			return goodsList;
 		} catch (error) {
 			handleError(this.logger, error, {
@@ -246,6 +236,7 @@ export class GoodsInfoService {
 	 * @param id 商品ID
 	 * @returns
 	 */
+	@CacheEvict(RedisKeyEnum.GoodsInfoKey)
 	async remove(id: number) {
 		this.judgeCanDo(id);
 		try {
@@ -263,7 +254,6 @@ export class GoodsInfoService {
 					},
 				},
 			});
-			this.redisService._delKeysWithPrefix(RedisKeyEnum.GoodsInfoKey);
 			return "删除商品成功~";
 		} catch (error) {
 			handleError(this.logger, error, {
@@ -301,13 +291,10 @@ export class GoodsInfoService {
 	 * 获取商品分类数量
 	 * @returns
 	 */
+	@Cacheable(RedisKeyEnum.GoodsCategoryKey)
 	async getCategoryCount() {
 		this.logger.log(`${this.getCategoryCount.name} was called`);
 		try {
-			const redisCategoryCountList = await this.redisService._get(
-				RedisKeyEnum.GoodsInfoKey + this.getCategoryCount.name,
-			);
-			if (redisCategoryCountList) return redisCategoryCountList;
 			const res = await this.prismaService.goodsCategory.findMany({
 				where: {
 					isDelete: false,
@@ -329,18 +316,9 @@ export class GoodsInfoService {
 					goodsCount: item._count.goods,
 				}));
 
-			const exportCategoryCountList = plainToInstance(
-				ExportCategoryCountDto,
-				categoryCountList,
-				{
-					excludeExtraneousValues: true,
-				},
-			);
-			this.redisService._set(
-				RedisKeyEnum.GoodsInfoKey + this.getCategoryCount.name,
-				exportCategoryCountList,
-			);
-			return exportCategoryCountList;
+			return plainToInstance(ExportCategoryCountDto, categoryCountList, {
+				excludeExtraneousValues: true,
+			});
 		} catch (error) {
 			handleError(this.logger, error, {
 				common: "获取商品分类数量失败",
@@ -355,11 +333,6 @@ export class GoodsInfoService {
 	async getCategorySale() {
 		this.logger.log(`${this.getCategorySale.name} was called`);
 		try {
-			const redisCategorySaleList = await this.redisService._get(
-				RedisKeyEnum.GoodsInfoKey + this.getCategorySale.name,
-			);
-			if (redisCategorySaleList) return redisCategorySaleList;
-
 			//垃圾prisma
 			const res = await this.prismaService.$queryRaw`
 				select category.id,category.name,sum(goodsInfo.saleCount) as goodsCount
@@ -372,19 +345,9 @@ export class GoodsInfoService {
 				and category.enable = true
 				group by category.id
 			`;
-
-			const exportCategorySaleList = plainToInstance(
-				ExportCategorySaleDto,
-				res,
-				{
-					excludeExtraneousValues: true,
-				},
-			);
-			this.redisService._set(
-				RedisKeyEnum.GoodsInfoKey + this.getCategorySale.name,
-				exportCategorySaleList,
-			);
-			return exportCategorySaleList;
+			return plainToInstance(ExportCategorySaleDto, res, {
+				excludeExtraneousValues: true,
+			});
 		} catch (error) {
 			handleError(this.logger, error, {
 				common: "获取商品分类销量失败",
@@ -399,11 +362,6 @@ export class GoodsInfoService {
 	async getCategoryFavor() {
 		this.logger.log(`${this.getCategoryFavor.name} was called`);
 		try {
-			const redisCategoryFavorList = await this.redisService._get(
-				RedisKeyEnum.GoodsInfoKey + this.getCategoryFavor.name,
-			);
-			if (redisCategoryFavorList) return redisCategoryFavorList;
-
 			//垃圾prisma
 			const categoryFavorList = await this.prismaService.$queryRaw`
 				select category.id,category.name,sum(goodsInfo.favorCount) as goodsFavor
@@ -416,18 +374,9 @@ export class GoodsInfoService {
 				and category.enable = true
 				group by category.id
 			`;
-			const exportCategoryFavorList = plainToInstance(
-				ExportCategoryFavorDto,
-				categoryFavorList,
-				{
-					excludeExtraneousValues: true,
-				},
-			);
-			this.redisService._set(
-				RedisKeyEnum.GoodsInfoKey + this.getCategoryFavor.name,
-				exportCategoryFavorList,
-			);
-			return exportCategoryFavorList;
+			return plainToInstance(ExportCategoryFavorDto, categoryFavorList, {
+				excludeExtraneousValues: true,
+			});
 		} catch (error) {
 			handleError(this.logger, error, {
 				common: "获取商品分类收藏数失败",
@@ -439,13 +388,10 @@ export class GoodsInfoService {
 	 * 获取商品销量top10
 	 * @returns
 	 */
+	@Cacheable(RedisKeyEnum.GoodsInfoKey)
 	async getSaleTop10() {
 		this.logger.log(`${this.getSaleTop10.name} was called`);
 		try {
-			const redisSaleTop10List = await this.redisService._get(
-				RedisKeyEnum.GoodsInfoKey + this.getSaleTop10.name,
-			);
-			if (redisSaleTop10List) return redisSaleTop10List;
 			const saleTop10List = await this.prismaService.goodsInfo.findMany({
 				select: {
 					id: true,
@@ -460,18 +406,9 @@ export class GoodsInfoService {
 				},
 				take: 10,
 			});
-			const exportSaleTop10List = plainToInstance(
-				ExportSaleTop10Dto,
-				saleTop10List,
-				{
-					excludeExtraneousValues: true,
-				},
-			);
-			this.redisService._set(
-				RedisKeyEnum.GoodsInfoKey + this.getSaleTop10.name,
-				exportSaleTop10List,
-			);
-			return exportSaleTop10List;
+			return plainToInstance(ExportSaleTop10Dto, saleTop10List, {
+				excludeExtraneousValues: true,
+			});
 		} catch (error) {
 			handleError(this.logger, error, {
 				common: "获取商品销量top10失败",
@@ -483,14 +420,10 @@ export class GoodsInfoService {
 	 * 获取发货地销量
 	 * @returns
 	 */
+	@Cacheable(RedisKeyEnum.GoodsInfoKey)
 	async getAddressSale() {
 		this.logger.log(`${this.getAddressSale.name} was called`);
 		try {
-			const redisAddressSaleList = await this.redisService._get(
-				RedisKeyEnum.GoodsInfoKey + this.getAddressSale.name,
-			);
-			if (redisAddressSaleList) return redisAddressSaleList;
-
 			const res = await this.prismaService.goodsInfo.groupBy({
 				by: ["address"],
 				_sum: {
@@ -509,18 +442,9 @@ export class GoodsInfoService {
 				count: item._sum.saleCount,
 			}));
 
-			const exportAddressSaleList = plainToInstance(
-				ExportAddressSaleDto,
-				addressSaleList,
-				{
-					excludeExtraneousValues: true,
-				},
-			);
-			this.redisService._set(
-				RedisKeyEnum.GoodsInfoKey + this.getAddressSale.name,
-				exportAddressSaleList,
-			);
-			return exportAddressSaleList;
+			return plainToInstance(ExportAddressSaleDto, addressSaleList, {
+				excludeExtraneousValues: true,
+			});
 		} catch (error) {
 			handleError(this.logger, error, {
 				common: "获取商品发货地销量失败",
@@ -535,11 +459,6 @@ export class GoodsInfoService {
 	async getAmountCounts() {
 		this.logger.log(`${this.getAmountCounts.name} was called`);
 		try {
-			const redisAmountCountsList = await this.redisService._get(
-				RedisKeyEnum.GoodsInfoKey + this.getAmountCounts.name,
-			);
-			if (redisAmountCountsList) return redisAmountCountsList;
-
 			//垃圾prisma
 			const [{ favor, inventory, sale, saleroom }] = await this.prismaService
 				.$queryRaw<
@@ -591,14 +510,9 @@ export class GoodsInfoService {
 					number2: saleroom,
 				},
 			];
-			const exportAmountList = plainToInstance(ExportAmoutListDto, amountList, {
+			return plainToInstance(ExportAmoutListDto, amountList, {
 				excludeExtraneousValues: true,
 			});
-			this.redisService._set(
-				RedisKeyEnum.GoodsInfoKey + this.getAmountCounts.name,
-				exportAmountList,
-			);
-			return exportAmountList;
 		} catch (error) {
 			handleError(this.logger, error, {
 				common: "获取商品统计信息失败",

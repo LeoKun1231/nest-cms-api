@@ -7,11 +7,11 @@
  * @Description:
  */
 import { WrapperType } from "@/@types/typeorm";
+import { CacheEvict, Cacheable } from "@/shared/decorators";
 import { RedisKeyEnum } from "@/shared/enums";
 import { AppLoggerSevice } from "@/shared/logger";
 import { PrismaService } from "@/shared/prisma";
-import { RedisService } from "@/shared/redis";
-import { filterEmpty, getRandomId, handleError } from "@/shared/utils";
+import { getRandomId, handleError } from "@/shared/utils";
 import {
 	BadRequestException,
 	Inject,
@@ -33,7 +33,6 @@ export class DepartmentService {
 		private readonly logger: AppLoggerSevice,
 		@Inject(forwardRef(() => UsersService))
 		private readonly userService: WrapperType<UsersService>,
-		private readonly redisService: RedisService,
 		private readonly prismaService: PrismaService,
 	) {
 		this.logger.setContext(DepartmentService.name);
@@ -44,13 +43,13 @@ export class DepartmentService {
 	 * @param createDepartmentDto
 	 * @returns
 	 */
+	@CacheEvict(RedisKeyEnum.DepartmentKey)
 	async create(createDepartmentDto: CreateDepartmentDto) {
 		this.logger.log(`${this.create.name} was called`);
 		try {
 			await this.prismaService.department.create({
 				data: createDepartmentDto,
 			});
-			this.redisService._delKeysWithPrefix(RedisKeyEnum.DepartmentKey);
 			return "创建部门成功~";
 		} catch (error) {
 			handleError(this.logger, error, {
@@ -66,6 +65,7 @@ export class DepartmentService {
 	 * @param basePaginationDto 分页信息
 	 * @returns
 	 */
+	@Cacheable(RedisKeyEnum.DepartmentKey)
 	async findAll(queryDepartmentDto: QueryDepartmentDto) {
 		this.logger.log(`${this.findAll.name} was called`);
 		try {
@@ -80,12 +80,6 @@ export class DepartmentService {
 				enable,
 				updateAt,
 			} = queryDepartmentDto;
-
-			const filterQueryDepartmentDto = filterEmpty(queryDepartmentDto);
-			const redisDepartmentList = await this.redisService._get(
-				RedisKeyEnum.DepartmentKey + JSON.stringify(filterQueryDepartmentDto),
-			);
-			if (redisDepartmentList) return redisDepartmentList;
 
 			const where: Prisma.DepartmentWhereInput = {
 				id,
@@ -118,7 +112,7 @@ export class DepartmentService {
 				where,
 			});
 
-			const departmentList = plainToInstance(
+			return plainToInstance(
 				ExportDepartmentListDto,
 				{
 					list,
@@ -128,11 +122,6 @@ export class DepartmentService {
 					excludeExtraneousValues: true,
 				},
 			);
-			this.redisService._set(
-				RedisKeyEnum.DepartmentKey + JSON.stringify(filterQueryDepartmentDto),
-				departmentList,
-			);
-			return departmentList;
 		} catch (error) {
 			handleError(this.logger, error, {
 				common: "获取部门列表失败",
@@ -171,6 +160,7 @@ export class DepartmentService {
 	 * @param updateDepartmentDto 部门信息
 	 * @returns
 	 */
+	@CacheEvict(RedisKeyEnum.DepartmentKey, RedisKeyEnum.UserKey)
 	async update(id: number, updateDepartmentDto: UpdateDepartmentDto) {
 		this.judgeCanDo(id);
 		try {
@@ -186,8 +176,6 @@ export class DepartmentService {
 				// 禁用部门下的所有用户
 				await this.userService.disabledUser(id, "department");
 			}
-			this.redisService._delKeysWithPrefix(RedisKeyEnum.DepartmentKey);
-			this.redisService._delKeysWithPrefix(RedisKeyEnum.UserKey);
 			return "更新部门成功~";
 		} catch (error) {
 			handleError(this.logger, error, {
@@ -203,6 +191,7 @@ export class DepartmentService {
 	 * @param id 部门id
 	 * @returns
 	 */
+	@CacheEvict(RedisKeyEnum.DepartmentKey, RedisKeyEnum.UserKey)
 	async remove(id: number) {
 		this.logger.log(`${this.remove.name} was called`);
 		this.judgeCanDo(id);
@@ -215,8 +204,6 @@ export class DepartmentService {
 					name: "已删除" + "_" + department.name + "_" + getRandomId(),
 				},
 			});
-			this.redisService._delKeysWithPrefix(RedisKeyEnum.DepartmentKey);
-			this.redisService._delKeysWithPrefix(RedisKeyEnum.UserKey);
 			return "删除部门成功~";
 		} catch (error) {
 			handleError(this.logger, error, {

@@ -19,17 +19,17 @@ export class AppController {
 		private readonly prismaService: PrismaService,
 	) {}
 
-	@Get("aa")
+	@Get()
 	@Public()
 	getHello() {
-		return this.prismaService.role.create({
-			data: {
-				name: "112211",
-				intro: "111",
-			},
-		});
+		return this.appService.getHello();
 	}
 
+	@Get("a")
+	@Public()
+	getHello1() {
+		return this.appService.testCachePut();
+	}
 	@Post("bb")
 	getHello2(@Body() user: any) {
 		return user;

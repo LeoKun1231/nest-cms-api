@@ -7,11 +7,11 @@
  * @Description:
  */
 import { WrapperType } from "@/@types/typeorm";
+import { CacheEvict, Cacheable } from "@/shared/decorators";
 import { RedisKeyEnum } from "@/shared/enums";
 import { AppLoggerSevice } from "@/shared/logger";
 import { PrismaService } from "@/shared/prisma";
-import { RedisService } from "@/shared/redis";
-import { filterEmpty, getRandomId, handleError } from "@/shared/utils";
+import { getRandomId, handleError } from "@/shared/utils";
 import {
 	BadRequestException,
 	ForbiddenException,
@@ -32,7 +32,6 @@ import { UpdateGoodsCategoryDto } from "./dto/update-goods-category.dto";
 export class GoodsCategoryService {
 	constructor(
 		private readonly logger: AppLoggerSevice,
-		private readonly redisService: RedisService,
 		private readonly prismaService: PrismaService,
 		@Inject(forwardRef(() => GoodsInfoService))
 		private readonly goodsInfoService: WrapperType<GoodsInfoService>,
@@ -45,13 +44,13 @@ export class GoodsCategoryService {
 	 * @param createGoodsCategoryDto
 	 * @returns
 	 */
+	@CacheEvict(RedisKeyEnum.GoodsCategoryKey)
 	async create(createGoodsCategoryDto: CreateGoodsCategoryDto) {
 		this.logger.log(`${this.create.name} was called`);
 		try {
 			await this.prismaService.goodsCategory.create({
 				data: createGoodsCategoryDto,
 			});
-			this.redisService._delKeysWithPrefix(RedisKeyEnum.GoodsCategoryKey);
 			return "创建商品分类成功~";
 		} catch (error) {
 			handleError(this.logger, error, {
@@ -66,20 +65,13 @@ export class GoodsCategoryService {
 	 * @param queryGoodsCategoryDto
 	 * @returns
 	 */
+	@Cacheable(RedisKeyEnum.GoodsCategoryKey)
 	async findAll(queryGoodsCategoryDto: QueryGoodsCategoryDto) {
 		this.logger.log(`${this.findAll.name} was called`);
 
 		try {
 			const { createAt, enable, id, name, offset, size, updateAt } =
 				queryGoodsCategoryDto;
-
-			const filterQueryGoodsCategory = filterEmpty(queryGoodsCategoryDto);
-			const redisGoodsCategoryList = await this.redisService._get(
-				RedisKeyEnum.GoodsCategoryKey +
-					JSON.stringify(filterQueryGoodsCategory),
-			);
-			if (redisGoodsCategoryList) return redisGoodsCategoryList;
-
 			const where: Prisma.GoodsCategoryWhereInput = {
 				id,
 				name: {
@@ -105,7 +97,8 @@ export class GoodsCategoryService {
 			const totalCount = await this.prismaService.goodsCategory.count({
 				where,
 			});
-			const goodCategoryList = plainToInstance(
+
+			return plainToInstance(
 				ExportGoodsCategoryListDto,
 				{
 					list,
@@ -115,12 +108,6 @@ export class GoodsCategoryService {
 					excludeExtraneousValues: true,
 				},
 			);
-			this.redisService._set(
-				RedisKeyEnum.GoodsCategoryKey +
-					JSON.stringify(filterQueryGoodsCategory),
-				goodCategoryList,
-			);
-			return goodCategoryList;
 		} catch (error) {
 			handleError(this.logger, error, {
 				common: "获取商品分类列表失败",
@@ -132,14 +119,11 @@ export class GoodsCategoryService {
 	 * 获取商品分类列表
 	 * @returns
 	 */
+	@Cacheable(RedisKeyEnum.GoodsCategoryKey)
 	async findAllCategory() {
 		this.logger.log(`${this.findAllCategory.name} was called`);
 		try {
-			const redisCategoryList = await this.redisService._get(
-				RedisKeyEnum.GoodsCategoryKey,
-			);
-			if (redisCategoryList) return redisCategoryList;
-			const categoryList = await this.prismaService.goodsCategory.findMany({
+			return await this.prismaService.goodsCategory.findMany({
 				select: {
 					id: true,
 					name: true,
@@ -152,8 +136,6 @@ export class GoodsCategoryService {
 					id: "desc",
 				},
 			});
-			this.redisService._set(RedisKeyEnum.GoodsCategoryKey, categoryList);
-			return categoryList;
 		} catch (error) {
 			handleError(this.logger, error, {
 				common: "获取商品分类列表失败",
@@ -192,6 +174,7 @@ export class GoodsCategoryService {
 	 * @param updateGoodsCategoryDto
 	 * @returns
 	 */
+	@CacheEvict(RedisKeyEnum.GoodsCategoryKey, RedisKeyEnum.GoodsInfoKey)
 	async update(id: number, updateGoodsCategoryDto: UpdateGoodsCategoryDto) {
 		this.logger.log(`${this.update.name} was called`);
 		this.judgeCanDo(id);
@@ -207,8 +190,6 @@ export class GoodsCategoryService {
 			if (updateGoodsCategoryDto.enable === false) {
 				this.goodsInfoService.disableMany(id);
 			}
-			this.redisService._delKeysWithPrefix(RedisKeyEnum.GoodsCategoryKey);
-			this.redisService._delKeysWithPrefix(RedisKeyEnum.GoodsInfoKey);
 			return "更新商品分类成功~";
 		} catch (error) {
 			handleError(this.logger, error, {
@@ -223,6 +204,7 @@ export class GoodsCategoryService {
 	 * @param id
 	 * @returns
 	 */
+	@CacheEvict(RedisKeyEnum.GoodsCategoryKey, RedisKeyEnum.GoodsInfoKey)
 	async remove(id: number) {
 		this.logger.log(`${this.remove.name} was called`);
 		this.judgeCanDo(id);
@@ -242,8 +224,6 @@ export class GoodsCategoryService {
 					isDelete: false,
 				},
 			});
-			this.redisService._delKeysWithPrefix(RedisKeyEnum.GoodsCategoryKey);
-			this.redisService._delKeysWithPrefix(RedisKeyEnum.GoodsInfoKey);
 			return "删除商品分类成功~";
 		} catch (error) {
 			handleError(this.logger, error, {

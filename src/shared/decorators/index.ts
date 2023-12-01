@@ -1,3 +1,4 @@
+export * from "./cache.decorator";
 export * from "./expose-not-null.decorator";
 export * from "./get-current-user-id.decorator";
 export * from "./get-current-user.decorator";

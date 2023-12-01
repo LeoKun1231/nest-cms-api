@@ -34,6 +34,11 @@ export class RedisService extends Redis implements OnModuleInit {
 	}
 
 	@RecordTime()
+	async _setex(key: string, seconds: number, value: any) {
+		return await this.setex(key, seconds, JSON.stringify(value));
+	}
+
+	@RecordTime()
 	async _set(key: string, value: any) {
 		return await this.set(key, JSON.stringify(value));
 	}

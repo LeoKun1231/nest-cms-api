@@ -6,10 +6,10 @@
  * @FilePath: \cms\src\modules\menus\menus.service.ts
  * @Description:
  */
+import { CacheEvict, Cacheable } from "@/shared/decorators";
 import { RedisKeyEnum } from "@/shared/enums";
 import { AppLoggerSevice } from "@/shared/logger";
 import { PrismaService } from "@/shared/prisma";
-import { RedisService } from "@/shared/redis";
 import { generateTree, getRandomId, handleError } from "@/shared/utils";
 import {
 	BadRequestException,
@@ -25,7 +25,6 @@ import { UpdateMenuDto } from "./dto/update-menu.dto";
 export class MenusService {
 	constructor(
 		private readonly logger: AppLoggerSevice,
-		private readonly redisService: RedisService,
 		private readonly prismaService: PrismaService,
 	) {
 		this.logger.setContext(MenusService.name);
@@ -36,6 +35,7 @@ export class MenusService {
 	 * @param createMenuDto
 	 * @returns
 	 */
+	@CacheEvict(RedisKeyEnum.MenuKey)
 	async create(createMenuDto: CreateMenuDto) {
 		this.logger.log(`${this.create.name} was called`);
 		const { parentId, ...rest } = createMenuDto;
@@ -55,7 +55,6 @@ export class MenusService {
 			await this.prismaService.menu.create({
 				data: rest,
 			});
-			await this.redisService._delKeysWithPrefix(RedisKeyEnum.MenuKey);
 			return "创建菜单成功";
 		} catch (error) {
 			handleError(this.logger, error, {
@@ -69,30 +68,19 @@ export class MenusService {
 	 * 查询所有菜单
 	 * @returns
 	 */
+	@Cacheable(RedisKeyEnum.MenuKey)
 	async findAll() {
 		this.logger.log(`${this.findAll.name} was called`);
 		try {
-			const redisMenuList = await this.redisService.get(RedisKeyEnum.MenuKey);
-			if (redisMenuList) return JSON.parse(redisMenuList);
-
 			const menuListTrees = await this.prismaService.menu.findMany({
 				where: {
 					isDelete: false,
 					enable: true,
 				},
 			});
-			const menuList = plainToInstance(
-				ExportMenuDto,
-				generateTree(menuListTrees),
-				{
-					excludeExtraneousValues: true,
-				},
-			);
-			await this.redisService.set(
-				RedisKeyEnum.MenuKey,
-				JSON.stringify(menuList),
-			);
-			return menuList;
+			return plainToInstance(ExportMenuDto, generateTree(menuListTrees), {
+				excludeExtraneousValues: true,
+			});
 		} catch (error) {
 			handleError(this.logger, error, {
 				common: "查找菜单失败",
@@ -104,6 +92,7 @@ export class MenusService {
 	 * 查询所有菜单id
 	 * @returns
 	 */
+	@Cacheable(RedisKeyEnum.MenuKey)
 	async findAllIds() {
 		this.logger.log(`${this.findAllIds.name} was called`);
 		const menuList = await this.prismaService.menu.findMany({
@@ -149,6 +138,7 @@ export class MenusService {
 	 * @param updateMenuDto
 	 * @returns
 	 */
+	@CacheEvict(RedisKeyEnum.MenuKey, RedisKeyEnum.RoleKey)
 	async update(id: number, updateMenuDto: UpdateMenuDto) {
 		this.logger.log(`${this.update.name} was called`);
 		this.judgeCanDo(id);
@@ -161,8 +151,6 @@ export class MenusService {
 				},
 				data: updateMenuDto,
 			});
-			await this.redisService._delKeysWithPrefix(RedisKeyEnum.MenuKey);
-			await this.redisService._delKeysWithPrefix(RedisKeyEnum.RoleKey);
 			return "更新菜单成功";
 		} catch (error) {
 			handleError(this.logger, error, {
@@ -177,6 +165,7 @@ export class MenusService {
 	 * @param id
 	 * @returns
 	 */
+	@CacheEvict(RedisKeyEnum.MenuKey, RedisKeyEnum.RoleKey)
 	async remove(id: number) {
 		this.logger.log(`${this.remove.name} was called`);
 		this.judgeCanDo(id);
@@ -195,8 +184,6 @@ export class MenusService {
 					},
 				},
 			});
-			await this.redisService._delKeysWithPrefix(RedisKeyEnum.MenuKey);
-			await this.redisService._delKeysWithPrefix(RedisKeyEnum.RoleKey);
 			return "删除菜单成功";
 		} catch (error) {
 			handleError(this.logger, error, {
@@ -210,6 +197,7 @@ export class MenusService {
 	 * @param ids
 	 * @returns
 	 */
+	@Cacheable(RedisKeyEnum.MenuKey)
 	async findListByIds(ids: number[]) {
 		try {
 			return await this.prismaService.menu.findMany({

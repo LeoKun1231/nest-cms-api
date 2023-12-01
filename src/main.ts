@@ -22,8 +22,6 @@ async function bootstrap() {
 		logger: setupLogger(),
 	});
 
-	// app.enableCors();
-
 	app.useStaticAssets(path.resolve(__dirname, "../files"), {
 		prefix: "/api/v1/static/",
 	});

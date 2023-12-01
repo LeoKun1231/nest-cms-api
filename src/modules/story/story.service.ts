@@ -6,11 +6,11 @@
  * @FilePath: \cms\src\modules\story\story.service.ts
  * @Description:
  */
+import { CacheEvict, Cacheable } from "@/shared/decorators";
 import { RedisKeyEnum } from "@/shared/enums";
 import { AppLoggerSevice } from "@/shared/logger";
 import { PrismaService } from "@/shared/prisma";
-import { RedisService } from "@/shared/redis";
-import { filterEmpty, handleError } from "@/shared/utils";
+import { handleError } from "@/shared/utils";
 import {
 	BadRequestException,
 	ForbiddenException,
@@ -29,7 +29,6 @@ import { UpdateStoryDto } from "./dto/update-story.dto";
 export class StoryService {
 	constructor(
 		private readonly logger: AppLoggerSevice,
-		private readonly redisService: RedisService,
 		private readonly prismaService: PrismaService,
 	) {
 		this.logger.setContext(StoryService.name);
@@ -40,6 +39,7 @@ export class StoryService {
 	 * @param createStoryDto
 	 * @returns
 	 */
+	@CacheEvict(RedisKeyEnum.StoryKey)
 	async create(createStoryDto: CreateStoryDto) {
 		this.logger.log(`${this.create.name} was called`);
 		try {
@@ -54,7 +54,6 @@ export class StoryService {
 					content: cleanContent,
 				},
 			});
-			this.redisService._delKeysWithPrefix(RedisKeyEnum.StoryKey);
 			return "创建故事成功~";
 		} catch (error) {
 			handleError(this.logger, error, {
@@ -68,18 +67,13 @@ export class StoryService {
 	 * @param queryStoryDto
 	 * @returns
 	 */
+	@Cacheable(RedisKeyEnum.StoryKey)
 	async findAll(queryStoryDto: QueryStoryDto) {
 		this.logger.log(`${this.findAll.name} was called`);
 
 		try {
 			const { createAt, enable, id, offset, size, title, updateAt } =
 				queryStoryDto;
-
-			const filterQueryStoryDto = filterEmpty(queryStoryDto);
-			const redisStoryList = await this.redisService._get(
-				RedisKeyEnum.StoryKey + JSON.stringify(filterQueryStoryDto),
-			);
-			if (redisStoryList) return redisStoryList;
 
 			const where: Prisma.StoryWhereInput = {
 				id,
@@ -108,7 +102,7 @@ export class StoryService {
 				this.prismaService.story.count({ where }),
 			]);
 
-			const storyList = plainToInstance(
+			return plainToInstance(
 				ExportStoryListDto,
 				{
 					list,
@@ -116,11 +110,6 @@ export class StoryService {
 				},
 				{ excludeExtraneousValues: true },
 			);
-			this.redisService._set(
-				RedisKeyEnum.StoryKey + JSON.stringify(filterQueryStoryDto),
-				storyList,
-			);
-			return storyList;
 		} catch (error) {
 			handleError(this.logger, error, {
 				common: "查询故事列表失败",
@@ -161,6 +150,7 @@ export class StoryService {
 	 * @param updateStoryDto
 	 * @returns
 	 */
+	@CacheEvict(RedisKeyEnum.StoryKey)
 	async update(id: number, updateStoryDto: UpdateStoryDto) {
 		this.judgeCanDo(id);
 
@@ -184,7 +174,6 @@ export class StoryService {
 					title,
 				},
 			});
-			this.redisService._delKeysWithPrefix(RedisKeyEnum.StoryKey);
 			return "更新故事成功~";
 		} catch (error) {
 			handleError(this.logger, error, {
@@ -198,6 +187,7 @@ export class StoryService {
 	 * @param id
 	 * @returns
 	 */
+	@CacheEvict(RedisKeyEnum.StoryKey)
 	async remove(id: number) {
 		this.logger.log(`${this.remove.name} was called`);
 		this.judgeCanDo(id);
@@ -212,7 +202,6 @@ export class StoryService {
 					isDelete: true,
 				},
 			});
-			this.redisService._delKeysWithPrefix(RedisKeyEnum.StoryKey);
 			return "删除故事成功~";
 		} catch (error) {
 			handleError(this.logger, error, {
