@@ -6,8 +6,11 @@
  * @FilePath: \cms\src\modules\users\users.service.ts
  * @Description:
  */
+import { RedisKeyEnum } from "@/shared/enums";
 import { AppLoggerSevice } from "@/shared/logger";
 import { PrismaService } from "@/shared/prisma";
+import { RedisService } from "@/shared/redis";
+import { filterEmpty, getRandomId, handleError } from "@/shared/utils";
 import {
 	BadRequestException,
 	ForbiddenException,
@@ -16,11 +19,13 @@ import {
 	UnauthorizedException,
 	forwardRef,
 } from "@nestjs/common";
-import { compare } from "bcrypt";
+import { Prisma } from "@prisma/client";
+import { compare, hash } from "bcrypt";
 import { plainToInstance } from "class-transformer";
 import { DepartmentService } from "../department/department.service";
 import { RolesService } from "../roles/roles.service";
 import { CreateUserDto } from "./dtos/create-user.dto";
+import { ExportUserListDto } from "./dtos/export-user-list.dto";
 import { ExportUserDto } from "./dtos/export-user.dto";
 import { QueryUserDto } from "./dtos/query-user.dto";
 import { UpdateUserDto } from "./dtos/update-user.dto";
@@ -30,9 +35,10 @@ export class UsersService {
 	constructor(
 		private readonly logger: AppLoggerSevice,
 		private readonly prismaService: PrismaService,
+		private readonly redisService: RedisService,
 		@Inject(forwardRef(() => RolesService))
 		private readonly rolseService: RolesService,
-		private readonly departmentService: DepartmentService, // private readonly redisService: RedisService,
+		private readonly departmentService: DepartmentService,
 	) {
 		this.logger.setContext(UsersService.name);
 	}
@@ -82,36 +88,43 @@ export class UsersService {
 	 * @returns
 	 */
 	async createUser(createUserDto: CreateUserDto) {
-		// this.logger.log(`${this.createUser.name} was called`);
-		// try {
-		// 	const { name, password, cellphone, departmentId, realname, roleId } =
-		// 		createUserDto;
-		// 	const hashPassword = await hash(password, 10);
-		// 	const [role, department] = await Promise.all([
-		// 		this.rolseService.findOne(roleId),
-		// 		this.departmentService.findOne(departmentId),
-		// 	]);
-		// 	await this.usersRespository.save({
-		// 		name,
-		// 		password: hashPassword,
-		// 		realname,
-		// 		cellphone,
-		// 		roles: [plainToInstance(Role, role)],
-		// 		department: plainToInstance(Department, department),
-		// 	});
-		// 	this.redisService._delKeysWithPrefix(RedisKeyEnum.UserKey);
-		// 	return "创建用户成功~";
-		// } catch (error) {
-		// 	this.logger.error(error);
-		// 	if (
-		// 		error instanceof QueryFailedError &&
-		// 		error.driverError.errno == 1062
-		// 	) {
-		// 		throw new BadRequestException("该用户名已存在");
-		// 	}
-		// 	if (error.message) throw new BadRequestException(error.message);
-		// 	throw new BadRequestException("创建用户失败");
-		// }
+		this.logger.log(`${this.createUser.name} was called`);
+		try {
+			const { name, password, cellphone, departmentId, realname, roleId } =
+				createUserDto;
+			const hashPassword = await hash(password, 10);
+			//判断角色、部门是否存在
+			await Promise.all([
+				this.rolseService.findOne(roleId),
+				this.departmentService.findOne(departmentId),
+			]);
+			await this.prismaService.user.create({
+				data: {
+					name,
+					password: hashPassword,
+					realname,
+					cellphone,
+					roles: {
+						connect: [
+							{
+								userId_roleId: {
+									roleId,
+									userId: undefined,
+								},
+							},
+						],
+					},
+					departmentId,
+				},
+			});
+			this.redisService._delKeysWithPrefix(RedisKeyEnum.UserKey);
+			return "创建用户成功~";
+		} catch (error) {
+			handleError(this.logger, error, {
+				common: "创建用户失败",
+				unique: "用户名已存在",
+			});
+		}
 	}
 
 	/**
@@ -121,65 +134,79 @@ export class UsersService {
 	 * @returns
 	 */
 	async updateUser(id: number, updateUserDto: UpdateUserDto) {
-		// this.logger.log(`${this.updateUser.name} was called`);
-		// this.judgeCanDo(id);
-		// try {
-		// 	//判断用户是否存在
-		// 	const findUser = await this.findUserById(id);
-		// 	const { departmentId, password, roleId, cellphone } = updateUserDto;
-		// 	const user = this.usersRespository.create({
-		// 		...updateUserDto,
-		// 		id,
-		// 		cellphone,
-		// 	});
-		// 	if (password) {
-		// 		const hashPassword = await hash(password, 10);
-		// 		user.password = hashPassword;
-		// 	}
-		// 	if (roleId) {
-		// 		const role = await this.rolseService.findOne(roleId);
-		// 		user.roles = [plainToInstance(Role, role)];
-		// 	}
-		// 	if (departmentId) {
-		// 		const department = await this.departmentService.findOne(departmentId);
-		// 		user.department = plainToInstance(Department, department);
-		// 	}
-		// 	//启用用户之前 先判断角色或者部门是否被禁用
-		// 	if (user.enable == true) {
-		// 		const [role, department] = await Promise.all([
-		// 			this.rolseService.findOne(findUser.role.id),
-		// 			this.departmentService.findOne(findUser.department.id),
-		// 		]);
-		// 		//判断角色或者部门是否被禁用
-		// 		if (role.enable == 0) {
-		// 			throw new BadRequestException("该用户角色已被禁用");
-		// 		}
-		// 		if (department.enable == 0) {
-		// 			throw new BadRequestException("该用户部门已被禁用");
-		// 		}
-		// 	}
-		// 	await this.usersRespository.save({
-		// 		...user,
-		// 		id,
-		// 		isDelete: false,
-		// 	});
-		// 	if (user.enable == false) {
-		// 		//禁用用户
-		// 		await this.redisService._delKeysWithPrefix(RedisKeyEnum.LoginKey + id);
-		// 	}
-		// 	this.redisService._delKeysWithPrefix(RedisKeyEnum.UserKey);
-		// 	return "更新用户成功~";
-		// } catch (error) {
-		// 	this.logger.error(error);
-		// 	if (
-		// 		error instanceof QueryFailedError &&
-		// 		error.driverError.errno == 1062
-		// 	) {
-		// 		throw new BadRequestException("该用户名已存在");
-		// 	}
-		// 	if (error.message) throw new BadRequestException(error.message);
-		// 	throw new BadRequestException("更新用户失败");
-		// }
+		this.logger.log(`${this.updateUser.name} was called`);
+		this.judgeCanDo(id);
+		try {
+			//判断用户是否存在
+			const findUser = await this.findUserById(id);
+			const { departmentId, password, roleId } = updateUserDto;
+
+			const user: Prisma.UserUpdateInput = Object.assign(
+				findUser,
+				updateUserDto,
+			);
+
+			if (password) {
+				const hashPassword = await hash(updateUserDto.password, 10);
+				user.password = hashPassword;
+			}
+			if (roleId) {
+				//判断角色是否存在
+				await this.rolseService.findOne(roleId);
+				user.roles = {
+					connect: {
+						userId_roleId: {
+							roleId,
+							userId: id,
+						},
+					},
+				};
+			}
+			if (departmentId) {
+				//判断部门是否存在
+				await this.departmentService.findOne(departmentId);
+				user.department = {
+					connect: {
+						id: departmentId,
+					},
+				};
+			}
+
+			//启用用户之前 先判断角色或者部门是否被禁用
+			if (user.enable == true) {
+				const [role, department] = await Promise.all([
+					this.rolseService.findOne(findUser.role.id),
+					this.departmentService.findOne(findUser.department.id),
+				]);
+				//判断角色或者部门是否被禁用
+				if (role.enable == 0) {
+					throw new BadRequestException("该用户角色已被禁用");
+				}
+				if (department.enable == 0) {
+					throw new BadRequestException("该用户部门已被禁用");
+				}
+			}
+			await this.prismaService.user.update({
+				where: {
+					id,
+					isDelete: false,
+				},
+				data: {
+					...user,
+				},
+			});
+			if (user.enable == false) {
+				//禁用用户
+				await this.redisService._delKeysWithPrefix(RedisKeyEnum.LoginKey + id);
+			}
+			this.redisService._delKeysWithPrefix(RedisKeyEnum.UserKey);
+			return "更新用户成功~";
+		} catch (error) {
+			handleError(this.logger, error, {
+				common: "更新用户失败",
+				unique: "用户名已存在",
+			});
+		}
 	}
 
 	/**
@@ -209,9 +236,9 @@ export class UsersService {
 				excludeExtraneousValues: true,
 			});
 		} catch (error) {
-			this.logger.error(error);
-			if (error.message) throw new BadRequestException(error.message);
-			throw new BadRequestException("查找用户失败");
+			handleError(this.logger, error, {
+				common: "查找用户失败",
+			});
 		}
 	}
 
@@ -221,73 +248,93 @@ export class UsersService {
 	 * @returns
 	 */
 	async findAll(queryUserDto: QueryUserDto) {
-		// this.logger.log(`${this.findAll.name} was called`);
-		// const {
-		// 	cellphone,
-		// 	createAt,
-		// 	departmentId,
-		// 	enable,
-		// 	id,
-		// 	name,
-		// 	offset,
-		// 	realname,
-		// 	roleId,
-		// 	size,
-		// 	updateAt,
-		// } = queryUserDto;
-		// try {
-		// 	const filterQueryUserDto = filterEmpty(queryUserDto);
-		// 	const redisUserList = await this.redisService._get(
-		// 		RedisKeyEnum.UserKey + JSON.stringify(filterQueryUserDto),
-		// 	);
-		// 	if (redisUserList) return redisUserList;
-		// 	const [list, totalCount] = await this.usersRespository.findAndCount({
-		// 		select: {
-		// 			roles: {
-		// 				id: true,
-		// 			},
-		// 			department: {
-		// 				id: true,
-		// 			},
-		// 		},
-		// 		where: {
-		// 			id,
-		// 			cellphone: cellphone && Like(`%${cellphone}%`),
-		// 			createAt: createAt && Between(createAt[0], createAt[1]),
-		// 			name: name && Like(`%${name}%`),
-		// 			realname: realname && Like(`%${realname}%`),
-		// 			updateAt: updateAt && Between(updateAt[0], updateAt[1]),
-		// 			enable: enable && !!enable,
-		// 			roles: roleId && { id: roleId },
-		// 			department: departmentId && { id: departmentId },
-		// 			isDelete: false,
-		// 		},
-		// 		take: size,
-		// 		skip: offset,
-		// 		relations: {
-		// 			roles: true,
-		// 			department: true,
-		// 		},
-		// 		order: {
-		// 			id: "DESC",
-		// 		},
-		// 	});
-		// 	const userList = plainToInstance(
-		// 		ExportUserListDto,
-		// 		{ list, totalCount },
-		// 		{
-		// 			excludeExtraneousValues: true,
-		// 		},
-		// 	);
-		// 	this.redisService._set(
-		// 		RedisKeyEnum.UserKey + JSON.stringify(filterQueryUserDto),
-		// 		userList,
-		// 	);
-		// 	return userList;
-		// } catch (error) {
-		// 	this.logger.error(error);
-		// 	throw new BadRequestException("查找用户列表失败");
-		// }
+		this.logger.log(`${this.findAll.name} was called`);
+		const {
+			cellphone,
+			createAt,
+			departmentId,
+			enable,
+			id,
+			name,
+			offset,
+			realname,
+			roleId,
+			size,
+			updateAt,
+		} = queryUserDto;
+		try {
+			const filterQueryUserDto = filterEmpty(queryUserDto);
+			const redisUserList = await this.redisService._get(
+				RedisKeyEnum.UserKey + JSON.stringify(filterQueryUserDto),
+			);
+			if (redisUserList) return redisUserList;
+
+			const where: Prisma.UserWhereInput = {
+				id,
+				cellphone: {
+					contains: cellphone,
+				},
+				name: {
+					contains: name,
+				},
+				realname: {
+					contains: realname,
+				},
+				createAt: {
+					in: createAt,
+				},
+				updateAt: {
+					in: updateAt,
+				},
+				enable: enable && !!enable,
+				roles: {
+					every: {
+						roleId: {
+							equals: roleId,
+						},
+					},
+				},
+				departmentId,
+				isDelete: false,
+			};
+
+			const [list, totalCount] = await this.prismaService.$transaction([
+				this.prismaService.user.findMany({
+					where,
+					take: size,
+					skip: offset,
+					orderBy: {
+						id: "desc",
+					},
+					include: {
+						roles: {
+							select: {
+								role: true,
+							},
+						},
+						department: true,
+					},
+				}),
+				this.prismaService.user.count({ where }),
+			]);
+
+			const userList = plainToInstance(
+				ExportUserListDto,
+				{ list, totalCount },
+				{
+					excludeExtraneousValues: true,
+				},
+			);
+			this.redisService._set(
+				RedisKeyEnum.UserKey + JSON.stringify(filterQueryUserDto),
+				userList,
+			);
+			return userList;
+		} catch (error) {
+			handleError(this.logger, error, {
+				common: "获取用户列表失败",
+			});
+		}
 	}
 
 	/**
@@ -296,25 +343,25 @@ export class UsersService {
 	 * @returns
 	 */
 	async remove(id: number) {
-		// this.logger.log(`${this.remove.name} was called`);
-		// this.judgeCanDo(id);
-		// try {
-		// 	const user = await this.findUserById(id);
-		// 	await this.usersRespository.update(
-		// 		{ id, isDelete: false },
-		// 		{
-		// 			isDelete: true,
-		// 			name: "已删除" + "_" + user.name + "_" + UUID(),
-		// 		},
-		// 	);
-		// 	this.redisService.del(RedisKeyEnum.LoginKey + id);
-		// 	this.redisService._delKeysWithPrefix(RedisKeyEnum.UserKey);
-		// 	return "删除用户成功~";
-		// } catch (error) {
-		// 	this.logger.error(error);
-		// 	if (error.message) throw new BadRequestException(error.message);
-		// 	throw new BadRequestException("删除用户失败");
-		// }
+		this.logger.log(`${this.remove.name} was called`);
+		this.judgeCanDo(id);
+		try {
+			const user = await this.findUserById(id);
+			await this.prismaService.user.update({
+				where: { id, isDelete: false },
+				data: {
+					isDelete: true,
+					name: "已删除" + "_" + user.name + "_" + getRandomId(),
+				},
+			});
+			this.redisService.del(RedisKeyEnum.LoginKey + id);
+			this.redisService._delKeysWithPrefix(RedisKeyEnum.UserKey);
+			return "删除用户成功~";
+		} catch (error) {
+			handleError(this.logger, error, {
+				common: "删除用户失败",
+			});
+		}
 	}
 
 	/**
@@ -350,8 +397,9 @@ export class UsersService {
 				});
 			}
 		} catch (error) {
-			this.logger.error(error);
-			throw new BadRequestException("禁用用户失败");
+			handleError(this.logger, error, {
+				common: "禁用用户失败",
+			});
 		}
 	}
 
@@ -369,8 +417,7 @@ export class UsersService {
 				data: { ip },
 			});
 		} catch (error) {
-			this.logger.error(error);
-			throw new BadRequestException("记录用户ip失败");
+			handleError(this.logger, error, { common: "记录用户ip失败" });
 		}
 	}
 
