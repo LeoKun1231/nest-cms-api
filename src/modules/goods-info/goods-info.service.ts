@@ -318,11 +318,6 @@ export class GoodsInfoService {
 	async getCategoryCount() {
 		this.logger.log(`${this.getCategoryCount.name} was called`);
 		try {
-			const redisCategoryCountList = await this.redisService._get(
-				RedisKeyEnum.GoodsInfoKey + this.getCategoryCount.name,
-			);
-			if (redisCategoryCountList) return redisCategoryCountList;
-
 			const categoryCountList = await this.goodsInfoRepository
 				.createQueryBuilder("goodsInfo")
 				.leftJoinAndSelect("goodsInfo.category", "category")
@@ -334,17 +329,12 @@ export class GoodsInfoService {
 				.groupBy("id")
 				.having("goodsCount > 0")
 				.getRawMany();
-
 			const exportCategoryCountList = plainToInstance(
 				ExportCategoryCountDto,
 				categoryCountList,
 				{
 					excludeExtraneousValues: true,
 				},
-			);
-			this.redisService._set(
-				RedisKeyEnum.GoodsInfoKey + this.getCategoryCount.name,
-				exportCategoryCountList,
 			);
 			return exportCategoryCountList;
 		} catch (error) {
@@ -360,11 +350,6 @@ export class GoodsInfoService {
 	async getCategorySale() {
 		this.logger.log(`${this.getCategorySale.name} was called`);
 		try {
-			const redisCategorySaleList = await this.redisService._get(
-				RedisKeyEnum.GoodsInfoKey + this.getCategorySale.name,
-			);
-			if (redisCategorySaleList) return redisCategorySaleList;
-
 			const categorySaleList = await this.goodsInfoRepository
 				.createQueryBuilder("goodsInfo")
 				.leftJoinAndSelect("goodsInfo.category", "category")
@@ -383,10 +368,6 @@ export class GoodsInfoService {
 					excludeExtraneousValues: true,
 				},
 			);
-			this.redisService._set(
-				RedisKeyEnum.GoodsInfoKey + this.getCategorySale.name,
-				exportCategorySaleList,
-			);
 			return exportCategorySaleList;
 		} catch (error) {
 			this.logger.error(error);
@@ -401,11 +382,6 @@ export class GoodsInfoService {
 	async getCategoryFavor() {
 		this.logger.log(`${this.getCategoryFavor.name} was called`);
 		try {
-			const redisCategoryFavorList = await this.redisService._get(
-				RedisKeyEnum.GoodsInfoKey + this.getCategoryFavor.name,
-			);
-			if (redisCategoryFavorList) return redisCategoryFavorList;
-
 			const categoryFavorList = await this.goodsInfoRepository
 				.createQueryBuilder("goodsInfo")
 				.leftJoinAndSelect("goodsInfo.category", "category")
@@ -426,11 +402,6 @@ export class GoodsInfoService {
 				},
 			);
 
-			this.redisService._set(
-				RedisKeyEnum.GoodsInfoKey + this.getCategoryFavor.name,
-				exportCategoryFavorList,
-			);
-
 			return exportCategoryFavorList;
 		} catch (error) {
 			this.logger.error(error);
@@ -445,11 +416,6 @@ export class GoodsInfoService {
 	async getSaleTop10() {
 		this.logger.log(`${this.getSaleTop10.name} was called`);
 		try {
-			const redisSaleTop10List = await this.redisService._get(
-				RedisKeyEnum.GoodsInfoKey + this.getSaleTop10.name,
-			);
-			if (redisSaleTop10List) return redisSaleTop10List;
-
 			const saleTop10List = await this.goodsInfoRepository.find({
 				select: {
 					id: true,
@@ -471,11 +437,6 @@ export class GoodsInfoService {
 				{
 					excludeExtraneousValues: true,
 				},
-			);
-
-			this.redisService._set(
-				RedisKeyEnum.GoodsInfoKey + this.getSaleTop10.name,
-				exportSaleTop10List,
 			);
 
 			return exportSaleTop10List;
