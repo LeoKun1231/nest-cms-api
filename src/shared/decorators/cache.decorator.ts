@@ -12,17 +12,40 @@ const redisService = new RedisService(
 	new AppLoggerSevice(new Logger()),
 );
 
-export const Cacheable = (key: RedisKeyEnum) => {
+export const Cacheable = (...keys: RedisKeyEnum[]) => {
 	return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
 		const originalMethod = descriptor.value;
 		descriptor.value = async function (...args: any[]) {
 			let cacheKey = "";
+			//如果没有参数，那么就是key:propertyKey
 			if (args.length === 0) {
-				cacheKey = `${key}:${propertyKey}`;
+				//如果只有一个key，那么就是key:propertyKey
+				if (keys.length === 1) {
+					cacheKey = `${keys[0]}:${propertyKey}`;
+				} else if (keys.length > 1) {
+					//如果有多个key，那么就是key1:key2:propertyKey
+					keys.forEach((key) => {
+						cacheKey += `${key}:`;
+					});
+					cacheKey = cacheKey + propertyKey;
+				}
 			} else {
-				cacheKey = `${key}:${propertyKey}:${JSON.stringify(
-					args.map((arg) => filterEmpty(arg)),
-				)}`;
+				//如果有参数，那么就是key:propertyKey:args
+				if (keys.length === 1) {
+					//如果只有一个key，那么就是key:propertyKey:args
+					cacheKey = `${keys[0]}:${propertyKey}:${JSON.stringify(
+						args.map((arg) => filterEmpty(arg)),
+					)}`;
+				} else if (keys.length > 1) {
+					//如果有多个key，那么就是key1:key2:propertyKey:args
+					keys.forEach((key) => {
+						cacheKey += `${key}:`;
+					});
+					cacheKey =
+						cacheKey +
+						propertyKey +
+						`:${JSON.stringify(args.map((arg) => filterEmpty(arg)))}`;
+				}
 			}
 			const cacheValue = await redisService._get(cacheKey);
 			if (cacheValue) {
@@ -46,16 +69,15 @@ export const CachePut = (key: RedisKeyEnum) => {
 	};
 };
 
+//会删除所有包含key的缓存
 export const CacheEvict = (...keys: RedisKeyEnum[]) => {
 	return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
 		const originalMethod = descriptor.value;
 		descriptor.value = async function (...args: any[]) {
 			const result = await originalMethod.apply(this, args);
-			Promise.all(
-				keys.map(async (key) => {
-					await redisService._delKeysWithPrefix(key);
-				}),
-			);
+			keys.map(async (key) => {
+				await redisService._delKeysContainStr(key);
+			});
 			return result;
 		};
 	};

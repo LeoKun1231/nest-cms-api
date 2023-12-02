@@ -46,9 +46,9 @@ const envFilePath = `.env.${process.env.NODE_ENV || `development`}`;
 		ThrottlerModule.forRoot({
 			throttlers: [
 				{
-					//每秒最多请求5次
+					//每秒最多请求10次
 					ttl: 1000,
-					limit: 3,
+					limit: 10,
 				},
 			],
 		}),

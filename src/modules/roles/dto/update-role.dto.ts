@@ -6,8 +6,8 @@
  * @FilePath: \cms\src\modules\roles\dto\update-role.dto.ts
  * @Description:
  */
+import { TransformNumber2Boolean } from "@/shared/decorators/transform-number-to-boolean";
 import { ApiProperty, PartialType } from "@nestjs/swagger";
-import { Type } from "class-transformer";
 import { IsOptional } from "class-validator";
 import { CreateRoleDto } from "./create-role.dto";
 
@@ -18,7 +18,7 @@ export class UpdateRoleDto extends PartialType(CreateRoleDto) {
 		type: Number,
 		description: "0:禁用 1:启用",
 	})
-	@Type(() => Boolean)
+	@TransformNumber2Boolean()
 	@IsOptional()
 	enable: boolean;
 }

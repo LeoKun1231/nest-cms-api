@@ -7,6 +7,7 @@
  * @Description:
  */
 import { ValidateStringNumber } from "@/shared/decorators";
+import { TransformNumber2Boolean } from "@/shared/decorators/transform-number-to-boolean";
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsNotEmpty, IsOptional, IsString } from "class-validator";
@@ -49,10 +50,8 @@ export class CreateGoodsInfoDto {
 		description: "商品状态（1：在售，0：下架）",
 		type: Number,
 	})
-	@ValidateStringNumber({ message: "商品状态必须是数字或字符串" })
-	@IsNotEmpty({ message: "商品状态不能为空" })
-	@Type(() => Number)
-	status: number;
+	@TransformNumber2Boolean()
+	status: boolean;
 
 	@ApiProperty({
 		example: "https://www.example.com/iphone12.png",

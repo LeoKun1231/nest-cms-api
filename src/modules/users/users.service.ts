@@ -288,10 +288,12 @@ export class UsersService {
 					contains: realname,
 				},
 				createAt: {
-					in: createAt,
+					gte: createAt?.[0],
+					lte: createAt?.[1],
 				},
 				updateAt: {
-					in: updateAt,
+					gte: updateAt?.[0],
+					lte: updateAt?.[1],
 				},
 				enable: enable && !!enable,
 				userRole: {
@@ -375,9 +377,12 @@ export class UsersService {
 	 * @returns
 	 */
 
-	//TODO: 禁用用户
-	async disabledUser(id: number, type: "role" | "department") {
-		this.logger.log(`${this.disabledUser.name} was called`);
+	async changeUserEnable(
+		id: number,
+		type: "role" | "department",
+		enable: boolean,
+	) {
+		this.logger.log(`${this.changeUserEnable.name} was called`);
 		try {
 			if (type == "role") {
 				await this.prismaService.user.updateMany({
@@ -387,18 +392,20 @@ export class UsersService {
 								roleId: id,
 							},
 						},
+						enable: !enable,
 					},
 					data: {
-						enable: false,
+						enable,
 					},
 				});
 			} else if (type == "department") {
 				await this.prismaService.user.updateMany({
 					where: {
 						departmentId: id,
+						enable: !enable,
 					},
 					data: {
-						enable: false,
+						enable,
 					},
 				});
 			}

@@ -8,7 +8,7 @@
  */
 import { formatTime } from "@/shared/utils";
 import { ApiProperty } from "@nestjs/swagger";
-import { Expose, Transform } from "class-transformer";
+import { Expose, Transform, Type } from "class-transformer";
 
 export class ExportGoodsInfoDto {
 	@ApiProperty({ description: "商品ID", example: 32, type: Number })
@@ -41,7 +41,7 @@ export class ExportGoodsInfoDto {
 
 	@ApiProperty({ description: "商品状态", example: 1, type: Number })
 	@Expose()
-	@Transform(({ obj }) => (obj.enable ? 1 : 0))
+	@Type(() => Number)
 	status: number;
 
 	@ApiProperty({

@@ -47,7 +47,7 @@ export class TransformResultInterceptor implements NestInterceptor {
 			Object.keys(data).forEach((key) => {
 				if (typeof data[key] === "string") {
 					if (data[key].trim() == "") {
-						data[key] = null;
+						data[key] = undefined;
 					}
 				} else if (data[key] instanceof Object) {
 					this.trimStrings(data[key]);

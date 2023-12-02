@@ -80,12 +80,14 @@ export class StoryService {
 				title: {
 					contains: title,
 				},
-				enable: enable && !!enable,
+				enable,
 				createAt: {
-					in: createAt,
+					gte: createAt?.[0],
+					lte: createAt?.[1],
 				},
 				updateAt: {
-					in: updateAt,
+					gte: updateAt?.[0],
+					lte: updateAt?.[1],
 				},
 				isDelete: false,
 			};

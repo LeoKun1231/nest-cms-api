@@ -77,12 +77,14 @@ export class GoodsCategoryService {
 				name: {
 					contains: name,
 				},
-				enable: enable && !!enable,
+				enable,
 				createAt: {
-					in: createAt,
+					gte: createAt?.[0],
+					lte: createAt?.[1],
 				},
 				updateAt: {
-					in: updateAt,
+					gte: updateAt?.[0],
+					lte: updateAt?.[1],
 				},
 				isDelete: false,
 			};
@@ -187,8 +189,11 @@ export class GoodsCategoryService {
 				},
 				data: updateGoodsCategoryDto,
 			});
-			if (updateGoodsCategoryDto.enable === false) {
-				this.goodsInfoService.disableMany(id);
+			if (updateGoodsCategoryDto.enable != undefined) {
+				await this.goodsInfoService.changeGoodsInfoStatus(
+					id,
+					updateGoodsCategoryDto.enable,
+				);
 			}
 			return "更新商品分类成功~";
 		} catch (error) {

@@ -9,6 +9,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsOptional } from "class-validator";
+import { TransformNumber2Boolean } from "../decorators/transform-number-to-boolean";
 import { ValidateDate } from "../decorators/validate-date.decorator";
 import { ValidateStringNumber } from "../decorators/validate-string-number.decorator";
 import { BasePaginationDto } from "./base-pagination.dto";
@@ -26,10 +27,9 @@ export class BaseQueryDto extends BasePaginationDto {
 		type: Boolean,
 		description: "0:禁用 1:启用",
 	})
-	@ValidateStringNumber({ message: "是否启用必须是数字或字符串" })
-	@Type(() => Number)
+	@TransformNumber2Boolean()
 	@IsOptional()
-	enable: number;
+	enable: boolean;
 
 	@ApiProperty({ name: "创建时间", example: "2021-10-10", type: [Date, Date] })
 	@IsOptional()

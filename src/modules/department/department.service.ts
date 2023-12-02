@@ -83,7 +83,7 @@ export class DepartmentService {
 
 			const where: Prisma.DepartmentWhereInput = {
 				id,
-				enable: enable && !!enable,
+				enable,
 				name: {
 					contains: name,
 				},
@@ -92,10 +92,12 @@ export class DepartmentService {
 				},
 				parentId,
 				createAt: {
-					in: createAt,
+					gte: createAt?.[0],
+					lte: createAt?.[1],
 				},
 				updateAt: {
-					in: updateAt,
+					gte: updateAt?.[0],
+					lte: updateAt?.[1],
 				},
 				isDelete: false,
 			};
@@ -172,9 +174,13 @@ export class DepartmentService {
 				},
 				data: updateDepartmentDto,
 			});
-			if (updateDepartmentDto.enable === false) {
-				// 禁用部门下的所有用户
-				await this.userService.disabledUser(id, "department");
+			if (updateDepartmentDto.enable != undefined) {
+				//更新部门下的用户
+				await this.userService.changeUserEnable(
+					id,
+					"department",
+					updateDepartmentDto.enable,
+				);
 			}
 			return "更新部门成功~";
 		} catch (error) {

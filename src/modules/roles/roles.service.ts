@@ -88,8 +88,17 @@ export class RolesService {
 		this.logger.log(`${this.findAll.name} was called`);
 
 		try {
-			const { offset, size, createAt, id, intro, menuList, name, updateAt } =
-				queryRoleDto;
+			const {
+				offset,
+				size,
+				createAt,
+				id,
+				intro,
+				menuList,
+				name,
+				updateAt,
+				enable,
+			} = queryRoleDto;
 
 			const where: Prisma.RoleWhereInput = {
 				id,
@@ -107,11 +116,14 @@ export class RolesService {
 					},
 				},
 				createAt: {
-					in: createAt,
+					gte: createAt?.[0],
+					lte: createAt?.[1],
 				},
 				updateAt: {
-					in: updateAt,
+					gte: updateAt?.[0],
+					lte: updateAt?.[1],
 				},
+				enable,
 				isDelete: false,
 			};
 
@@ -250,11 +262,12 @@ export class RolesService {
 		try {
 			//1.判断角色是否存在
 			await this.findOne(id);
-			const { menuList: menuIdList, intro, name } = updateRoleDto;
+			const { menuList: menuIdList, intro, name, enable } = updateRoleDto;
 
 			const data: Prisma.RoleUpdateInput = {
 				intro,
 				name,
+				enable,
 			};
 
 			//2.判断是否有菜单
@@ -279,9 +292,12 @@ export class RolesService {
 				},
 				data,
 			});
-			if (updateRoleDto.enable == false) {
-				//如果禁用角色，禁用该角色下的所有用户
-				this.userService.disabledUser(id, "role");
+			if (updateRoleDto.enable != undefined) {
+				await this.userService.changeUserEnable(
+					id,
+					"role",
+					updateRoleDto.enable,
+				);
 			}
 			return "更新角色成功~";
 		} catch (error) {
@@ -332,6 +348,7 @@ export class RolesService {
 	 * @param id
 	 * @returns
 	 */
+	@Cacheable(RedisKeyEnum.RoleKey, RedisKeyEnum.MenuKey)
 	async findRoleMenuById(id: number) {
 		this.logger.log(`${this.findRoleMenuById.name} was called`);
 		try {
@@ -355,6 +372,7 @@ export class RolesService {
 	 * @param id
 	 * @returns
 	 */
+	@Cacheable(RedisKeyEnum.RoleKey, RedisKeyEnum.MenuKey)
 	async findRoleMenuIdsById(id: number) {
 		this.logger.log(`${this.findRoleMenuIdsById.name} was called`);
 		try {

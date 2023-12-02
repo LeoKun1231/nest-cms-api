@@ -102,7 +102,7 @@ export class GoodsInfoService {
 				},
 				data: {
 					...updateGoodsInfoDto,
-					status: !!updateGoodsInfoDto.status,
+					status: updateGoodsInfoDto.status,
 				},
 			});
 			return "更新商品信息成功~";
@@ -164,14 +164,16 @@ export class GoodsInfoService {
 					gte: favorCount?.[0],
 					lte: favorCount?.[1],
 				},
-				status: status && !!status,
 				createAt: {
-					in: createAt,
+					gte: createAt?.[0],
+					lte: createAt?.[1],
 				},
 				updateAt: {
-					in: updateAt,
+					gte: updateAt?.[0],
+					lte: updateAt?.[1],
 				},
 				categoryId,
+				status,
 				isDelete: false,
 			};
 
@@ -267,18 +269,17 @@ export class GoodsInfoService {
 	 * @param id 商品分类id
 	 * @returns
 	 */
-	//TODO
-	async disableMany(id: number) {
-		this.logger.log(`${this.disableMany.name} was called`);
+	async changeGoodsInfoStatus(id: number, status: boolean) {
+		this.logger.log(`${this.changeGoodsInfoStatus.name} was called`);
 		try {
 			await this.prismaService.goodsInfo.updateMany({
 				where: {
 					categoryId: id,
 					isDelete: false,
-					status: true,
+					status: !status,
 				},
 				data: {
-					status: false,
+					status,
 				},
 			});
 		} catch (error) {
@@ -292,7 +293,7 @@ export class GoodsInfoService {
 	 * 获取商品分类数量
 	 * @returns
 	 */
-	@Cacheable(RedisKeyEnum.GoodsCategoryKey)
+	@Cacheable(RedisKeyEnum.GoodsCategoryKey, RedisKeyEnum.GoodsInfoKey)
 	async getCategoryCount() {
 		this.logger.log(`${this.getCategoryCount.name} was called`);
 		try {
@@ -331,6 +332,7 @@ export class GoodsInfoService {
 	 * 获取商品分类销量
 	 * @returns
 	 */
+	@Cacheable(RedisKeyEnum.GoodsCategoryKey, RedisKeyEnum.GoodsInfoKey)
 	async getCategorySale() {
 		this.logger.log(`${this.getCategorySale.name} was called`);
 		try {
@@ -360,6 +362,7 @@ export class GoodsInfoService {
 	 * 获取商品分类收藏数
 	 * @returns
 	 */
+	@Cacheable(RedisKeyEnum.GoodsCategoryKey, RedisKeyEnum.GoodsInfoKey)
 	async getCategoryFavor() {
 		this.logger.log(`${this.getCategoryFavor.name} was called`);
 		try {
@@ -389,7 +392,7 @@ export class GoodsInfoService {
 	 * 获取商品销量top10
 	 * @returns
 	 */
-	@Cacheable(RedisKeyEnum.GoodsInfoKey)
+	@Cacheable(RedisKeyEnum.GoodsCategoryKey, RedisKeyEnum.GoodsInfoKey)
 	async getSaleTop10() {
 		this.logger.log(`${this.getSaleTop10.name} was called`);
 		try {
@@ -421,7 +424,7 @@ export class GoodsInfoService {
 	 * 获取发货地销量
 	 * @returns
 	 */
-	@Cacheable(RedisKeyEnum.GoodsInfoKey)
+	@Cacheable(RedisKeyEnum.GoodsCategoryKey, RedisKeyEnum.GoodsInfoKey)
 	async getAddressSale() {
 		this.logger.log(`${this.getAddressSale.name} was called`);
 		try {
@@ -457,6 +460,7 @@ export class GoodsInfoService {
 	 * 获取商品统计数量
 	 * @returns
 	 */
+	@Cacheable(RedisKeyEnum.GoodsCategoryKey, RedisKeyEnum.GoodsInfoKey)
 	async getAmountCounts() {
 		this.logger.log(`${this.getAmountCounts.name} was called`);
 		try {

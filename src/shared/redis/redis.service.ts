@@ -25,6 +25,8 @@ export class RedisService extends Redis implements OnModuleInit {
 			host: configService.get(EnvEnum.REDIS_HOST),
 			password: configService.get(EnvEnum.REDIS_PASSWORD),
 		});
+		//删除所有key
+		this.flushall();
 		this.logger.setContext(RedisService.name);
 	}
 

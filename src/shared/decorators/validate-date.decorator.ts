@@ -33,6 +33,11 @@ export function ValidateDate() {
 		) {
 			throw new BadRequestException(`${key} 数组元素必须为日期`);
 		}
-		return [new Date(value[0]), new Date(value[1])];
+		//4.返回日期
+		//由于prisma的时间是UTC时间，所以需要减去8小时
+		return [
+			new Date(new Date(value[0]).getTime() - 8 * 60 * 60 * 1000),
+			new Date(new Date(value[1]).getTime() - 8 * 60 * 60 * 1000),
+		];
 	});
 }

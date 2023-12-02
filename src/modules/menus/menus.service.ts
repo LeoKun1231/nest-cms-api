@@ -75,7 +75,6 @@ export class MenusService {
 			const menuListTrees = await this.prismaService.menu.findMany({
 				where: {
 					isDelete: false,
-					enable: true,
 				},
 			});
 			return plainToInstance(ExportMenuDto, generateTree(menuListTrees), {

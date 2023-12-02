@@ -6,8 +6,8 @@
  * @FilePath: \cms\src\modules\story\dto\update-story.dto.ts
  * @Description:
  */
+import { TransformNumber2Boolean } from "@/shared/decorators/transform-number-to-boolean";
 import { ApiProperty, PartialType } from "@nestjs/swagger";
-import { Type } from "class-transformer";
 import { IsOptional } from "class-validator";
 import { CreateStoryDto } from "./create-story.dto";
 
@@ -18,7 +18,7 @@ export class UpdateStoryDto extends PartialType(CreateStoryDto) {
 		type: Number,
 		description: "0:禁用 1:启用",
 	})
-	@Type(() => Boolean)
+	@TransformNumber2Boolean()
 	@IsOptional()
 	enable: boolean;
 }

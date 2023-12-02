@@ -7,10 +7,11 @@
  * @Description:
  */
 import { ValidateArrary, ValidateStringNumber } from "@/shared/decorators";
+import { TransformNumber2Boolean } from "@/shared/decorators/transform-number-to-boolean";
 import { BaseQueryDto } from "@/shared/dtos";
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsNumber, IsOptional, IsString } from "class-validator";
+import { IsOptional, IsString } from "class-validator";
 
 export class QueryGoodsInfoDto extends BaseQueryDto {
 	@ApiProperty({ name: "商品分类id", example: 1, type: Number })
@@ -48,10 +49,9 @@ export class QueryGoodsInfoDto extends BaseQueryDto {
 	desc: string;
 
 	@ApiProperty({ name: "商品状态", example: 1, type: Number })
-	@IsNumber({}, { message: "商品状态必须是数字" })
-	@Type(() => Number)
+	@TransformNumber2Boolean()
 	@IsOptional()
-	status: number;
+	status: boolean;
 
 	@ApiProperty({ name: "库存数量", example: [1, 100], type: [Number, Number] })
 	@ValidateArrary("库存数量")
