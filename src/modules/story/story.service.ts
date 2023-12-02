@@ -215,7 +215,7 @@ export class StoryService {
 	 * @param id
 	 */
 	judgeCanDo(id: number) {
-		if (id <= 10) {
+		if (id <= 2) {
 			throw new ForbiddenException("系统故事不能操作");
 		}
 	}

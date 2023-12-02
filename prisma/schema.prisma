@@ -39,7 +39,9 @@ model User{
   department Department? @relation(fields:[departmentId],references:[id])
 
   ///用户所拥有的角色
-  roles UserRole[] 
+  userRole UserRole[] 
+
+  @@index([departmentId])
 }
 
 
@@ -61,10 +63,10 @@ model Role{
   updateAt DateTime @updatedAt
 
   ///角色下的用户
-  users UserRole[]
+  userRole UserRole[]
 
   ///角色下的菜单
-  menus RoleMenu[]
+  roleMenu RoleMenu[]
 }
 
 
@@ -129,7 +131,7 @@ model Menu{
   children Menu[] @relation("parent")
 
   ///菜单下的角色
-  roles RoleMenu[]
+  roleMenu RoleMenu[]
 }
 
 
@@ -141,6 +143,9 @@ model UserRole{
   ///角色id
   roleId Int
   role Role @relation(fields:[roleId],references:[id])
+
+  @@index([userId])
+  @@index([roleId])
   ///联合主键
   @@id([userId,roleId])
   @@map("user_role")
@@ -155,6 +160,9 @@ model RoleMenu{
   menuId Int
   menu Menu @relation(fields:[menuId],references:[id])
   ///联合主键
+
+  @@index([roleId])
+  @@index([menuId])
   @@id([roleId,menuId])
   @@map("role_menu")
 }
@@ -217,6 +225,7 @@ model GoodsInfo{
   categoryId Int?
   category GoodsCategory? @relation(fields:[categoryId],references:[id])
 
+  @@index([categoryId])
   @@map("goods_info")
 }
 

@@ -52,6 +52,15 @@ export class RedisService extends Redis implements OnModuleInit {
 		return await this.del(...keys);
 	}
 
+	@RecordTime()
+	async _delKeysContainStr(str: string) {
+		const keys = await this.keys(`*${str}*`);
+		if (keys.length === 0) {
+			return 0;
+		}
+		return await this.del(...keys);
+	}
+
 	async onModuleInit() {
 		this.logger.log("redis connect success ✅");
 		await this.ping();

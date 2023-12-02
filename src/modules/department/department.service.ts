@@ -202,6 +202,9 @@ export class DepartmentService {
 				data: {
 					isDelete: true,
 					name: "已删除" + "_" + department.name + "_" + getRandomId(),
+					user: {
+						set: [],
+					},
 				},
 			});
 			return "删除部门成功~";

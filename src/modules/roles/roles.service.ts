@@ -19,7 +19,7 @@ import {
 	Injectable,
 	forwardRef,
 } from "@nestjs/common";
-import { Prisma } from "@prisma/client";
+import { Menu, Prisma } from "@prisma/client";
 import { plainToInstance } from "class-transformer";
 import { ExportMenuDto } from "../menus/dto/export-menu.dto";
 import { MenusService } from "../menus/menus.service";
@@ -55,22 +55,16 @@ export class RolesService {
 			const { intro, menuList, name } = createRoleDto;
 
 			//1.根据menuList查找菜单
-			const menus = await this.prismaService.roleMenu.findMany({
-				where: {
-					menuId: {
-						in: menuList,
-					},
-				},
-			});
+			const menus = await this.menusService.findListByIds(menuList);
 			//2.创建角色
 			await this.prismaService.role.create({
 				data: {
 					intro,
 					name,
-					menus: {
-						connect: menus.map((menu) => ({
-							roleId_menuId: menu,
-						})),
+					roleMenu: {
+						createMany: {
+							data: menus.map((menu) => ({ menuId: menu.id })),
+						},
 					},
 				},
 			});
@@ -105,8 +99,8 @@ export class RolesService {
 				name: {
 					contains: name,
 				},
-				menus: {
-					some: {
+				roleMenu: {
+					every: {
 						menuId: {
 							in: menuList,
 						},
@@ -121,12 +115,16 @@ export class RolesService {
 				isDelete: false,
 			};
 
-			const [list, totalCount] = await this.prismaService.$transaction([
+			const [roleList, totalCount] = await this.prismaService.$transaction([
 				this.prismaService.role.findMany({
-					where,
 					include: {
-						menus: true,
+						roleMenu: {
+							select: {
+								menu: true,
+							},
+						},
 					},
+					where,
 					skip: offset,
 					take: size,
 					orderBy: {
@@ -136,11 +134,27 @@ export class RolesService {
 				this.prismaService.role.count({ where }),
 			]);
 
-			//如果是超级管理员
-			const admin = list.find((role) => role.id == 1);
+			// // 如果是超级管理员;
+			const admin = roleList.find((role) => role.id == 1);
+			let adminList = [];
 			if (admin) {
-				admin.menus = await this.menusService.findAll();
+				adminList = await this.menusService.findAll();
 			}
+
+			const list = roleList.map((role) => {
+				if (role.id === 1) {
+					return {
+						...role,
+						menuList: adminList,
+					};
+				}
+				return {
+					...role,
+					menuList: generateTree(
+						role.roleMenu.map((menu) => ({ ...menu.menu })),
+					),
+				};
+			});
 
 			return plainToInstance(
 				ExportRoleListDto,
@@ -193,20 +207,28 @@ export class RolesService {
 	async findRoleWithMenuList(id: number) {
 		this.logger.log(`${this.findRoleWithMenuList.name} was called`);
 		try {
-			const { menus, ...rest } = await this.prismaService.role.findUnique({
+			await this.findOne(id);
+			const { roleMenu, ...rest } = await this.prismaService.role.findUnique({
 				where: {
 					id,
 					enable: true,
 					isDelete: false,
 				},
 				include: {
-					menus: true,
+					roleMenu: {
+						select: {
+							menu: true,
+						},
+					},
 				},
 			});
+
+			const menuList = roleMenu.map((menu) => ({ ...menu.menu }));
+
 			if (!rest) throw new BadRequestException("角色不存在");
 			return {
 				...rest,
-				menuList: menus,
+				menuList,
 			};
 		} catch (error) {
 			handleError(this.logger, error, {
@@ -225,45 +247,41 @@ export class RolesService {
 	async update(id: number, updateRoleDto: UpdateRoleDto) {
 		this.logger.log(`${this.update.name} was called`);
 		this.judgeCanDo(id);
-
 		try {
 			//1.判断角色是否存在
 			await this.findOne(id);
-
 			const { menuList: menuIdList, intro, name } = updateRoleDto;
-			//2.判断是否有菜单
-			let menuList: { roleId: number; menuId: number }[] = null;
-			if (menuIdList?.length > 0) {
-				//3. 根据菜单id查找菜单
-				menuList = await this.prismaService.roleMenu.findMany({
-					where: {
-						menuId: {
-							in: updateRoleDto.menuList,
-						},
-					},
-				});
-			}
 
+			const data: Prisma.RoleUpdateInput = {
+				intro,
+				name,
+			};
+
+			//2.判断是否有菜单
+			let menuList: Menu[] = null;
+			if (menuIdList?.length > 0) {
+				//根据菜单id查找菜单
+				menuList = await this.menusService.findListByIds(menuIdList);
+
+				//删除角色菜单关联关系 并且创建新的关联关系
+				data.roleMenu = {
+					deleteMany: {},
+					createMany: {
+						data: menuList.map((menu) => ({ menuId: menu.id })),
+					},
+				};
+			}
 			//4.更新角色
 			await this.prismaService.role.update({
 				where: {
 					id,
 					isDelete: false,
 				},
-				data: {
-					intro,
-					name,
-					menus: {
-						connect: menuList.map((menu) => ({
-							roleId_menuId: menu,
-						})),
-					},
-				},
+				data,
 			});
-
 			if (updateRoleDto.enable == false) {
 				//如果禁用角色，禁用该角色下的所有用户
-				await this.userService.disabledUser(id, "role");
+				this.userService.disabledUser(id, "role");
 			}
 			return "更新角色成功~";
 		} catch (error) {
@@ -293,11 +311,11 @@ export class RolesService {
 				data: {
 					isDelete: true,
 					name: "已删除" + "_" + role.name + "_" + getRandomId(),
-					users: {
-						set: [],
+					roleMenu: {
+						deleteMany: {},
 					},
-					menus: {
-						set: [],
+					userRole: {
+						deleteMany: {},
 					},
 				},
 			});
@@ -345,7 +363,7 @@ export class RolesService {
 					id: true,
 					intro: true,
 					name: true,
-					menus: {
+					roleMenu: {
 						select: {
 							menuId: true,
 						},
@@ -357,12 +375,12 @@ export class RolesService {
 				},
 			});
 			if (!role) throw new BadRequestException("角色不存在");
-			let menuIds = role.menus.map((menu) => menu.menuId);
+			let menuIds = role.roleMenu.map((menu) => menu.menuId);
 			//如果是超级管理员
 			if (id == 1) {
 				menuIds = await this.menusService.findAllIds();
 			}
-			delete role.menus;
+			delete role.roleMenu;
 			return {
 				...role,
 				menuIds,
@@ -387,13 +405,7 @@ export class RolesService {
 			//1.判断角色是否存在
 			await this.findOne(roleId);
 			//2.获取菜单列表
-			const menuList = await this.prismaService.roleMenu.findMany({
-				where: {
-					menuId: {
-						in: ids,
-					},
-				},
-			});
+			const menuList = await this.menusService.findListByIds(ids);
 			//3.更新角色
 			await this.prismaService.role.update({
 				where: {
@@ -401,8 +413,11 @@ export class RolesService {
 					isDelete: false,
 				},
 				data: {
-					menus: {
-						set: menuList.map((menu) => ({ roleId_menuId: menu })),
+					roleMenu: {
+						deleteMany: {},
+						createMany: {
+							data: menuList.map((menu) => ({ menuId: menu.id })),
+						},
 					},
 				},
 			});

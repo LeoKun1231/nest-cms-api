@@ -39,7 +39,7 @@ export class PrismaService
 		await this.$disconnect();
 	}
 
-	log() {
+	private log() {
 		this.$on("query", (e) => {
 			this.logger.log(
 				`sql: 📝 ${e.query} - params: 💬 ${e.params} - duration: 🚀 ${e.duration}ms`,

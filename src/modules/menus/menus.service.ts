@@ -179,8 +179,8 @@ export class MenusService {
 				data: {
 					isDelete: true,
 					name: "已删除" + "_" + menu.name + "_" + getRandomId(),
-					roles: {
-						set: [],
+					roleMenu: {
+						deleteMany: {},
 					},
 				},
 			});

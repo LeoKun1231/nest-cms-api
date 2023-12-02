@@ -17,12 +17,6 @@
 		"test:cov": "jest --coverage",
 		"test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
 		"test:e2e": "jest --config ./test/jest-e2e.json",
-		"typeorm": "typeorm-ts-node-commonjs",
-		"migration:generate": "cross-env NODE_ENV=development pnpm  typeorm migration:generate -p -d ./src/ormconfig.ts migrations/%npm_config_name%",
-		"migration:create": "cross-env NODE_ENV=development typeorm-ts-node-commonjs migration:create",
-		"migration:run": "cross-env NODE_ENV=development pnpm  typeorm migration:run -d ./src/ormconfig.ts",
-		"migration:revert": "cross-env NODE_ENV=development pnpm  typeorm migration:revert -d ./src/ormconfig.ts",
-		"schema:drop": "cross-env NODE_ENV=development pnpm  typeorm schema:drop  -d ./src/ormconfig.ts",
 		"prepare": "husky install",
 		"fix": "eslint . --ext .js,.ts,--fix --ignore-path .gitignore"
 	},

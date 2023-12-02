@@ -79,9 +79,6 @@ export class ExportUserDto {
 	})
 	@Expose()
 	@Type(() => ExportRoleDto)
-	@Transform(({ obj }) => {
-		return obj.roles[0].role;
-	})
 	role: ExportRoleDto;
 
 	@ApiProperty({

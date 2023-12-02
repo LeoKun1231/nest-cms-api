@@ -267,6 +267,7 @@ export class GoodsInfoService {
 	 * @param id 商品分类id
 	 * @returns
 	 */
+	//TODO
 	async disableMany(id: number) {
 		this.logger.log(`${this.disableMany.name} was called`);
 		try {

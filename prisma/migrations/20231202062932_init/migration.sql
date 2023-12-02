@@ -13,6 +13,7 @@ CREATE TABLE `User` (
     `departmentId` INTEGER NULL,
 
     UNIQUE INDEX `User_name_key`(`name`),
+    INDEX `User_departmentId_idx`(`departmentId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -69,6 +70,8 @@ CREATE TABLE `user_role` (
     `userId` INTEGER NOT NULL,
     `roleId` INTEGER NOT NULL,
 
+    INDEX `user_role_userId_idx`(`userId`),
+    INDEX `user_role_roleId_idx`(`roleId`),
     PRIMARY KEY (`userId`, `roleId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -77,6 +80,8 @@ CREATE TABLE `role_menu` (
     `roleId` INTEGER NOT NULL,
     `menuId` INTEGER NOT NULL,
 
+    INDEX `role_menu_roleId_idx`(`roleId`),
+    INDEX `role_menu_menuId_idx`(`menuId`),
     PRIMARY KEY (`roleId`, `menuId`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -110,6 +115,20 @@ CREATE TABLE `goods_info` (
     `createAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updateAt` DATETIME(3) NOT NULL,
     `categoryId` INTEGER NULL,
+
+    INDEX `goods_info_categoryId_idx`(`categoryId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Story` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `title` VARCHAR(191) NOT NULL,
+    `content` TEXT NOT NULL,
+    `isDelete` BOOLEAN NULL DEFAULT false,
+    `enable` BOOLEAN NULL DEFAULT true,
+    `createAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updateAt` DATETIME(3) NOT NULL,
 
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

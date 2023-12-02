@@ -15,7 +15,7 @@ import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { plainToClass } from "class-transformer";
 import type { Request } from "express";
-import * as requestIp from "request-ip";
+import requestIp from "request-ip";
 import { UsersService } from "../users/users.service";
 import { ExportLoginDto } from "./dtos/export-login.dto";
 import { LoginAccountDto } from "./dtos/login-account.dto";
@@ -46,10 +46,10 @@ export class AuthService {
 			loginAccountDto.password,
 		);
 		const ip = requestIp.getClientIp(req);
-		//2.记录用户登录ip
-		await this.userService.recordUserIp(user.id, ip);
+		// 2.记录用户登录ip
+		this.userService.recordUserIp(user.id, ip);
 
-		const roleId = user.roles[0].roleId;
+		const roleId = user.userRole[0].roleId;
 		//3.生成token
 		const { accessToken } = this.getAccessAndRefreshToken(
 			user.id,
@@ -57,7 +57,7 @@ export class AuthService {
 			roleId,
 		);
 
-		await this.redisService.setex(
+		this.redisService.setex(
 			RedisKeyEnum.LoginKey + user.id,
 			60 * 60,
 			accessToken,

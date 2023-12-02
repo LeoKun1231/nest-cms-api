@@ -60,7 +60,7 @@ export class UsersService {
 					name: true,
 					password: true,
 					enable: true,
-					roles: true,
+					userRole: true,
 				},
 				where: {
 					name,
@@ -106,7 +106,7 @@ export class UsersService {
 					password: hashPassword,
 					realname,
 					cellphone,
-					roles: {
+					userRole: {
 						create: {
 							roleId,
 						},
@@ -136,31 +136,39 @@ export class UsersService {
 		try {
 			//判断用户是否存在
 			const findUser = await this.findUserById(id);
-			const { departmentId, password, roleId } = updateUserDto;
+			const {
+				departmentId,
+				password,
+				roleId,
+				enable,
+				cellphone,
+				name,
+				realname,
+			} = updateUserDto;
+			const user: Prisma.UserUpdateInput = {
+				enable,
+				cellphone,
+				name,
+				realname,
+			};
 
-			const user: Prisma.UserUpdateInput = Object.assign(
-				findUser,
-				updateUserDto,
-			);
-
+			//判断密码是否存在
 			if (password) {
 				const hashPassword = await hash(updateUserDto.password, 10);
 				user.password = hashPassword;
 			}
+			//判断角色是否存在
 			if (roleId) {
-				//判断角色是否存在
 				await this.rolseService.findOne(roleId);
-				user.roles = {
-					connect: {
-						userId_roleId: {
-							roleId,
-							userId: id,
-						},
+				user.userRole = {
+					deleteMany: {},
+					create: {
+						roleId,
 					},
 				};
 			}
+			//判断部门是否存在
 			if (departmentId) {
-				//判断部门是否存在
 				await this.departmentService.findOne(departmentId);
 				user.department = {
 					connect: {
@@ -168,7 +176,6 @@ export class UsersService {
 					},
 				};
 			}
-
 			//启用用户之前 先判断角色或者部门是否被禁用
 			if (user.enable == true) {
 				const [role, department] = await Promise.all([
@@ -192,6 +199,8 @@ export class UsersService {
 					...user,
 				},
 			});
+
+			//禁用用户之前 先删除用户登录信息
 			if (user.enable == false) {
 				//禁用用户
 				await this.redisService._delKeysWithPrefix(RedisKeyEnum.LoginKey + id);
@@ -220,7 +229,7 @@ export class UsersService {
 				},
 				include: {
 					department: true,
-					roles: {
+					userRole: {
 						select: {
 							role: true,
 						},
@@ -228,9 +237,16 @@ export class UsersService {
 				},
 			});
 			if (!user) throw new BadRequestException("该用户不存在");
-			return plainToInstance(ExportUserDto, user, {
-				excludeExtraneousValues: true,
-			});
+			return plainToInstance(
+				ExportUserDto,
+				{
+					...user,
+					role: user.userRole[0].role,
+				},
+				{
+					excludeExtraneousValues: true,
+				},
+			);
 		} catch (error) {
 			handleError(this.logger, error, {
 				common: "查找用户失败",
@@ -278,7 +294,7 @@ export class UsersService {
 					in: updateAt,
 				},
 				enable: enable && !!enable,
-				roles: {
+				userRole: {
 					every: {
 						roleId: {
 							equals: roleId,
@@ -298,7 +314,7 @@ export class UsersService {
 						id: "desc",
 					},
 					include: {
-						roles: {
+						userRole: {
 							select: {
 								role: true,
 							},
@@ -308,7 +324,6 @@ export class UsersService {
 				}),
 				this.prismaService.user.count({ where }),
 			]);
-
 			return plainToInstance(
 				ExportUserListDto,
 				{ list, totalCount },
@@ -339,6 +354,9 @@ export class UsersService {
 				data: {
 					isDelete: true,
 					name: "已删除" + "_" + user.name + "_" + getRandomId(),
+					userRole: {
+						deleteMany: {},
+					},
 				},
 			});
 			this.redisService.del(RedisKeyEnum.LoginKey + id);
@@ -356,13 +374,15 @@ export class UsersService {
 	 * @type "role" | "department"
 	 * @returns
 	 */
+
+	//TODO: 禁用用户
 	async disabledUser(id: number, type: "role" | "department") {
 		this.logger.log(`${this.disabledUser.name} was called`);
 		try {
 			if (type == "role") {
 				await this.prismaService.user.updateMany({
 					where: {
-						roles: {
+						userRole: {
 							every: {
 								roleId: id,
 							},

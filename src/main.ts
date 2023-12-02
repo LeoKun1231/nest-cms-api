@@ -16,12 +16,10 @@ import { AppModule } from "./app.module";
 import { setupLogger } from "./log";
 import { EnvEnum } from "./shared/enums";
 import { setupSwagger } from "./swagger";
-
 async function bootstrap() {
 	const app = await NestFactory.create<NestExpressApplication>(AppModule, {
 		logger: setupLogger(),
 	});
-
 	app.useStaticAssets(path.resolve(__dirname, "../files"), {
 		prefix: "/api/v1/static/",
 	});
