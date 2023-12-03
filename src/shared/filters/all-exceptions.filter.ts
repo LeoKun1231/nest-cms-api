@@ -45,7 +45,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
 			timestamp: formatTime(new Date()),
 		};
 
-		if (responseBody.message == "TokenExpiredError: jwt expired") {
+		if (
+			responseBody.message == "TokenExpiredError: jwt expired" ||
+			responseBody.message == "JsonWebTokenError: invalid signature"
+		) {
 			responseBody.message = "登录已过期，请重新登录";
 		} else if (responseBody.message == "Error: No auth token") {
 			responseBody.message = "请先登录";
