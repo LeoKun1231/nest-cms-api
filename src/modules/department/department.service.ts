@@ -6,7 +6,7 @@
  * @FilePath: \cms\src\modules\department\department.service.ts
  * @Description:
  */
-import { WrapperType } from "@/@types/typeorm";
+import { WrapperType } from "@/@types/wrapper";
 import { CacheEvict, Cacheable } from "@/shared/decorators";
 import { RedisKeyEnum } from "@/shared/enums";
 import { AppLoggerSevice } from "@/shared/logger";
