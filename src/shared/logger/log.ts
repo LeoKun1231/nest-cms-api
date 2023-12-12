@@ -10,8 +10,8 @@ import { WinstonModule, utilities } from "nest-winston";
 import * as winston from "winston";
 import DailyRotateFile from "winston-daily-rotate-file";
 import { Console } from "winston/lib/winston/transports";
-import { loadEnvConfig } from "./shared/config";
-import { EnvEnum } from "./shared/enums/env.enum";
+import { loadEnvConfig } from "../config";
+import { EnvEnum } from "../enums/env.enum";
 
 function createDailyRotateTrasnport(level: string, filename: string) {
 	return new DailyRotateFile({

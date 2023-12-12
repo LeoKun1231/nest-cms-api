@@ -13,9 +13,11 @@ import { NestExpressApplication } from "@nestjs/platform-express";
 import helmet from "helmet";
 import * as path from "path";
 import { AppModule } from "./app.module";
-import { setupLogger } from "./log";
 import { EnvEnum } from "./shared/enums";
+import { setupLogger } from "./shared/logger";
 import { setupSwagger } from "./swagger";
+
+
 async function bootstrap() {
 	const app = await NestFactory.create<NestExpressApplication>(AppModule, {
 		logger: setupLogger(),
