@@ -33,6 +33,11 @@ export class CreateUserDto {
 	@IsNotEmpty({ message: "真实姓名不能为空" })
 	realname: string;
 
+	@ApiProperty({ name: "头像" })
+	@IsString({ message: "头像必须是字符串" })
+	@IsOptional()
+	avatar: string;
+
 	@ApiProperty({ name: "手机号码", example: 12345678901 })
 	@ValidateStringNumber({ message: "手机号码必须是字符串或者数字" })
 	@IsOptional()

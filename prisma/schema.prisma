@@ -27,6 +27,8 @@ model User{
   enable Boolean? @default(true)
   ///用户登录ip
   ip String?
+  ///用户头像
+  avatar String?
   ///是否删除
   isDelete Boolean? @default(false)
   ///用户创建时间

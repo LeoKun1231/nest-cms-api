@@ -5,6 +5,7 @@ CREATE TABLE `User` (
     `password` VARCHAR(191) NOT NULL,
     `realname` VARCHAR(191) NULL,
     `cellphone` VARCHAR(191) NULL,
+    `avatar` VARCHAR(191) NULL,
     `enable` BOOLEAN NULL DEFAULT true,
     `ip` VARCHAR(191) NULL,
     `isDelete` BOOLEAN NULL DEFAULT false,

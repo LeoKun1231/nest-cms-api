@@ -31,6 +31,13 @@ import { ExportUserDto } from "./dtos/export-user.dto";
 import { QueryUserDto } from "./dtos/query-user.dto";
 import { UpdateUserDto } from "./dtos/update-user.dto";
 
+const images = [
+	"https://p9-passport.byteacctimg.com/img/mosaic-legacy/3792/5112637127~40x40.awebp",
+	"https://p3-passport.byteacctimg.com/img/mosaic-legacy/3796/2975850990~50x50.awebp",
+	"https://p26-passport.byteacctimg.com/img/mosaic-legacy/3795/3044413937~50x50.awebp",
+	"https://p26-passport.byteacctimg.com/img/mosaic-legacy/3795/3044413937~50x50.awebp",
+];
+
 @Injectable()
 export class UsersService {
 	constructor(
@@ -94,18 +101,25 @@ export class UsersService {
 		try {
 			const { name, password, cellphone, departmentId, realname, roleId } =
 				createUserDto;
+			let { avatar } = createUserDto;
 			const hashPassword = await hash(password, 10);
 			//判断角色、部门是否存在
 			await Promise.all([
 				this.rolseService.findOne(roleId),
 				this.departmentService.findOne(departmentId),
 			]);
+
+			if (!avatar) {
+				//随机获取头像
+				avatar = images[Math.floor(Math.random() * 4)];
+			}
 			await this.prismaService.user.create({
 				data: {
 					name,
 					password: hashPassword,
 					realname,
 					cellphone,
+					avatar,
 					userRole: {
 						create: {
 							roleId,
@@ -144,12 +158,15 @@ export class UsersService {
 				cellphone,
 				name,
 				realname,
+				avatar,
 			} = updateUserDto;
+
 			const user: Prisma.UserUpdateInput = {
 				enable,
 				cellphone,
 				name,
 				realname,
+				avatar,
 			};
 
 			//判断密码是否存在

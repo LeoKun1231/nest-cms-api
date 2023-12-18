@@ -37,6 +37,13 @@ export class ExportUserDto {
 	realname: string;
 
 	@ApiProperty({
+		description: "用户头像",
+		type: String,
+	})
+	@Expose()
+	avatar: string;
+
+	@ApiProperty({
 		description: "手机号码",
 		example: "1234567890",
 		type: Number,
