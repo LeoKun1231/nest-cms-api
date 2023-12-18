@@ -163,7 +163,7 @@ export class UsersService {
 
 			const user: Prisma.UserUpdateInput = {
 				enable,
-				cellphone: cellphone.toString(), //数字会报错
+				cellphone: cellphone?.toString(), //数字会报错
 				name,
 				realname,
 				avatar,
