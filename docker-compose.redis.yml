@@ -1,0 +1,18 @@
+# Use root/example as user/password credentials
+version: "3.8"
+
+services:
+  redis:
+    restart: always
+    image: redis
+    hostname: redis
+    container_name: redis
+    privileged: true
+    ports:
+      # 端口映射
+      - 6379:6379
+    volumes:
+      - ./docker/redis/data:/data:rw
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+      - ./docker/redis/data/logs:/logs
+    command: "redis-server ./redis.conf --requirepass 123456  --appendonly yes"

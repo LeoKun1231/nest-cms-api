@@ -1,5 +1,22 @@
-use cms;
-SET foreign_key_checks = 0;
+
+INSERT INTO `department` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `leader`, `parentId`) VALUES (1, '2023-11-12 16:45:10', '2023-11-12 16:45:10', 0, 1, '总裁办', NULL, NULL);
+INSERT INTO `department` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `leader`, `parentId`) VALUES (2, '2023-11-12 16:45:36', '2023-11-12 16:45:36', 0, 1, '研发部', NULL, NULL);
+INSERT INTO `department` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `leader`, `parentId`) VALUES (3, '2023-11-12 16:45:44', '2023-11-12 16:45:44', 0, 1, '运营部', NULL, NULL);
+INSERT INTO `department` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `leader`, `parentId`) VALUES (4, '2023-11-12 16:45:52', '2023-11-17 21:29:04', 0, 1, '客服部', NULL, NULL);
+INSERT INTO `department` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `leader`, `parentId`) VALUES (5, '2023-11-12 16:45:59', '2023-11-17 22:08:40', 0, 1, '人事部', '1', 4);
+INSERT INTO `department` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `leader`, `parentId`) VALUES (6, '2023-11-15 10:33:41', '2023-11-15 10:33:47', 1, 1, '已删除_aaa_72e71615-5466-46b3-8a4e-59943be2119d', 'aaa', 1);
+INSERT INTO `department` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `leader`, `parentId`) VALUES (7, '2023-11-15 10:35:12', '2023-11-15 10:38:35', 1, 1, '已删除_aa_3f3fa2cc-1816-4fb0-9152-bd820c73434a', 'aa', 1);
+INSERT INTO `department` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `leader`, `parentId`) VALUES (8, '2023-11-15 15:31:17', '2023-11-16 20:45:33', 1, 1, '已删除_aa1_aff73320-4581-49e5-8254-9d5e26e41ea3', 'a', 1);
+INSERT INTO `department` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `leader`, `parentId`) VALUES (9, '2023-11-16 20:32:24', '2023-11-16 20:32:44', 1, 1, '已删除_aa_6dafd738-65dc-4422-95d6-d667daae9a8c', 'aa', 8);
+INSERT INTO `department` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `leader`, `parentId`) VALUES (10, '2023-11-17 18:19:30', '2023-11-17 21:21:20', 1, 1, '已删除_aa_5a9ded21-5072-421d-a390-b7c4952bcb7d', 'a', NULL);
+INSERT INTO `department` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `leader`, `parentId`) VALUES (11, '2023-11-17 20:04:27', '2023-11-17 20:26:44', 1, 1, '已删除_cc_61b29da5-0bc8-4420-9f7f-e0d0046e0697', 'a', NULL);
+INSERT INTO `department` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `leader`, `parentId`) VALUES (12, '2023-11-17 20:32:03', '2023-11-17 20:32:36', 1, 1, '已删除_ddd_1c164ed9-ca6a-46d1-a3ce-bb3babe75203', 'a', NULL);
+INSERT INTO `department` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `leader`, `parentId`) VALUES (14, '2023-11-17 20:52:12', '2023-11-17 21:20:52', 1, 1, '已删除_cc_c17929d0-6bb9-4bc3-af68-6040916f2f14', 'aa11', 10);
+INSERT INTO `department` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `leader`, `parentId`) VALUES (15, '2023-11-17 21:33:52', '2023-11-17 21:33:59', 1, 1, '已删除_aa_8a8a8223-42a3-4207-95bc-85f22d6c88dc', 'aa', NULL);
+INSERT INTO `department` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `leader`, `parentId`) VALUES (16, '2023-11-17 21:33:57', '2023-11-17 21:54:13', 0, 1, 'cc', NULL, 2);
+
+
+
 INSERT INTO `user` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `realname`, `password`, `cellphone`, `departmentId`, `ip`) VALUES (1, '2023-11-12 16:50:26', '2023-11-18 20:47:35', 0, 1, 'admin1', 'leo messi', '$2b$10$Ep2pKm8Gqq0mF..5LtAU8OPd2YWwLk5iOpbU3mXTLIsp.UxfLIppO', '1332222', 1, '::1');
 INSERT INTO `user` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `realname`, `password`, `cellphone`, `departmentId`, `ip`) VALUES (2, '2023-11-12 16:53:55', '2023-11-12 16:53:55', 0, 1, 'leijun', '雷军', '$2b$10$U3XxIkVuJl/Ooi8QCToJuupD2W8qD75yJq6x3e4zL.6qUhHlkASHy', '17812841021', 2, NULL);
 INSERT INTO `user` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `realname`, `password`, `cellphone`, `departmentId`, `ip`) VALUES (3, '2023-11-12 16:55:05', '2023-11-12 16:55:05', 0, 1, 'Maske', '马斯克', '$2b$10$NmS8HKLixODnHN6Oceh/HOj7gXh7btfhqie9hxnSu9/L4yly8Z7HG', '17812841021', 2, NULL);
@@ -28,22 +45,6 @@ INSERT INTO `role` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, 
 INSERT INTO `role` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `intro`) VALUES (14, '2023-11-17 20:04:54', '2023-11-17 22:07:25', 0, 1, 'cd', 'a');
 INSERT INTO `role` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `intro`) VALUES (15, '2023-11-17 20:32:17', '2023-11-17 20:32:27', 1, 1, '已删除_dd_736b5fb5-b843-497b-8441-b17bb42b07cd', 'dd');
 
-
-INSERT INTO `department` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `leader`, `parentId`) VALUES (1, '2023-11-12 16:45:10', '2023-11-12 16:45:10', 0, 1, '总裁办', NULL, NULL);
-INSERT INTO `department` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `leader`, `parentId`) VALUES (2, '2023-11-12 16:45:36', '2023-11-12 16:45:36', 0, 1, '研发部', NULL, NULL);
-INSERT INTO `department` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `leader`, `parentId`) VALUES (3, '2023-11-12 16:45:44', '2023-11-12 16:45:44', 0, 1, '运营部', NULL, NULL);
-INSERT INTO `department` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `leader`, `parentId`) VALUES (4, '2023-11-12 16:45:52', '2023-11-17 21:29:04', 0, 1, '客服部', NULL, NULL);
-INSERT INTO `department` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `leader`, `parentId`) VALUES (5, '2023-11-12 16:45:59', '2023-11-17 22:08:40', 0, 1, '人事部', '1', 4);
-INSERT INTO `department` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `leader`, `parentId`) VALUES (6, '2023-11-15 10:33:41', '2023-11-15 10:33:47', 1, 1, '已删除_aaa_72e71615-5466-46b3-8a4e-59943be2119d', 'aaa', 1);
-INSERT INTO `department` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `leader`, `parentId`) VALUES (7, '2023-11-15 10:35:12', '2023-11-15 10:38:35', 1, 1, '已删除_aa_3f3fa2cc-1816-4fb0-9152-bd820c73434a', 'aa', 1);
-INSERT INTO `department` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `leader`, `parentId`) VALUES (8, '2023-11-15 15:31:17', '2023-11-16 20:45:33', 1, 1, '已删除_aa1_aff73320-4581-49e5-8254-9d5e26e41ea3', 'a', 1);
-INSERT INTO `department` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `leader`, `parentId`) VALUES (9, '2023-11-16 20:32:24', '2023-11-16 20:32:44', 1, 1, '已删除_aa_6dafd738-65dc-4422-95d6-d667daae9a8c', 'aa', 8);
-INSERT INTO `department` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `leader`, `parentId`) VALUES (10, '2023-11-17 18:19:30', '2023-11-17 21:21:20', 1, 1, '已删除_aa_5a9ded21-5072-421d-a390-b7c4952bcb7d', 'a', NULL);
-INSERT INTO `department` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `leader`, `parentId`) VALUES (11, '2023-11-17 20:04:27', '2023-11-17 20:26:44', 1, 1, '已删除_cc_61b29da5-0bc8-4420-9f7f-e0d0046e0697', 'a', NULL);
-INSERT INTO `department` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `leader`, `parentId`) VALUES (12, '2023-11-17 20:32:03', '2023-11-17 20:32:36', 1, 1, '已删除_ddd_1c164ed9-ca6a-46d1-a3ce-bb3babe75203', 'a', NULL);
-INSERT INTO `department` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `leader`, `parentId`) VALUES (14, '2023-11-17 20:52:12', '2023-11-17 21:20:52', 1, 1, '已删除_cc_c17929d0-6bb9-4bc3-af68-6040916f2f14', 'aa11', 10);
-INSERT INTO `department` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `leader`, `parentId`) VALUES (15, '2023-11-17 21:33:52', '2023-11-17 21:33:59', 1, 1, '已删除_aa_8a8a8223-42a3-4207-95bc-85f22d6c88dc', 'aa', NULL);
-INSERT INTO `department` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `leader`, `parentId`) VALUES (16, '2023-11-17 21:33:57', '2023-11-17 21:54:13', 0, 1, 'cc', NULL, 2);
 
 
 INSERT INTO `menu` (`id`, `createAt`, `updateAt`, `isDelete`, `enable`, `name`, `type`, `url`, `icon`, `sort`, `permission`, `parentId`) VALUES (1, '2023-11-06 19:51:53', '2023-11-06 19:51:53', 0, 1, '系统总览', 1, '/main/analysis', 'el-icon-monitor', 1, NULL, NULL);
@@ -356,4 +357,3 @@ INSERT INTO `goods_info` (`id`, `createAt`, `updateAt`, `isDelete`, `status`, `n
 INSERT INTO `goods_info` (`id`, `createAt`, `updateAt`, `isDelete`, `status`, `name`, `desc`, `oldPrice`, `newPrice`, `imgUrl`, `inventoryCount`, `saleCount`, `favorCount`, `address`, `categoryId`) VALUES (190, '2023-11-17 14:18:39', '2023-11-17 22:14:14', 0, 0, '测试', 'a\'s\'daasda', 2, 2, 'http://localhost:3000/api/v1/static/2023-11-17/1700201913673.png', 2, 2, 2, '北京', 19);
 
 
-SET foreign_key_checks = 1; -- 恢复外键检查

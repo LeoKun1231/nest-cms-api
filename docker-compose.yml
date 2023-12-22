@@ -36,7 +36,7 @@ services:
       - 3306:3306
     volumes:
       # 数据挂载 - Data mounting
-      - /opt/software/mysql/data:/var/lib/mysql
+      - ./mysql/data:/var/lib/mysql
     command:
       # 将mysql8.0默认密码策略 修改为 原先 策略 (mysql8.0对其默认策略做了更改 会导致密码无法匹配)
       # Modify the Mysql 8.0 default password strategy to the original strategy (MySQL8.0 to change its default strategy will cause the password to be unable to match)
@@ -56,7 +56,7 @@ services:
       # 端口映射
       - 6379:6379
     volumes:
-      - /opt/software/redis/data:/data:rw
-      - /opt/software/redis/data/redis.conf:/usr/local/etc/redis/redis.conf
-      - /opt/software/redis/data/logs:/logs
-    command: "redis-server /usr/local/etc/redis/redis.conf --requirepass 123456  --appendonly yes"
+      - ./redis/data:/data:rw
+      - ./redis.conf:/usr/local/etc/redis/redis.conf
+      - ./redis/data/logs:/logs
+    command: "redis-server ./redis.conf --requirepass 123456  --appendonly yes"

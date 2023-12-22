@@ -9,6 +9,8 @@ temp/
 dist/
 logs/
 files/
+redis/
+mysql/
 
 ormlogs.log
 

@@ -19,7 +19,9 @@
 		"test:e2e": "jest --config ./test/jest-e2e.json",
 		"prepare": "husky install",
 		"fix": "eslint . --ext .js,.ts,--fix --ignore-path .gitignore",
-		"commit":"git add . && pnpm cz"
+		"commit": "git add . && pnpm cz",
+		"reset": "prisma migrate reset",
+		"seed": "prisma db push && ts-node ./src/seed.ts"
 	},
 	"dependencies": {
 		"@nestjs/common": "^10.0.0",
