@@ -139,6 +139,7 @@ export class DepartmentService {
 	async findOne(id: number) {
 		this.logger.log(`${this.findOne.name} was called`);
 		try {
+			if (!id) throw new BadRequestException("部门不存在");
 			const department = await this.prismaService.department.findUnique({
 				where: {
 					id,

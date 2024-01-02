@@ -196,8 +196,8 @@ export class UsersService {
 			//启用用户之前 先判断角色或者部门是否被禁用
 			if (user.enable == true) {
 				const [role, department] = await Promise.all([
-					this.rolseService.findOne(findUser.role.id),
-					this.departmentService.findOne(findUser.department.id),
+					this.rolseService.findOne(findUser.role?.id),
+					this.departmentService.findOne(findUser.department?.id),
 				]);
 				//判断角色或者部门是否被禁用
 				if (role.enable == 0) {
