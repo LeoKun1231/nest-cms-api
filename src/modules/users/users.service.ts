@@ -258,7 +258,7 @@ export class UsersService {
 				ExportUserDto,
 				{
 					...user,
-					role: user.userRole[0].role,
+					role: user.userRole[0]?.role,
 				},
 				{
 					excludeExtraneousValues: true,

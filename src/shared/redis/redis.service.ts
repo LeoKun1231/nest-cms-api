@@ -7,7 +7,7 @@
  * @Description:
  */
 
-import { Injectable, OnModuleInit } from "@nestjs/common";
+import { Injectable, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import Redis from "ioredis";
 import { RecordTime } from "../decorators/record-time.decorator";
@@ -15,7 +15,10 @@ import { EnvEnum } from "../enums/env.enum";
 import { AppLoggerSevice } from "../logger/logger.service";
 
 @Injectable()
-export class RedisService extends Redis implements OnModuleInit {
+export class RedisService
+	extends Redis
+	implements OnModuleInit, OnModuleDestroy
+{
 	constructor(
 		private readonly configService: ConfigService,
 		private readonly logger: AppLoggerSevice,
@@ -24,9 +27,9 @@ export class RedisService extends Redis implements OnModuleInit {
 			port: configService.get(EnvEnum.REDIS_PORT),
 			host: configService.get(EnvEnum.REDIS_HOST),
 			password: configService.get(EnvEnum.REDIS_PASSWORD),
+			lazyConnect: true,
 		});
-		//删除所有key
-		this.flushall();
+
 		this.logger.setContext(RedisService.name);
 	}
 
@@ -36,9 +39,7 @@ export class RedisService extends Redis implements OnModuleInit {
 	}
 
 	@RecordTime()
-	async _setex(key: string, seconds: number, value: any) {
-		return await this.setex(key, seconds, JSON.stringify(value));
-	}
+	async _setex(key: string, seconds: number, value: any) {}
 
 	@RecordTime()
 	async _set(key: string, value: any) {
@@ -64,7 +65,14 @@ export class RedisService extends Redis implements OnModuleInit {
 	}
 
 	async onModuleInit() {
+		await this.connect();
+		//删除所有key
+		this.flushall();
 		this.logger.log("redis connect success ✅");
-		await this.ping();
+	}
+
+	onModuleDestroy() {
+		this.disconnect(false);
+		this.logger.log("redis disconnect success ✅");
 	}
 }

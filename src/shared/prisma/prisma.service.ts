@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit } from "@nestjs/common";
+import { Injectable, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Prisma, PrismaClient } from "@prisma/client";
 import { EnvEnum } from "../enums/env.enum";
@@ -9,7 +9,7 @@ type EventType = "query" | "info" | "warn" | "error";
 @Injectable()
 export class PrismaService
 	extends PrismaClient<Prisma.PrismaClientOptions, EventType>
-	implements OnModuleInit
+	implements OnModuleInit, OnModuleDestroy
 {
 	constructor(
 		private readonly configService: ConfigService,
@@ -29,14 +29,14 @@ export class PrismaService
 	}
 
 	async onModuleInit() {
+		await this.$connect();
 		this.logger.log(`prisma connect success ✅`);
 		this.log();
-		await this.$connect();
 	}
 
-	async $disconnect() {
-		this.logger.log(`prisma disconnect success ✅`);
+	async onModuleDestroy() {
 		await this.$disconnect();
+		this.logger.log(`prisma disconnect success ✅`);
 	}
 
 	private log() {

@@ -1,22 +1,17 @@
-import { Logger } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
 import { RedisKeyEnum } from "../enums";
-import { AppLoggerSevice } from "../logger";
+import { getGlobalApp } from "../global";
 import { RedisService } from "../redis";
 import { filterEmpty } from "../utils";
 
 //我目前没有可以优化的想法，你可以自己实现
-
-const redisService = new RedisService(
-	new ConfigService(),
-	new AppLoggerSevice(new Logger()),
-);
 
 export const Cacheable = (...keys: RedisKeyEnum[]) => {
 	return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
 		const originalMethod = descriptor.value;
 		descriptor.value = async function (...args: any[]) {
 			let cacheKey = "";
+			const redisService = getGlobalApp().get(RedisService);
+
 			//如果没有参数，那么就是key:propertyKey
 			if (args.length === 0) {
 				//如果只有一个key，那么就是key:propertyKey
@@ -62,6 +57,7 @@ export const CachePut = (key: RedisKeyEnum) => {
 	return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
 		const originalMethod = descriptor.value;
 		descriptor.value = async function (...args: any[]) {
+			const redisService = getGlobalApp().get(RedisService);
 			const result = await originalMethod.apply(this, args);
 			redisService._set(key, result);
 			return result;
@@ -74,6 +70,7 @@ export const CacheEvict = (...keys: RedisKeyEnum[]) => {
 	return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
 		const originalMethod = descriptor.value;
 		descriptor.value = async function (...args: any[]) {
+			const redisService = getGlobalApp().get(RedisService);
 			const result = await originalMethod.apply(this, args);
 			keys.map(async (key) => {
 				await redisService._delKeysContainStr(key);

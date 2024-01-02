@@ -100,7 +100,6 @@ class ExportUserListItem {
 	@Expose()
 	@Type(() => ExportRoleDto)
 	@Transform(({ obj }) => {
-		console.log(obj.userRole);
 		return obj?.userRole?.[0]?.role?.id;
 	})
 	roleId: ExportRoleDto;

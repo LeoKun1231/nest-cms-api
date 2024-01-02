@@ -10,7 +10,7 @@ import { EnvEnum, RedisKeyEnum } from "@/shared/enums";
 import { JwtPayloadInterface } from "@/shared/interfaces";
 import { AppLoggerSevice } from "@/shared/logger";
 import { RedisService } from "@/shared/redis";
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { plainToClass } from "class-transformer";
@@ -49,7 +49,12 @@ export class AuthService {
 		// 2.记录用户登录ip
 		this.userService.recordUserIp(user.id, ip);
 
-		const roleId = user.userRole[0].roleId;
+		const roleId = user.userRole[0]?.roleId;
+
+		if (!roleId) {
+			throw new BadRequestException("用户缺少部门");
+		}
+
 		//3.生成token
 		const { accessToken } = this.getAccessAndRefreshToken(
 			user.id,

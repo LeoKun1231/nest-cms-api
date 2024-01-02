@@ -14,9 +14,9 @@ import helmet from "helmet";
 import * as path from "path";
 import { AppModule } from "./app.module";
 import { EnvEnum } from "./shared/enums";
+import { setGlobalApp } from "./shared/global";
 import { setupLogger } from "./shared/logger";
 import { setupSwagger } from "./swagger";
-
 
 async function bootstrap() {
 	const app = await NestFactory.create<NestExpressApplication>(AppModule, {
@@ -41,5 +41,6 @@ async function bootstrap() {
 	);
 	const configService = app.get(ConfigService);
 	await app.listen(configService.get(EnvEnum.APP_PORT));
+	setGlobalApp(app);
 }
 bootstrap();
