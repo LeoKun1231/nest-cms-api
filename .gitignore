@@ -11,7 +11,10 @@ logs/
 files/
 redis/
 mysql/
+docker/
 
 ormlogs.log
+
+
 
 

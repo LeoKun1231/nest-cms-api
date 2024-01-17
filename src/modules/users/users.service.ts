@@ -21,7 +21,7 @@ import {
 	forwardRef,
 } from "@nestjs/common";
 import { Prisma } from "@prisma/client";
-import { compare, hash } from "bcrypt";
+import { compare, hash } from "bcryptjs";
 import { plainToInstance } from "class-transformer";
 import { DepartmentService } from "../department/department.service";
 import { RolesService } from "../roles/roles.service";

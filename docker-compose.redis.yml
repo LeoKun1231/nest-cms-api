@@ -15,4 +15,4 @@ services:
       - ./docker/redis/data:/data:rw
       - ./redis.conf:/usr/local/etc/redis/redis.conf
       - ./docker/redis/data/logs:/logs
-    command: "redis-server ./redis.conf --requirepass 123456  --appendonly yes"
+    command: "redis-server /usr/local/etc/redis/redis.conf --requirepass 123456  --appendonly yes"
