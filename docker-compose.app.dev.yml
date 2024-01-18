@@ -4,10 +4,9 @@ version: "3.8"
 services:
   app:
     container_name: cms
-    restart: always
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
       target: development #指定构建阶段
       args:
         - APP_ENV
@@ -18,6 +17,3 @@ services:
       - TZ=Asia/Shanghai
     ports:
       - 3000:3000
-    # 开发时挂载代码
-    volumes:
-      - .:/usr/src/app

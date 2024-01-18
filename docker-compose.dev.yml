@@ -6,7 +6,7 @@ services:
     container_name: cms
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
       target: development #指定构建阶段
       args:
         - APP_ENV
@@ -18,8 +18,8 @@ services:
     ports:
       - 3000:3000
     #开发时挂载代码
-    # volumes:
-    #   - .:/usr/src/app
+    volumes:
+      - .:/usr/src/app
     depends_on:
       - mysql
       - redis

@@ -1,0 +1,18 @@
+# Use root/example as user/password credentials
+version: "3.8"
+
+services:
+  app:
+    container_name: cms
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+      target: production #指定构建阶段
+      args:
+        - APP_ENV
+    env_file:
+      - .env.production
+    environment:
+      - TZ=Asia/Shanghai
+    ports:
+      - 3000:3000

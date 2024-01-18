@@ -1,32 +1,55 @@
 # 写在前面
 
-1. 该项目有两个版本一个是prisma版本，一个是typeorm版本，你可以切换分支，master分支是typeorm版本，这边推荐使用prisma版本(我会优先修复prisma版本)，因为typeorm版本的代码可能会比较乱，所以这边推荐使用typeorm版本。
+1. 该项目有两个版本一个是prisma版本，一个是typeorm版本，你可以切换分支，master分支是typeorm版本，这边推荐使用prisma版本(我会优先修复prisma版本)。
 2. 该项目是cms的后端项目，具体前端代码在<a href="https://github.com/LeoKun1231/VUE3-CMS-TS-PINIA">VUE3-CMS-TS-PINIA</a>，<a href="https://cms.hqk10.xyz">在这里可以访问体验网站</a>。具体后端接口可以看<a href="https://apifox.com/apidoc/shared-ede0e4ad-7f38-42fd-a749-3c8df4d8b7ba">apifox</a>里的接口。
-3. 这边推荐使用docker-compose进行环境搭建，如果你是windows,你可能需要使用WSL，如果不使用docker-compose，需要自行安装mysql、redis。
+3. 如果你有安装docker且不介意JWT公钥私钥，你只需执行下面的命令即可运行项目。
+   3.1 生产环境下的启动命令
 
    ```bash
-   # 如果你有安装docker，且不介意JWT公钥私钥，你只需执行下面的命令即可运行项目。
    $ pnpm i
    # 生成prisma类型
    $ pnpx prisma generate;
-   # 没有安装redis和redis
-   $ sudo docker compose up -d
-   # 有安装redis和redis
-   $ sudo docker compose -f docker-compose.app.yml up -d
+   # 本机没有安装mysql和redis的情况下
+   $ sudo docker-compose -f docker-compose.prod.yml up -d
+   # 本机有安装mysql和redis的情况下
+   $ sudo docker compose -f docker-compose.app.prod.yml up -d
    ```
 
-4. 如果不适用docker，你需要先安装mysql和redis,并在env文件中配置好数据库连接信息。
+   3.2 开发环境下的启动命令
+
    ```bash
-   # 如果你没有安装docker，你需要先安装mysql和redis,并在env文件中配置好数据库连接信息。
+   # 安装依赖
+   $ pnpm i
+   # 生成prisma类型
+   $ pnpx prisma generate;
+   # 打包，生成dist，这一步非常重要哦
+   $ pnpm build
+   # 本机没有安装mysql和redis的情况下
+   $ sudo docker-compose -f docker-compose.dev.yml up -d
+   # 本机有安装mysql和redis的情况下
+   $ sudo docker compose -f docker-compose.app.dev.yml up -d
+   ```
+
+4. 如果不适用docker，你需要先安装mysql和redis,并在env文件中配置好数据库、redis连接信息。具体为**REDIS**开头的变量和**DATABASE**开头的变量。
+
+   ```bash
+   # 如果你没有安装docker，你需要先安装mysql和redis,并在env文件中配置好数据库、redis连接信息。
    $ pnpm i
    # 生成prisma类型
    $ pnpx prisma generate;
    # 运行项目
    $ pnpm start:dev
    ```
-5. jwt所需要使用的公钥和私钥，需要自行生成，并且在.env.\*文件中配置，如果不想则直接使用默认的即可。
-6. 具体操作步骤，请看后面的安装步骤。
-7. 如果有什么问题，可以在issue中提出，我会尽快回复。
+
+5. 执行完之后需要执行以下命令插入初始数据
+
+   ```bash
+   $ pnpm seed #将prisma表推送到数据库并把数据插入到数据库中
+   ```
+
+6. jwt所需要使用的公钥和私钥，需要自行生成，并且在.env.\*文件中配置，如果不想则直接使用默认的即可。
+7. 具体操作步骤，请看后面的安装步骤。
+8. 如果有什么问题，可以在issue中提出，我会尽快回复。
 
 ## 技术栈
 
@@ -97,11 +120,9 @@ JWT_PRIVATE_KEY_BASE64=这里填入经过base64编码的私钥
 你可以使用docker运行项目，也可以不使用docker运行项目。
 这边建议使用docker-compose进行运行，如果不使用docker-compose，需要自行安装mysql、redis。
 
-### 1.不使用docker运行
+### 1. 不使用docker运行
 
-为了运行不使用Docker的服务器，我们需要这个前提条件：
-
-- 那就是你需要安装mysql、redis。
+为了运行不使用Docker的服务器，我们需要这个前提条件：那就是你需要安装mysql、redis。
 
 ```bash
 # watch mode 它将使用swc编译器进行编译 非常的快
@@ -111,17 +132,36 @@ $ pnpm start:dev
 $ pnpm start:prod
 ```
 
-### 2.使用docker运行
+### 2. 使用docker运行
 
 直接使用docker-compose进行运行即可(推荐)
 
+生产环境下的启动命令
+
 ```bash
 $ pnpm i
+# 生成prisma类型
 $ pnpx prisma generate;
-$ sudo docker compose up -d #没有安装redis和mysql
-$ sudo docker compose -f docker-compose.app.yml up -d #有安装redis和mysql
-$ sudo docker compose -f docker-compose.mysql.yml up -d #单独安装mysql
-$ sudo docker compose -f docker-compose.redis.yml up -d #单独安装redis
+# 本机没有安装mysql和redis的情况下
+$ sudo docker-compose -f docker-compose.prod.yml up -d
+# 本机有安装mysql和redis的情况下
+$ sudo docker compose -f docker-compose.app.prod.yml up -d
+```
+
+开发环境下的启动命令
+
+```bash
+# 安装依赖
+$ pnpm i
+# 生成prisma类型
+$ pnpx prisma generate;
+# 打包，生成dist，这一步非常重要哦
+$ pnpm build
+# 本机没有安装mysql和redis的情况下
+$ sudo docker-compose -f docker-compose.dev.yml up -d
+# 本机有安装mysql和redis的情况下
+$ sudo docker compose -f docker-compose.app.dev.yml up -d
+
 ```
 
 如果不想使用docker-compose，可以使用下面的命令进行运行(这种方法也需要手动安装redis和Mysql)。

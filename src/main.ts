@@ -41,6 +41,7 @@ async function bootstrap() {
 	);
 	const configService = app.get(ConfigService);
 	await app.listen(configService.get(EnvEnum.APP_PORT));
+
 	setGlobalApp(app);
 }
 bootstrap();
