@@ -2,17 +2,18 @@
 
 1. 该项目有两个版本一个是prisma版本，一个是typeorm版本，你可以切换分支，master分支是typeorm版本，这边推荐使用prisma版本(我会优先修复prisma版本)。
 2. 该项目是cms的后端项目，具体前端代码在<a href="https://github.com/LeoKun1231/VUE3-CMS-TS-PINIA">VUE3-CMS-TS-PINIA</a>，<a href="https://cms.hqk10.xyz">在这里可以访问体验网站</a>。具体后端接口可以看<a href="https://apifox.com/apidoc/shared-ede0e4ad-7f38-42fd-a749-3c8df4d8b7ba">apifox</a>里的接口。
-3. 如果你有安装docker且不介意JWT公钥私钥，你只需执行下面的命令即可运行项目。
+3. 如果你有安装docker且不介意JWT公钥私钥，你只需执行下面的命令即可运行项目。没有docker环境，请看第四步。
+
    3.1 生产环境下的启动命令
 
    ```bash
    $ pnpm i
    # 生成prisma类型
    $ pnpx prisma generate;
-   # 本机没有安装mysql和redis的情况下
-   $ sudo docker-compose -f docker-compose.prod.yml up -d
-   # 本机有安装mysql和redis的情况下
-   $ sudo docker compose -f docker-compose.app.prod.yml up -d
+   # 本机没有安装mysql和redis的情况下(仅第一次运行使用，创建mysql,redis以及app容器)
+   $ sudo docker-compose -f docker-compose.prod.yml up
+   # 本机有安装mysql和redis的情况下(第二次以及往后请执行这个)
+   $ sudo docker compose -f docker-compose.app.prod.yml up
    ```
 
    3.2 开发环境下的启动命令
@@ -24,10 +25,10 @@
    $ pnpx prisma generate;
    # 打包，生成dist，这一步非常重要哦
    $ pnpm build
-   # 本机没有安装mysql和redis的情况下
-   $ sudo docker-compose -f docker-compose.dev.yml up -d
-   # 本机有安装mysql和redis的情况下
-   $ sudo docker compose -f docker-compose.app.dev.yml up -d
+   # 本机没有安装mysql和redis的情况下(仅第一次运行使用，创建mysql,redis以及app容器)
+   $ sudo docker-compose -f docker-compose.dev.yml up
+   # 本机有安装mysql和redis的情况下(第二次以及往后请执行这个)
+   $ sudo docker compose -f docker-compose.app.dev.yml up
    ```
 
 4. 如果不适用docker，你需要先安装mysql和redis,并在env文件中配置好数据库、redis连接信息。具体为**REDIS**开头的变量和**DATABASE**开头的变量。
@@ -142,10 +143,10 @@ $ pnpm start:prod
 $ pnpm i
 # 生成prisma类型
 $ pnpx prisma generate;
-# 本机没有安装mysql和redis的情况下
-$ sudo docker-compose -f docker-compose.prod.yml up -d
-# 本机有安装mysql和redis的情况下
-$ sudo docker compose -f docker-compose.app.prod.yml up -d
+# 本机没有安装mysql和redis的情况下(仅第一次运行使用，创建mysql,redis以及app容器)
+$ sudo docker-compose -f docker-compose.prod.yml up
+# 本机有安装mysql和redis的情况下(第二次以及往后请执行这个)
+$ sudo docker compose -f docker-compose.app.prod.yml up
 ```
 
 开发环境下的启动命令
@@ -157,10 +158,10 @@ $ pnpm i
 $ pnpx prisma generate;
 # 打包，生成dist，这一步非常重要哦
 $ pnpm build
-# 本机没有安装mysql和redis的情况下
-$ sudo docker-compose -f docker-compose.dev.yml up -d
-# 本机有安装mysql和redis的情况下
-$ sudo docker compose -f docker-compose.app.dev.yml up -d
+# 本机没有安装mysql和redis的情况下(仅第一次运行使用，创建mysql,redis以及app容器)
+$ sudo docker-compose -f docker-compose.dev.yml up
+# 本机有安装mysql和redis的情况下(第二次以及往后请执行这个)
+$ sudo docker compose -f docker-compose.app.dev.yml up
 
 ```
 

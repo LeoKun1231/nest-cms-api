@@ -44,7 +44,7 @@ services:
 
   redis:
     restart: always
-    image: redis
+    image: redis:7.2.4
     hostname: redis
     container_name: redis
     privileged: true
