@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>&#x5199;&#x5728;&#x524d;&#x9762;</title>
+            <style>
+/* From extension vscode.github */
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
+
+.vscode-dark img[src$=\#gh-light-mode-only],
+.vscode-light img[src$=\#gh-dark-mode-only] {
+	display: none;
+}
+
+</style>
+            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+
+        <style>
+.task-list-item {
+    list-style-type: none;
+}
+
+.task-list-item-checkbox {
+    margin-left: -20px;
+    vertical-align: middle;
+    pointer-events: none;
+}
+</style>
+<style>
+:root {
+  --color-note: #0969da;
+  --color-tip: #1a7f37;
+  --color-warning: #9a6700;
+  --color-severe: #bc4c00;
+  --color-caution: #d1242f;
+  --color-important: #8250df;
+}
+
+</style>
+<style>
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-note: #2f81f7;
+    --color-tip: #3fb950;
+    --color-warning: #d29922;
+    --color-severe: #db6d28;
+    --color-caution: #f85149;
+    --color-important: #a371f7;
+  }
+}
+
+</style>
+<style>
+.markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 16px;
+  color: inherit;
+  border-left: .25em solid #888;
+}
+
+.markdown-alert>:first-child {
+  margin-top: 0
+}
+
+.markdown-alert>:last-child {
+  margin-bottom: 0
+}
+
+.markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1
+}
+
+.markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+.markdown-alert.markdown-alert-note {
+  border-left-color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: var(--color-note);
+}
+
+.markdown-alert.markdown-alert-important {
+  border-left-color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: var(--color-important);
+}
+
+.markdown-alert.markdown-alert-warning {
+  border-left-color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: var(--color-warning);
+}
+
+.markdown-alert.markdown-alert-tip {
+  border-left-color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: var(--color-tip);
+}
+
+.markdown-alert.markdown-alert-caution {
+  border-left-color: var(--color-caution);
+}
+
+.markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: var(--color-caution);
+}
+
+</style>
+        
+        </head>
+        <body class="vscode-body vscode-light">
+            <h1 id="写在前面">写在前面</h1>
+<ol>
+<li>该项目有两个版本一个是prisma版本，一个是typeorm版本，你可以切换分支，master分支是typeorm版本，这边推荐使用prisma版本(我会优先修复prisma版本)。</li>
+<li>该项目是cms的后端项目，具体前端代码在<a href="https://github.com/LeoKun1231/VUE3-CMS-TS-PINIA">VUE3-CMS-TS-PINIA</a>，<a href="https://cms.hqk10.xyz">在这里可以访问体验网站</a>。具体后端接口可以看<a href="https://apifox.com/apidoc/shared-ede0e4ad-7f38-42fd-a749-3c8df4d8b7ba">apifox</a>里的接口。</li>
+<li>这边推荐使用docker-compose进行环境搭建，如果你是window,你需要使用WSL，如果不使用docker-compose，需要自行安装mysql、redis。</li>
+<li>jwt所需要使用的公钥和私钥，需要自行生成，并且在.env.*文件中配置，如果不想则直接使用默认的即可。</li>
+<li>具体操作步骤，请看后面的安装步骤。</li>
+<li>如果有什么问题，可以在issue中提出，我会尽快回复。</li>
+</ol>
+<h2 id="技术栈">技术栈</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+<th>技术栈</th>
+<th>描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>后端框架</td>
+<td>nest</td>
+<td>完成</td>
+</tr>
+<tr>
+<td>2</td>
+<td>数据库</td>
+<td>mysql</td>
+<td>完成</td>
+</tr>
+<tr>
+<td>3</td>
+<td>orm</td>
+<td>prisma</td>
+<td>完成</td>
+</tr>
+<tr>
+<td>4</td>
+<td>redis</td>
+<td>ioredis</td>
+<td>完成</td>
+</tr>
+<tr>
+<td>5</td>
+<td>docker</td>
+<td>docker</td>
+<td>完成</td>
+</tr>
+<tr>
+<td>6</td>
+<td>日志</td>
+<td>winston</td>
+<td>完成</td>
+</tr>
+<tr>
+<td>7</td>
+<td>编译器</td>
+<td>swc</td>
+<td>完成</td>
+</tr>
+<tr>
+<td>8</td>
+<td>鉴权</td>
+<td>jwt</td>
+<td>完成</td>
+</tr>
+<tr>
+<td>9</td>
+<td>rbac</td>
+<td>rbac</td>
+<td>完成</td>
+</tr>
+<tr>
+<td>10</td>
+<td>二维码登录</td>
+<td>qrcode</td>
+<td>完成</td>
+</tr>
+<tr>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+</tbody>
+</table>
+<h2 id="生成jwt的公钥和私钥">生成jwt的公钥和私钥</h2>
+<h3 id="1通过docker生成脚本">1.通过docker生成脚本</h3>
+<pre><code class="language-bash">./scripts/generate-jwt-keys
+</code></pre>
+<p>将输出类似于此的内容。 您只需要将其添加到.env文件中。</p>
+<pre><code>为了设置JWT密钥，请将以下值添加到.env文件中：
+JWT_PUBLIC_KEY_BASE64=&quot;(long base64 content)&quot;
+JWT_PRIVATE_KEY_BASE64=&quot;(long base64 content)&quot;
+</code></pre>
+<h3 id="2不通过docker生成脚本">2.不通过docker生成脚本</h3>
+<pre><code class="language-bash">$ <span class="hljs-built_in">cd</span> <span class="hljs-built_in">local</span>
+$ ssh-keygen -t rsa -b 2048 -m PEM -f jwtRS256.key
+<span class="hljs-comment"># Don&#x27;t add passphrase</span>
+$ openssl rsa -<span class="hljs-keyword">in</span> jwtRS256.key -pubout -outform PEM -out jwtRS256.key.pub
+</code></pre>
+<p>你应该这些密钥文件保存在<code>./local</code>目录中，并使用base64编码密钥：</p>
+<pre><code class="language-bash"><span class="hljs-built_in">base64</span> -i <span class="hljs-built_in">local</span>/jwtRS256.key
+
+<span class="hljs-built_in">base64</span> -i <span class="hljs-built_in">local</span>/jwtRS256.key.pub
+</code></pre>
+<p>必须在.env中输入密钥文件的base64：</p>
+<pre><code class="language-bash">JWT_PUBLIC_KEY_BASE64=这里填入经过<span class="hljs-built_in">base64</span>编码的公钥
+JWT_PRIVATE_KEY_BASE64=这里填入经过<span class="hljs-built_in">base64</span>编码的私钥
+</code></pre>
+<h2 id="运行项目">运行项目</h2>
+<p>你可以使用docker运行项目，也可以不使用docker运行项目。
+这边建议使用docker-compose进行运行，如果不使用docker-compose，需要自行安装mysql、redis。
+<strong>另外，对于windows用户，如果你要使用docker,你需要使用WSL，进入到linux环境进行创建项目，否则可能遇到一些问题。</strong></p>
+<h3 id="对于windows用户">对于windows用户</h3>
+<ol>
+<li>
+<p>你需要下载mysql、redis,并且在.env、.env.development、.env.production中配置好数据库和redis的连接信息。</p>
+<pre><code class="language-bash">DATABASE_URL=<span class="hljs-string">&quot;mysql://数据库地址:数据库密码@mysql:3306/demo?timezone=Asia/Shanghai&quot;</span>
+REDIS_PORT=6379
+REDIS_HOST=redis地址
+REDIS_PASSWORD=redis密码
+</code></pre>
+</li>
+<li>
+<p>配置数据库、redis之后，你需要在项目根目录下执行下面的命令，运行项目。</p>
+<pre><code class="language-bash"><span class="hljs-comment"># 安装依赖</span>
+pnpm i
+<span class="hljs-comment"># 生成prisma类型</span>
+pnpx prisma generate
+<span class="hljs-comment">#推送数据到数据库</span>
+pnpm seed
+<span class="hljs-comment">#运行项目</span>
+pnpm start:dev
+</code></pre>
+</li>
+</ol>
+<h3 id="对于maclinux用户">对于Mac、Linux用户</h3>
+<ol>
+<li>
+<p>生产环境下的启动命令</p>
+<pre><code class="language-bash">$ pnpm i
+<span class="hljs-comment"># 生成prisma类型</span>
+$ pnpx prisma generate;
+<span class="hljs-comment"># 本机没有安装mysql和redis的情况下(仅第一次运行使用，创建mysql,redis以及app容器)</span>
+$ sudo docker-compose -f docker-compose.prod.yml up
+<span class="hljs-comment"># 推送数据到数据库(仅第一次运行使用)</span>
+$ pnpm seed
+<span class="hljs-comment"># 本机有安装mysql和redis的情况下(第二次以及往后请执行这个)</span>
+$ sudo docker compose -f docker-compose.app.prod.yml up
+</code></pre>
+</li>
+<li>
+<p>开发环境下的启动命令</p>
+<pre><code class="language-bash"><span class="hljs-comment"># 安装依赖</span>
+$ pnpm i
+<span class="hljs-comment"># 生成prisma类型</span>
+$ pnpx prisma generate;
+<span class="hljs-comment"># 打包，生成dist，这一步非常重要哦</span>
+$ pnpm build
+<span class="hljs-comment"># 本机没有安装mysql和redis的情况下(仅第一次运行使用，创建mysql,redis以及app容器)</span>
+$ sudo docker-compose -f docker-compose.dev.yml up
+<span class="hljs-comment"># 推送数据到数据库(仅第一次运行使用)</span>
+$ pnpm seed
+<span class="hljs-comment"># 本机有安装mysql和redis的情况下(第二次以及往后请执行这个)</span>
+$ sudo docker compose -f docker-compose.app.dev.yml up
+
+</code></pre>
+</li>
+<li>
+<p>如果不想使用docker-compose，可以使用下面的命令进行运行(这种方法也需要手动安装redis和Mysql)。</p>
+<pre><code class="language-bash"><span class="hljs-comment"># build image</span>
+$ docker build -t my-app .
+$ docker run -p 3000:3000 --volume <span class="hljs-string">&#x27;pwd&#x27;</span>:/usr/src/app  --env-file .env.development my-app
+</code></pre>
+</li>
+</ol>
+<h2 id="prisma操作">Prisma操作</h2>
+<p>具体见<a href="https://www.prisma.io/docs/concepts/components/prisma-client/crud">prisma官网</a></p>
+
+            <script async src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+            
+        </body>
+        </html>
