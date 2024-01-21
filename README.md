@@ -69,7 +69,7 @@ JWT_PRIVATE_KEY_BASE64=这里填入经过base64编码的私钥
 这边建议使用docker-compose进行运行，如果不使用docker-compose，需要自行安装mysql、redis。
 **另外，对于windows用户，如果你要使用docker,你需要使用WSL，进入到linux环境进行创建项目，否则可能遇到一些问题。**
 
-### 对于windows用户
+### 对于非Docker用户
 
 1.  你需要下载mysql、redis,并且在.env、.env.development、.env.production中配置好数据库和redis的连接信息。
 
@@ -93,7 +93,7 @@ JWT_PRIVATE_KEY_BASE64=这里填入经过base64编码的私钥
     pnpm start:dev
     ```
 
-### 对于Mac、Linux用户
+### 对于Docker用户
 
 1.  生产环境下的启动命令
 
