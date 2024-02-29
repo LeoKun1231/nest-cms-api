@@ -15,10 +15,10 @@ import { ConfigService } from "@nestjs/config";
 import { JwtService } from "@nestjs/jwt";
 import { plainToClass } from "class-transformer";
 import type { Request } from "express";
-import requestIp from "request-ip";
 import { UsersService } from "../users/users.service";
 import { ExportLoginDto } from "./dtos/export-login.dto";
 import { LoginAccountDto } from "./dtos/login-account.dto";
+import { getClientIp } from "@/shared/utils";
 
 @Injectable()
 export class AuthService {
@@ -45,7 +45,7 @@ export class AuthService {
 			loginAccountDto.name,
 			loginAccountDto.password,
 		);
-		const ip = requestIp.getClientIp(req);
+		const ip = getClientIp(req);
 		// 2.记录用户登录ip
 		this.userService.recordUserIp(user.id, ip);
 

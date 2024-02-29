@@ -14,9 +14,9 @@ import {
 	HttpStatus,
 } from "@nestjs/common";
 import { Request, Response } from "express";
-import * as requestIp from "request-ip";
 import { AppLoggerSevice } from "../logger";
 import { formatTime } from "../utils";
+import { getClientIp } from "../utils";
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -59,7 +59,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 		this.logger.error(
 			{
 				...responseBody,
-				ip: requestIp.getClientIp(request),
+				ip: getClientIp(request),
 			},
 			null,
 			"AllExceptions",

@@ -98,9 +98,6 @@ dependencies:
   reflect-metadata:
     specifier: ^0.1.13
     version: 0.1.13
-  request-ip:
-    specifier: ^3.3.0
-    version: 3.3.0
   rxjs:
     specifier: ^7.8.1
     version: 7.8.1
@@ -160,9 +157,6 @@ devDependencies:
   '@types/qrcode':
     specifier: ^1.5.5
     version: 1.5.5
-  '@types/request-ip':
-    specifier: ^0.0.41
-    version: 0.0.41
   '@types/supertest':
     specifier: ^2.0.12
     version: 2.0.15
@@ -2061,12 +2055,6 @@ packages:
 
   /@types/range-parser@1.2.6:
     resolution: {integrity: sha512-+0autS93xyXizIYiyL02FCY8N+KkKPhILhcUSA276HxzreZ16kl+cmwvV2qAM/PuCCwPXzOXOWhiPcw20uSFcA==}
-    dev: true
-
-  /@types/request-ip@0.0.41:
-    resolution: {integrity: sha512-Qzz0PM2nSZej4lsLzzNfADIORZhhxO7PED0fXpg4FjXiHuJ/lMyUg+YFF5q8x9HPZH3Gl6N+NOM8QZjItNgGKg==}
-    dependencies:
-      '@types/node': 16.18.59
     dev: true
 
   /@types/responselike@1.0.2:
@@ -6907,10 +6895,6 @@ packages:
     resolution: {integrity: sha512-yPpxc4ZR2makceA9hy/jHNqc7QVkd4Je/N0WRHm6bs3PtivPuPynxE5ejU/mp5EhnCv8+uZL7vhz8rkluSlx+Q==}
     engines: {node: '>=8'}
     dev: true
-
-  /request-ip@3.3.0:
-    resolution: {integrity: sha512-cA6Xh6e0fDBBBwH77SLJaJPBmD3nWVAcF9/XAcsrIHdjhFzFiB5aNQFytdjCGPezU3ROwrR11IddKAM08vohxA==}
-    dev: false
 
   /require-directory@2.1.1:
     resolution: {integrity: sha512-fGxEI7+wsG9xrvdjsrlmL22OMTTiHRwAMroiEeMgq8gzoLC/PQr7RsRDSTLUg/bZAZtF+TVIkHc6/4RIKrui+Q==}
